@@ -6,9 +6,25 @@ android {
         applicationId 'com.hajina.app'
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName '1.0'
+        versionCode 2
+        versionName '2.0'
     }
-    buildTypes { release { minifyEnabled false } }
+    signingConfigs {
+        hajina {
+            storeFile file('hajina.keystore')
+            storePassword 'hajina2026'
+            keyAlias 'hajina'
+            keyPassword 'hajina2026'
+        }
+    }
+    buildTypes {
+        debug { signingConfig signingConfigs.hajina }
+        release { minifyEnabled false; signingConfig signingConfigs.hajina }
+    }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
+dependencies {
+    implementation 'androidx.credentials:credentials:1.3.0'
+    implementation 'androidx.credentials:credentials-play-services-auth:1.3.0'
+    implementation 'com.google.android.libraries.identity.googleid:googleid:1.1.1'
 }
