@@ -308,6 +308,31 @@ async function setMuteFlag(m) {
   await db.runTransaction(async tx => { const s = await tx.get(ref); const st = (s.data().seats || []).map(x => x && x.uid === ME.uid ? Object.assign({}, x, { muted: m }) : x); tx.update(ref, { seats: st }); }).catch(() => {});
 }
 
+
+/* ---- Agora AccessToken2 (007) ---- */
+function bb() { const a = []; const o = {
+  u16(v) { a.push(v & 255, (v >> 8) & 255); return o; },
+  u32(v) { a.push(v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255); return o; },
+  bytes(b) { o.u16(b.length); for (const x of b) a.push(x); return o; },
+  str(s) { return o.bytes(new TextEncoder().encode(s)); },
+  raw(b) { for (const x of b) a.push(x); return o; },
+  pack() { return new Uint8Array(a); } }; return o; }
+async function hmac(key, msg) { const k = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']); return new Uint8Array(await crypto.subtle.sign('HMAC', k, msg)); }
+async function deflate(u8) { const cs = new CompressionStream('deflate'); const w = cs.writable.getWriter(); w.write(u8); w.close(); return new Uint8Array(await new Response(cs.readable).arrayBuffer()); }
+async function agoraToken(appId, cert, channel, account, expire, _ts, _salt) {
+  const ts = _ts || Math.floor(Date.now() / 1000), salt = _salt || (1 + Math.floor(Math.random() * 99999998));
+  const privs = [[1, expire], [2, expire], [3, expire], [4, expire]];
+  const svc = bb().u16(1).u16(privs.length); privs.forEach(([k, v]) => svc.u16(k).u32(v)); svc.str(channel).str(account);
+  const info = bb().str(appId).u32(ts).u32(expire).u32(salt).u16(1).raw(svc.pack()).pack();
+  let signing = await hmac(bb().u32(ts).pack(), new TextEncoder().encode(cert));
+  signing = await hmac(bb().u32(salt).pack(), signing);
+  const sig = await hmac(signing, info);
+  const content = bb().bytes(sig).raw(info).pack();
+  const z = await deflate(content);
+  let bin = ''; z.forEach(x => bin += String.fromCharCode(x));
+  return '007' + btoa(bin);
+}
+
 /* ---- voice (Agora) ---- */
 async function joinVoice(channel) {
   if (!agoraOK()) return;
@@ -323,7 +348,8 @@ async function joinVoice(channel) {
       if (R.localTrack && !R.muted && R.localTrack.getVolumeLevel() > 0.06) sp.add(ME.uid);
       R.speaking = sp; document.querySelectorAll('#seats .seat[data-uid]').forEach(el => el.classList.toggle('speak', sp.has(el.dataset.uid)));
     });
-    await c.join(C.agoraAppId, channel, null, ME.uid);
+    const tok = C.agoraCert ? await agoraToken(C.agoraAppId, C.agoraCert, channel, ME.uid, 24 * 3600) : null;
+    await c.join(C.agoraAppId, channel, tok, ME.uid);
     if (R.mySeat !== -1) startPublish();
   } catch (e) { console.error(e); toast('ما كدر يتصل بالصوت'); }
 }

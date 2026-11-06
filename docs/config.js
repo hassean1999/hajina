@@ -8,8 +8,10 @@ window.HAJINA_CONFIG = {
     messagingSenderId: "615591936540",
     appId: "1:615591936540:web:9b46d54cecf8da705255d9"
   },
-  // App ID من console.agora.io (Testing mode)
-  agoraAppId: "AGORA_APP_ID",
+  // App ID من console.agora.io 
+  agoraAppId: "9792e1399a65415b9fc29153715a6700",
+  // Primary Certificate من Agora
+  agoraCert: "22dfc13ea2c34fb5aea90c2ec329f84d",
   welcomeDiamonds: 500,
   dailyDiamonds: 50
 };
