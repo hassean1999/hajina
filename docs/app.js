@@ -108,8 +108,11 @@ auth.onAuthStateChanged(u => {
     const d = s.data();
     if (!d || !d.name) { if (curScr !== 'setup') openSetup(u); return; }
     const prevLvl = ME && ME.name ? lvlOf(ME.xp) : null;
+    const prevDia = ME && ME.name ? (ME.diamonds || 0) : null;
     ME = Object.assign({ uid: u.uid }, d);
     renderMe();
+    if (prevDia !== null && (ME.diamonds || 0) - prevDia > C.dailyDiamonds) { chime(true); toast('💎 وصلتك ' + ((ME.diamonds || 0) - prevDia).toLocaleString('en') + ' ماسة!'); }
+    $('meAdmin').hidden = !ME.admin;
     if (prevLvl && lvlOf(ME.xp) > prevLvl) { const nl = lvlOf(ME.xp); setTimeout(() => levelUpFx(nl), 3600); }
     if (!booted) { booted = true; show('home'); startHome(); startChats(); }
   }, e => toast(errMsg(e)));
@@ -167,8 +170,49 @@ async function doCheckin() {
   await db.collection('users').doc(ME.uid).update({ diamonds: FV.increment(C.dailyDiamonds), lastCheckin: today() }).catch(e => toast(errMsg(e)));
   chime(); toast('🎁 +' + C.dailyDiamonds + ' ماسة');
 }
+function copyTxt(t, el) {
+  const ok = () => toast('انتسخ ✅');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, () => toast(t));
+  else toast(t);
+}
 function openRecharge() {
-  modal('<h3>◆ الماسات</h3><div style="text-align:center;font-size:30px;font-weight:900;color:var(--cyan)">◆ ' + fmtK(ME.diamonds || 0) + '</div><p style="text-align:center;color:var(--fg2);font-size:13.5px;line-height:1.8">الماسات تستعملها لإرسال الهدايا بالرومات.<br>تاخذ <b>' + C.dailyDiamonds + '</b> ماسة ببلاش كل يوم من الهدية اليومية.<br>الشحن بزين كاش وآسياسيل والماستر كارد راح ينضاف قريباً.</p><button class="btn btn-p" onclick="doCheckin();closeTopModal()">🎁 خذ هدية اليوم</button>');
+  const R2 = C.recharge || {}, pk = R2.packages || [];
+  const wa = (R2.whatsapp || '').replace(/\D/g, '');
+  const msg = encodeURIComponent('هلا، أريد أشحن ماسات بحجينه\nالـ ID مالتي: ' + (ME.hid || '') + '\nالاسم: ' + ME.name);
+  const row = (ic, label, val) => val ? '<div class="li" style="cursor:default"><span class="ic">' + ic + '</span><div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--fg2)">' + label + '</div><div style="direction:ltr;text-align:right;font-size:15px">' + esc(val) + '</div></div><button class="chip" onclick="copyTxt(\'' + esc(val).replace(/'/g, '') + '\')">نسخ</button></div>' : '';
+  modal('<h3>◆ شحن الماسات</h3>' +
+    '<div style="text-align:center;font-size:28px;font-weight:900;color:var(--cyan)">◆ ' + fmtK(ME.diamonds || 0) + '</div>' +
+    '<div class="gifts" style="grid-template-columns:repeat(2,1fr)">' + pk.map(x => '<div class="gi" style="padding:12px 6px"><span style="font-size:22px">💎</span><span class="p" style="font-size:16px">◆ ' + x.d.toLocaleString('en') + '</span><span class="n" style="font-size:13px">' + esc(x.p) + '</span></div>').join('') + '</div>' +
+    '<div style="font-weight:900;margin-top:4px">طريقة الشحن</div>' +
+    '<div style="font-size:13px;color:var(--fg2);line-height:1.9">١. حوّل مبلغ الباقة على وحدة من الطرق جوه<br>٢. دز صورة التحويل والـ ID مالتك على الواتساب<br>٣. توصلك الماسات خلال دقايق</div>' +
+    '<div class="list" style="margin:0">' + row('🆔', 'الـ ID مالتك', ME.hid || '') + row('📱', 'رصيد ' + (R2.balanceNetwork || '') + ' على الرقم', R2.balanceNumber) + row('💳', R2.cardLabel || 'ماستر كارد', R2.cardNumber) + '</div>' +
+    (wa ? '<a class="btn btn-p" style="text-decoration:none;background:#25D366" href="https://wa.me/' + wa + '?text=' + msg + '" target="_blank">💬 راسلنا على الواتساب</a>' : '') +
+    '<button class="btn btn-s" onclick="doCheckin();closeTopModal()">🎁 هدية اليوم المجانية (+' + C.dailyDiamonds + ')</button>');
+}
+/* ---- لوحة الإدارة ---- */
+function openAdmin() {
+  if (!ME.admin) return;
+  const m = modal('<h3>🛠️ لوحة الإدارة — شحن ماسات</h3><label class="l">ID المستخدم</label><div class="row2"><input id="adId" inputmode="numeric" placeholder="مثلاً 40781904" style="direction:ltr"><button class="btn btn-s" id="adFind" style="width:110px">بحث</button></div><div id="adUser"></div>');
+  m.querySelector('#adFind').onclick = async () => {
+    const id = m.querySelector('#adId').value.replace(/\D/g, ''); if (!id) return;
+    const box = m.querySelector('#adUser'); box.innerHTML = '...';
+    try {
+      const q = await db.collection('users').where('hid', '==', id).limit(1).get();
+      if (q.empty) { box.innerHTML = '<div class="empty">ماكو مستخدم بهذا الـ ID</div>'; return; }
+      const d = q.docs[0], u = Object.assign({ uid: d.id }, d.data());
+      box.innerHTML = '<div class="ci" style="padding:12px 0">' + avHtml(u, 46) + '<div class="ci-m"><div class="ci-n">' + esc(u.name) + '</div><div class="ci-l">رصيده: ◆ ' + (u.diamonds || 0).toLocaleString('en') + '</div></div></div><label class="l">عدد الماسات</label><input id="adAmt" inputmode="numeric" style="direction:ltr"><div class="opts" id="adQ">' + (C.recharge.packages || []).map(x => '<button data-v="' + x.d + '">' + x.d.toLocaleString('en') + '</button>').join('') + '</div><button class="btn btn-p" id="adGo">💎 إضافة الماسات</button>';
+      box.querySelector('#adQ').onclick = e => { const v = e.target.dataset.v; if (v) box.querySelector('#adAmt').value = v; };
+      box.querySelector('#adGo').onclick = async () => {
+        const n = parseInt(box.querySelector('#adAmt').value.replace(/\D/g, ''), 10); if (!n || n <= 0) return toast('اكتب العدد');
+        try {
+          const b = db.batch();
+          b.update(db.collection('users').doc(u.uid), { diamonds: FV.increment(n) });
+          b.set(db.collection('recharges').doc(), { to: u.uid, toHid: u.hid, toName: u.name, amount: n, by: ME.uid, byName: ME.name, ts: FV.serverTimestamp() });
+          await b.commit(); m.close(); toast('✅ انضافت ' + n.toLocaleString('en') + ' ماسة لـ ' + u.name);
+        } catch (e) { toast(errMsg(e)); }
+      };
+    } catch (e) { box.innerHTML = '<div class="empty">' + esc(errMsg(e)) + '</div>'; }
+  };
 }
 async function logout() { await leaveRoom(true); auth.signOut(); }
 
