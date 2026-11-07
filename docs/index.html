@@ -8,7 +8,7 @@
 <link rel="icon" href="logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap">
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
 
@@ -56,6 +56,7 @@
       <div class="chip" id="homeSil" onclick="doCheckin()" style="padding:6px 10px"><img class="sc" src="silver.svg" alt=""><span>0</span></div>
       <div class="chip" id="homeDia" onclick="openRecharge()"><span class="d">◆</span><span>0</span></div>
       <button class="ibtn" onclick="openSearch()" title="بحث">🔍</button>
+      <button class="ibtn" onclick="openNotifs()" title="الإشعارات">🔔<span class="badge" id="ntBadge" hidden></span></button>
       <button class="ibtn" onclick="doCheckin()" title="عجلة الحظ">🎡</button>
     </div>
   </div>
@@ -138,11 +139,17 @@
 
 <nav class="nav" id="nav" hidden>
   <button data-t="home" class="on"><i>🏠</i>الرومات</button>
-  <button data-t="chats"><i>💬</i>الرسائل<span class="badge" id="dmBadge" hidden></span></button>
+  <button data-t="moments"><i>📸</i>اللحظات</button>
   <button class="plus" onclick="openCreate()">+</button>
-  <button data-t="rank"><i>🏆</i>الترتيب</button>
+  <button data-t="chats"><i>💬</i>الرسائل<span class="badge" id="dmBadge" hidden></span></button>
   <button data-t="me"><i>👤</i>أنا</button>
 </nav>
+
+<!-- moments -->
+<section class="scr" id="moments" hidden>
+  <div class="top"><div class="brand">📸 اللحظات</div><button class="btn btn-p" style="width:auto;padding:9px 18px;font-size:14px" onclick="openCompose()">+ نشر</button></div>
+  <div class="scroll" id="postsList"></div>
+</section>
 
 <!-- ranking -->
 <section class="scr" id="rank" hidden>
@@ -161,16 +168,17 @@ setTimeout(function(){var l=document.getElementById('loading');if(l&&!l.hidden){
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng@4.20.2/AgoraRTC_N-production.js"></script>
-<script src="gart.js?v=20"></script>
-<script src="config.js?v=20"></script>
-<script src="app.js?v=20"></script>
-<script src="game.js?v=20"></script>
-<script src="games2.js?v=20"></script>
-<script src="runner.js?v=20"></script>
-<script src="ludo.js?v=20"></script>
-<script src="carrom.js?v=20"></script>
-<script src="social.js?v=20"></script>
-<script src="pk.js?v=20"></script>
-<script src="extras.js?v=20"></script>
+<script src="gart.js?v=21"></script>
+<script src="config.js?v=21"></script>
+<script src="app.js?v=21"></script>
+<script src="game.js?v=21"></script>
+<script src="games2.js?v=21"></script>
+<script src="runner.js?v=21"></script>
+<script src="ludo.js?v=21"></script>
+<script src="carrom.js?v=21"></script>
+<script src="social.js?v=21"></script>
+<script src="pk.js?v=21"></script>
+<script src="extras.js?v=21"></script>
+<script src="moments.js?v=21"></script>
 </body>
 </html>

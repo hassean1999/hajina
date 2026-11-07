@@ -147,7 +147,7 @@ let ME = null, meUnsub = null, booted = false;
 /* ---------- UI helpers ---------- */
 let toastT;
 function toast(m) { let t = document.querySelector('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); } t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2800); }
-const NAV_TABS = ['home', 'chats', 'rank', 'me'];
+const NAV_TABS = ['home', 'moments', 'chats', 'rank', 'me'];
 let curScr = 'loading';
 function show(id) {
   document.querySelectorAll('.scr').forEach(s => s.hidden = s.id !== id);
@@ -155,6 +155,7 @@ function show(id) {
   $('nav').hidden = !NAV_TABS.includes(id);
   document.querySelectorAll('#nav [data-t]').forEach(b => b.classList.toggle('on', b.dataset.t === id));
   if (id === 'rank') loadRank();
+  if (id === 'moments' && window.startMoments) startMoments();
 }
 document.querySelectorAll('#nav [data-t]').forEach(b => b.onclick = () => show(b.dataset.t));
 const VIPT = C.vipLevels || [1000, 5000, 20000];
@@ -235,7 +236,7 @@ auth.onAuthStateChanged(u => {
     if (prevDia !== null && (ME.diamonds || 0) > prevDia) { chime(true); toast('💎 وصلتك ' + ((ME.diamonds || 0) - prevDia).toLocaleString('en') + ' ماسة!'); }
     $('meAdmin').hidden = !ME.admin;
     if (prevLvl && lvlOf(ME.xp) > prevLvl) { const nl = lvlOf(ME.xp); setTimeout(() => levelUpFx(nl), 3600); }
-    if (!booted) { booted = true; show('home'); startHome(); startChats(); }
+    if (!booted) { booted = true; show('home'); startHome(); startChats(); if (window.startNotifs) startNotifs(); }
   }, e => toast(errMsg(e)));
 });
 
@@ -605,6 +606,7 @@ $('sayRow').onsubmit = e => {
 $('sayInput').onblur = () => setTimeout(() => { if (!$('sayInput').value) { $('sayRow').hidden = true; $('rmBar').hidden = false; } }, 150);
 function onRoomMsg(m) {
   if (R.seen.has(m.id)) return; R.seen.add(m.id);
+  if (m.type === 'msg' && ME.blocked && ME.blocked.includes(m.uid)) return;
   const box = $('rmChat'), el = document.createElement('div');
   const nm = '<b onclick="userCard(\'' + esc(m.uid) + '\')">' + nameHtml(m, true) + '</b>';
   if (m.type === 'join') { el.className = 'cm sys'; el.innerHTML = (m.vip ? '👑 ' : '👋 ') + nameHtml(m) + ' دخل الروم'; if (m.vip >= 3 && (!m.ts || ms(m.ts) > R.joinTs - 3000)) vipEntrance(m); }
@@ -654,9 +656,10 @@ async function sendGift(g, qty, targets) {
       const mine = { [field]: d - total }; if (!sv) mine.xp = FV.increment(total);
       tx.update(myRef, mine);
       const hu = { lastActive: FV.serverTimestamp() };
-      targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(heart) }); hu['hearts.' + t.uid] = FV.increment(heart); const pu = window.pkGiftUpdate && pkGiftUpdate(t.uid, heart); if (pu) hu[pu[0]] = FV.increment(pu[1]); });
+      targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(heart), ['gw.' + g.k]: FV.increment(qty) }); hu['hearts.' + t.uid] = FV.increment(heart); const pu = window.pkGiftUpdate && pkGiftUpdate(t.uid, heart); if (pu) hu[pu[0]] = FV.increment(pu[1]); });
       tx.update(ref, hu);
     });
+    if (window.notify) targets.forEach(t => notify(t.uid, 'gift', 'أهداك ' + g.n + (qty > 1 ? ' x' + qty : '')));
     if (!sv && ME.family && ME.family.id) db.collection('families').doc(ME.family.id).update({ total: FV.increment(total) }).catch(() => {});
     await ref.collection('messages').add({ type: 'gift', ...meLite(), gift: g.k, qty, val: heart, to: targets.map(t => ({ uid: t.uid, name: t.name })), ts: FV.serverTimestamp() });
   } catch (e) {
@@ -727,6 +730,7 @@ function openRoomMenu() {
 }
 
 /* ---------- USER CARD / FOLLOW ---------- */
+function on2(m, id, f) { const b = m.querySelector(id); if (b) b.onclick = f; }
 async function userCard(uid) {
   let u; try { const s = await db.collection('users').doc(uid).get(); u = Object.assign({ uid }, s.data() || { name: '؟' }); } catch (e) { return toast(errMsg(e)); }
   u.vip = vipOf(u.recharged || 0);
@@ -734,11 +738,12 @@ async function userCard(uid) {
   let following = false;
   if (!self) { try { following = (await db.collection('users').doc(ME.uid).collection('following').doc(uid).get()).exists; } catch (e) {} }
   const seated = R.id && (R.data.seats || []).some(s => s && s.uid === uid);
-  const m = modal('<div class="uc">' + avHtml(u, 84) + '<div class="pf-name">' + nameHtml(u) + '</div><div class="pf-id">ID: ' + esc(u.hid || '') + '</div>' + (u.bio ? '<div class="uc-bio">' + esc(u.bio) + '</div>' : '') + '<div class="tags"><span class="tag lv">⭐ ' + toAr(lvlOf(u.xp)) + '</span><span class="tag">📍 ' + esc(u.city || '') + '</span><span class="tag">💗 ' + fmtK(u.charm || 0) + '</span><span class="tag">👥 ' + fmtK(u.followers || 0) + '</span></div></div>' +
+  const m = modal('<div class="uc">' + avHtml(u, 84) + '<div class="pf-name">' + nameHtml(u) + '</div><div class="pf-id">ID: ' + esc(u.hid || '') + '</div>' + (u.bio ? '<div class="uc-bio">' + esc(u.bio) + '</div>' : '') + '<div class="tags"><span class="tag lv">⭐ ' + toAr(lvlOf(u.xp)) + '</span><span class="tag">📍 ' + esc(u.city || '') + '</span><span class="tag">💗 ' + fmtK(u.charm || 0) + '</span><span class="tag">👥 ' + fmtK(u.followers || 0) + '</span></div>' + (window.giftWall ? giftWall(u) : '') + '</div>' +
     (self ? (R.mySeat !== -1 && seated ? '<button class="btn btn-s" id="ucDown">⬇️ انزل من المايك</button>' : '') :
       '<div class="row2"><button class="btn ' + (following ? 'btn-s' : 'btn-p') + '" id="ucF">' + (following ? '✓ تتابعه' : '+ متابعة') + '</button><button class="btn btn-s" id="ucM">💬 رسالة</button></div>' +
       (R.id ? '<button class="btn btn-s" id="ucG">🎁 أهديه</button>' : '') +
-      (window.modButtons ? modButtons(u, seated) : '')));
+      (window.modButtons ? modButtons(u, seated) : '') + '<div class="uc-mini"><button id="ucB">' + ((ME.blocked || []).includes(uid) ? '✅ فك الحظر' : '🚫 حظر') + '</button><button id="ucR">🚩 إبلاغ</button></div>'));
+  on2(m, '#ucB', () => { m.close(); toggleBlock(u); }); on2(m, '#ucR', () => { m.close(); reportUser(u); });
   if (window.bindModButtons) bindModButtons(m, u);
   const on = (id, f) => { const b = m.querySelector(id); if (b) b.onclick = f; };
   on('#ucDown', () => { m.close(); leaveSeat(); });
@@ -752,7 +757,7 @@ async function toggleFollow(u, was) {
   const batch = db.batch();
   if (was) { batch.delete(f); batch.update(a, { following: FV.increment(-1) }); batch.update(b, { followers: FV.increment(-1) }); }
   else { batch.set(f, { name: u.name, color: u.color, ts: FV.serverTimestamp() }); batch.update(a, { following: FV.increment(1) }); batch.update(b, { followers: FV.increment(1) }); }
-  await batch.commit().then(() => toast(was ? 'ألغيت المتابعة' : 'صرت تتابع ' + u.name)).catch(e => toast(errMsg(e)));
+  await batch.commit().then(() => { toast(was ? 'ألغيت المتابعة' : 'صرت تتابع ' + u.name); if (!was && window.notify) notify(u.uid, 'follow', 'صار يتابعك'); }).catch(e => toast(errMsg(e)));
 }
 
 /* ---------- DMs ---------- */
@@ -772,6 +777,8 @@ function startChats() {
 }
 $('chatsList').onclick = async e => { const el = e.target.closest('[data-u]'); if (!el) return; const s = await db.collection('users').doc(el.dataset.u).get(); openDM(Object.assign({ uid: el.dataset.u }, s.data())); };
 function openDM(u) {
+  if ((ME.blocked || []).includes(u.uid)) return toast('إنت حاظره، فك الحظر أول');
+  if ((u.blocked || []).includes(ME.uid)) return toast('ما تكدر تراسل هذا الشخص');
   DM = { u, id: chatId(ME.uid, u.uid), from: curScr };
   $('dmName').textContent = u.name; $('dmAv').outerHTML = avHtml(u, 38).replace('class="av"', 'class="av" id="dmAv"');
   $('dmMsgs').innerHTML = ''; show('dm');

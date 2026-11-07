@@ -440,3 +440,26 @@ textarea{font-family:inherit;font-size:15px;color:var(--fg);background:var(--sur
 #rmNotice button{font-size:13px}
 .uc-bio{font-size:12.5px;color:var(--fg2);text-align:center;max-width:280px;line-height:1.6}
 .seat.locked .seat-ring{border-style:solid;border-color:rgba(255,255,255,.12);background:rgba(0,0,0,.35)}
+/* moments */
+.post{background:var(--surface);border:1px solid var(--border);border-radius:18px;margin:0 12px 12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.post-h{display:flex;align-items:center;gap:10px;cursor:pointer}
+.post-h b{display:block;font-size:14px}
+.post-h small{font-size:11px;color:var(--fg3)}
+.post-del{font-size:20px;padding:0 6px;color:var(--fg2)}
+.post-t{font-size:14.5px;line-height:1.75;white-space:pre-wrap;word-wrap:break-word}
+.post-img{width:100%;max-height:420px;object-fit:cover;border-radius:14px;display:block}
+.post-a{display:flex;gap:10px}
+.post-a button{background:var(--surface2);border-radius:14px;padding:7px 14px;font-weight:800;font-size:13px}
+.post-a button.on{color:#FF5A6E}
+.cm-row{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border)}
+.cm-row b{font-size:12.5px}.cm-row p{font-size:13.5px;line-height:1.6;word-wrap:break-word}.cm-row small{font-size:10.5px;color:var(--fg3)}
+.ci.nt.un{background:rgba(255,138,31,.08)}
+.ibtn .badge{top:-2px;left:-2px}
+.gwall{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:8px 10px;margin-top:4px}
+.gwall small{font-weight:900;font-size:12px;color:var(--or2)}
+.gwall>div{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:6px}
+.gwall span{display:flex;flex-direction:column;align-items:center}
+.gwall img{width:34px;height:34px}
+.gwall b{font-size:10.5px}
+.uc-mini{display:flex;gap:10px;justify-content:center}
+.uc-mini button{font-size:12px;font-weight:800;color:var(--fg3);padding:4px 10px}
