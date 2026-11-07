@@ -18,16 +18,21 @@ const COLORS = ['#FF8A1F','#E74C3C','#3498DB','#2ECC71','#9B59B6','#F1C40F','#1A
 const CATS = [{k:'all',n:'الكل',e:'🔥'},{k:'chat',n:'سوالف',e:'☕'},{k:'sport',n:'رياضة',e:'⚽'},{k:'music',n:'موسيقى',e:'🎵'},{k:'poetry',n:'شعر',e:'📜'},{k:'games',n:'ألعاب',e:'🎮'},{k:'religion',n:'دينية',e:'🕌'},{k:'love',n:'تعارف',e:'💞'}];
 const THEMES = [{k:'',n:'برتقالي',c:'#5a2a0c'},{k:'th-blue',n:'ليلي',c:'#1d3b78'},{k:'th-green',n:'أخضر',c:'#14603e'},{k:'th-purple',n:'بنفسجي',c:'#5b2384'}];
 const GIFTS = [
-  {k:'rose',n:'وردة',p:10},{k:'heart',n:'قلب',p:15},{k:'cake',n:'كيكة',p:20},{k:'coffee',n:'قهوة',p:35},
-  {k:'giftbox',n:'صندوق',p:40},{k:'trophy',n:'كأس',p:50},{k:'balloon',n:'بالون',p:60},{k:'bouquet',n:'باقة ورد',p:80},
-  {k:'champagne',n:'شمبانيا',p:90},{k:'ring',n:'خاتم',p:100},{k:'rocket',n:'صاروخ',p:200,fx:1},{k:'car',n:'سيارة',p:250,fx:1},
-  {k:'diamond',n:'ألماسة',p:400,fx:1},{k:'goldrose',n:'وردة ذهبية',p:600,fx:1},{k:'plane',n:'طيارة',p:800,fx:1},{k:'roses',art:'bouquet',n:'الورد الملكي',p:999,fx:2},{k:'crown',n:'تاج ملكي',p:1000,fx:1}
+  {k:'tea',n:'استكان چاي',p:5},{k:'rose',n:'وردة',p:10},{k:'heart',n:'قلب',p:15},{k:'cake',n:'كيكة',p:20},{k:'star',n:'نجمة',p:25},
+  {k:'lollipop',n:'مصاصة',p:30},{k:'coffee',n:'قهوة',p:35},{k:'giftbox',n:'صندوق',p:40},{k:'icecream',n:'موطا',p:45},{k:'trophy',n:'كأس',p:50},
+  {k:'lips',n:'بوسة',p:55},{k:'balloon',n:'بالون',p:60},{k:'moon',n:'هلال',p:70},{k:'bouquet',n:'باقة ورد',p:80},{k:'champagne',n:'شمبانيا',p:90},
+  {k:'ring',n:'خاتم',p:100},{k:'teddy',n:'دبدوب',p:120},{k:'perfume',n:'عطر',p:150},{k:'mic',n:'مايك ذهبي',p:180},{k:'rocket',n:'صاروخ',p:200,fx:1},
+  {k:'dallah',n:'دلة',p:220},{k:'car',n:'سيارة',p:250,fx:1},{k:'oud',n:'عود',p:260},{k:'watch',n:'ساعة ذهب',p:300},{k:'moneybag',n:'كيس فلوس',p:350},
+  {k:'diamond',n:'ألماسة',p:400,fx:1},{k:'palm',n:'نخلة',p:450},{k:'lantern',n:'فانوس',p:500,fx:1},{k:'goldrose',n:'وردة ذهبية',p:600,fx:1},{k:'fireworks',n:'ألعاب نارية',p:700,fx:1},
+  {k:'plane',n:'طيارة',p:800,fx:1},{k:'roses',art:'bouquet',n:'الورد الملكي',p:999,fx:2},{k:'crown',n:'تاج ملكي',p:1000,fx:1},{k:'goldbar',n:'سبائك ذهب',p:1500,fx:1},
+  {k:'yacht',n:'يخت',p:3000,fx:1},{k:'castle',n:'قصر',p:5000,fx:1}
 ];
 const GART_URI = {}; Object.keys(GART).forEach(k => { if (k !== 'shadow') GART_URI[k] = gartURI(k); });
 const gArt = g => GART_URI[g.art || g.k];
 const SGIFTS = [
-  {k:'s_rose',art:'rose',n:'وردة',p:10,s:1},{k:'s_heart',art:'heart',n:'قلب',p:20,s:1},{k:'s_coffee',art:'coffee',n:'قهوة',p:30,s:1},
-  {k:'s_balloon',art:'balloon',n:'بالون',p:50,s:1},{k:'s_cake',art:'cake',n:'كيكة',p:80,s:1},{k:'s_giftbox',art:'giftbox',n:'صندوق',p:100,s:1}
+  {k:'s_tea',art:'tea',n:'چاي',p:5,s:1},{k:'s_rose',art:'rose',n:'وردة',p:10,s:1},{k:'s_star',art:'star',n:'نجمة',p:15,s:1},{k:'s_heart',art:'heart',n:'قلب',p:20,s:1},
+  {k:'s_lollipop',art:'lollipop',n:'مصاصة',p:25,s:1},{k:'s_coffee',art:'coffee',n:'قهوة',p:30,s:1},{k:'s_lips',art:'lips',n:'بوسة',p:40,s:1},{k:'s_balloon',art:'balloon',n:'بالون',p:50,s:1},
+  {k:'s_icecream',art:'icecream',n:'موطا',p:60,s:1},{k:'s_cake',art:'cake',n:'كيكة',p:80,s:1},{k:'s_giftbox',art:'giftbox',n:'صندوق',p:100,s:1}
 ];
 const giftBy = k => GIFTS.find(g => g.k === k) || SGIFTS.find(g => g.k === k) || GIFTS[0];
 
