@@ -484,21 +484,22 @@ function onRoomMsg(m) {
 /* ---- gifts ---- */
 function openGifts(preUid) {
   const seated = (R.data.seats || []).filter(s => s && s.uid !== ME.uid);
-  if (!seated.length) return toast('ماكو أحد عالمايك حتى تهديه');
-  const sel = new Set([preUid && seated.some(s => s.uid === preUid) ? preUid : (seated.find(s => s.uid === R.data.ownerUid) || seated[0]).uid]);
+  if (preUid && preUid !== ME.uid && !seated.some(s => s.uid === preUid)) { const mm = R.members[preUid]; if (mm) seated.unshift(Object.assign({ uid: preUid }, mm)); }
+  const sel = new Set(seated.length ? [preUid && seated.some(s => s.uid === preUid) ? preUid : (seated.find(s => s.uid === R.data.ownerUid) || seated[0]).uid] : []);
   let gi = 0, cur = 'd';
   const grid = () => (cur === 'd' ? GIFTS : SGIFTS).map((g, i) => '<div class="gi' + (i === gi ? ' on' : '') + '" data-i="' + i + '">' + (g.fx ? '<span class="fx">🎬</span>' : '') + '<img src="' + gArt(g) + '" alt=""><span class="n">' + g.n + '</span><span class="p"' + (cur === 's' ? ' style="color:#C9D1DC"' : '') + '>' + (cur === 'd' ? '◆ ' : '🪙 ') + g.p + '</span></div>').join('');
   const m = modal('<div class="gs-to"><span>إلى</span><div class="gs-avs" id="gAv"></div><button class="gs-all" id="gAll"><i>✓</i>الكل</button></div><div class="cats" id="gTabs" style="padding:0"><button class="on" data-c="d">💎 هدايا الماس</button><button data-c="s">🪙 هدايا فضية</button></div><div class="gifts" id="gGrid">' + grid() + '</div><div class="gs-bar"><div class="gs-bal" id="gBal"></div><div class="gs-send"><select id="gQ"><option>1</option><option>5</option><option>10</option><option>66</option><option>99</option></select><button id="gS">إرسال</button></div></div>');
   const bal = () => { m.querySelector('#gBal').innerHTML = cur === 'd' ? '<span class="d">◆ ' + fmtK(ME.diamonds || 0) + '</span><span style="color:var(--or);cursor:pointer" onclick="closeTopModal();openRecharge()">شحن ‹</span>' : '<span style="color:#C9D1DC">🪙 ' + fmtK(ME.silver || 0) + '</span>'; };
   bal();
   m.querySelector('#gTabs').onclick = e => { const c = e.target.dataset.c; if (!c) return; cur = c; gi = 0; [...e.currentTarget.children].forEach(x => x.classList.toggle('on', x.dataset.c === c)); m.querySelector('#gGrid').innerHTML = grid(); bal(); };
-  const drawAv = () => { m.querySelector('#gAv').innerHTML = seated.map(s => '<div class="av' + (sel.has(s.uid) ? ' on' : '') + '" data-u="' + esc(s.uid) + '" style="background:' + esc(s.color) + '">' + esc(s.name.charAt(0)) + '</div>').join(''); m.querySelector('#gAll').classList.toggle('on', sel.size === seated.length); };
+  const drawAv = () => { if (!seated.length) { m.querySelector('#gAv').innerHTML = '<span style="font-size:12.5px;color:var(--fg2)">ماكو أحد عالمايك هسه، تكدر تتفرج على الهدايا</span>'; m.querySelector('#gAll').hidden = true; return; } m.querySelector('#gAv').innerHTML = seated.map(s => '<div class="av' + (sel.has(s.uid) ? ' on' : '') + '" data-u="' + esc(s.uid) + '" style="background:' + esc(s.color) + '">' + esc(s.name.charAt(0)) + '</div>').join(''); m.querySelector('#gAll').classList.toggle('on', sel.size === seated.length); };
   drawAv();
   m.querySelector('#gAv').onclick = e => { const u = e.target.dataset.u; if (!u) return; if (sel.has(u)) { if (sel.size > 1) sel.delete(u); } else sel.add(u); drawAv(); };
   m.querySelector('#gAll').onclick = () => { if (sel.size === seated.length) { const f = [...sel][0]; sel.clear(); sel.add(f); } else seated.forEach(s => sel.add(s.uid)); drawAv(); };
   m.querySelector('#gGrid').onclick = e => { const el = e.target.closest('.gi'); if (!el) return; gi = +el.dataset.i; m.querySelectorAll('.gi').forEach(x => x.classList.toggle('on', x === el)); };
   m.querySelector('#gS').onclick = async () => {
     const g = (cur === 'd' ? GIFTS : SGIFTS)[gi], qty = +m.querySelector('#gQ').value, targets = seated.filter(s => sel.has(s.uid));
+    if (!targets.length) return toast('اختار شخص عالمايك حتى تهديه، أو اضغط على اسم أي واحد بالروم');
     m.close(); sendGift(g, qty, targets);
   };
 }
@@ -590,7 +591,7 @@ async function userCard(uid) {
   const m = modal('<div class="uc">' + avHtml(u, 84) + '<div class="pf-name">' + nameHtml(u) + '</div><div class="pf-id">ID: ' + esc(u.hid || '') + '</div><div class="tags"><span class="tag lv">⭐ ' + toAr(lvlOf(u.xp)) + '</span><span class="tag">📍 ' + esc(u.city || '') + '</span><span class="tag">💗 ' + fmtK(u.charm || 0) + '</span><span class="tag">👥 ' + fmtK(u.followers || 0) + '</span></div></div>' +
     (self ? (R.mySeat !== -1 && seated ? '<button class="btn btn-s" id="ucDown">⬇️ انزل من المايك</button>' : '') :
       '<div class="row2"><button class="btn ' + (following ? 'btn-s' : 'btn-p') + '" id="ucF">' + (following ? '✓ تتابعه' : '+ متابعة') + '</button><button class="btn btn-s" id="ucM">💬 رسالة</button></div>' +
-      (seated ? '<button class="btn btn-s" id="ucG">🎁 أهديه</button>' : '') +
+      (R.id ? '<button class="btn btn-s" id="ucG">🎁 أهديه</button>' : '') +
       (seated && isOwner() ? '<button class="btn btn-s" id="ucK" style="color:var(--danger)">⬇️ نزّله من المايك</button>' : '')));
   const on = (id, f) => { const b = m.querySelector(id); if (b) b.onclick = f; };
   on('#ucDown', () => { m.close(); leaveSeat(); });
