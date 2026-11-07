@@ -177,16 +177,15 @@ function copyTxt(t, el) {
 }
 function openRecharge() {
   const R2 = C.recharge || {}, pk = R2.packages || [];
-  const wa = (R2.whatsapp || '').replace(/\D/g, '');
-  const msg = encodeURIComponent('هلا، أريد أشحن ماسات بحجينه\nالـ ID مالتي: ' + (ME.hid || '') + '\nالاسم: ' + ME.name);
+  const tg = (R2.telegram || '').replace(/^@/, '').replace(/[^A-Za-z0-9_]/g, '');
   const row = (ic, label, val) => val ? '<div class="li" style="cursor:default"><span class="ic">' + ic + '</span><div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--fg2)">' + label + '</div><div style="direction:ltr;text-align:right;font-size:15px">' + esc(val) + '</div></div><button class="chip" onclick="copyTxt(\'' + esc(val).replace(/'/g, '') + '\')">نسخ</button></div>' : '';
   modal('<h3>◆ شحن الماسات</h3>' +
     '<div style="text-align:center;font-size:28px;font-weight:900;color:var(--cyan)">◆ ' + fmtK(ME.diamonds || 0) + '</div>' +
     '<div class="gifts" style="grid-template-columns:repeat(2,1fr)">' + pk.map(x => '<div class="gi" style="padding:12px 6px"><span style="font-size:22px">💎</span><span class="p" style="font-size:16px">◆ ' + x.d.toLocaleString('en') + '</span><span class="n" style="font-size:13px">' + esc(x.p) + '</span></div>').join('') + '</div>' +
     '<div style="font-weight:900;margin-top:4px">طريقة الشحن</div>' +
-    '<div style="font-size:13px;color:var(--fg2);line-height:1.9">١. حوّل مبلغ الباقة على وحدة من الطرق جوه<br>٢. دز صورة التحويل والـ ID مالتك على الواتساب<br>٣. توصلك الماسات خلال دقايق</div>' +
+    '<div style="font-size:13px;color:var(--fg2);line-height:1.9">١. حوّل مبلغ الباقة على وحدة من الطرق جوه<br>٢. دز صورة التحويل والـ ID مالتك على التلكرام<br>٣. توصلك الماسات خلال دقايق</div>' +
     '<div class="list" style="margin:0">' + row('🆔', 'الـ ID مالتك', ME.hid || '') + row('📱', 'رصيد ' + (R2.balanceNetwork || '') + ' على الرقم', R2.balanceNumber) + row('💳', R2.cardLabel || 'ماستر كارد', R2.cardNumber) + '</div>' +
-    (wa ? '<a class="btn btn-p" style="text-decoration:none;background:#25D366" href="https://wa.me/' + wa + '?text=' + msg + '" target="_blank">💬 راسلنا على الواتساب</a>' : '') +
+    (tg ? '<a class="btn btn-p" style="text-decoration:none;background:#229ED9" href="https://t.me/' + tg + '" target="_blank">✈️ راسلنا على التلكرام</a><div style="text-align:center;font-size:12px;color:var(--fg2)">لا تنسى تدز الـ ID مالتك (' + esc(ME.hid || '') + ') ويا صورة التحويل</div>' : '') +
     '<button class="btn btn-s" onclick="doCheckin();closeTopModal()">🎁 هدية اليوم المجانية (+' + C.dailyDiamonds + ')</button>');
 }
 /* ---- لوحة الإدارة ---- */

@@ -14,7 +14,7 @@ window.HAJINA_CONFIG = {
   agoraCert: "22dfc13ea2c34fb5aea90c2ec329f84d",
   // معلومات الشحن (تكدر تغيرها أي وقت)
   recharge: {
-    whatsapp: "9647XXXXXXXXX",
+    telegram: "HsN58",   // اسم المستخدم بالتلكرام بدون @
     balanceNetwork: "آسياسيل",
     balanceNumber: "07XX XXX XXXX",
     cardLabel: "ماستر كارد (كي كارد)",
