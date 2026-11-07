@@ -158,3 +158,18 @@ body{background:radial-gradient(120% 60% at 50% -10%,#3A1530 0%,#120814 55%) fix
 .ch-t{display:flex;gap:8px}
 .ch-t button{flex:1;padding:9px;border-radius:12px;border:0;background:rgba(255,255,255,.06);color:var(--fg2);font:inherit;font-weight:800;font-size:13px}
 .ch-t button.on{background:linear-gradient(135deg,#FF8A1F,#E0457B);color:#fff}
+/* داعمين الروم + الأغاني */
+.rm-sup{display:flex;align-items:center;gap:0;padding:3px 8px 3px 4px;border-radius:20px;background:linear-gradient(135deg,rgba(255,210,74,.25),rgba(255,138,31,.15));border:1px solid rgba(255,210,74,.4);cursor:pointer;flex-shrink:0}
+.rm-sup .cup{font-size:15px;margin-left:3px}
+.rm-sup small{font-size:11px;color:#FFD24A;font-weight:800}
+.rm-sup .sa{margin-right:-7px;border-radius:50%;box-shadow:0 0 0 2px #FFD24A}
+.rm-sup .sa.s1{box-shadow:0 0 0 2px #CFD8E3}.rm-sup .sa.s2{box-shadow:0 0 0 2px #E39A5B}
+.rr-pod{display:grid;grid-template-columns:1fr 1.2fr 1fr;align-items:end;gap:6px;margin:6px 0 12px;text-align:center}
+.rr-pod>div{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:10px 4px;border-radius:16px;background:rgba(255,255,255,.05)}
+.rr-pod .p0{background:linear-gradient(180deg,rgba(255,210,74,.3),rgba(255,210,74,.05));padding-top:14px}
+.rr-pod .md{font-size:22px}.rr-pod b{font-size:12px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rr-pod small{font-size:11px;color:#FFD24A;font-weight:800}
+#rbMus.playing{animation:musSpin 3s linear infinite;background:linear-gradient(135deg,#B266FF,#E0457B)}
+@keyframes musSpin{to{transform:rotate(360deg)}}
+.mus-now{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:rgba(178,102,255,.15);margin-bottom:10px}
+.mus-now .disc{font-size:34px;animation:musSpin 3s linear infinite}
+.mus-now b{display:block;font-size:14px}.mus-now small{color:var(--fg2);font-size:12px}
