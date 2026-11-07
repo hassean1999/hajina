@@ -7,6 +7,7 @@ const FV = firebase.firestore.FieldValue;
 auth.languageCode = 'ar';
 
 const $ = id => document.getElementById(id);
+const SC = '<img class="sc" src="silver.svg" alt="">';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const ms = t => (t && t.toMillis) ? t.toMillis() : Date.now();
 const toAr = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
@@ -127,7 +128,7 @@ const GIFTS = [
   {k:'ufo',n:'صحن طائر',p:6000,c:'car',fx:1},
   {k:'dragon',n:'تنين',p:8000,c:'animal',fx:1}
 ];
-const GCATS = [{k:'love',n:'❤️ حب'},{k:'food',n:'🍰 أكل'},{k:'animal',n:'🦁 حيوانات'},{k:'car',n:'🚗 مركبات'},{k:'lux',n:'👑 مميزة'},{k:'s',n:'🪙 فضية'}];
+const GCATS = [{k:'love',n:'❤️ حب'},{k:'food',n:'🍰 أكل'},{k:'animal',n:'🦁 حيوانات'},{k:'car',n:'🚗 مركبات'},{k:'lux',n:'👑 مميزة'},{k:'s',n:SC + ' فضية'}];
 const GART_URI = {}; Object.keys(GART).forEach(k => { if (k !== 'shadow') GART_URI[k] = gartURI(k); });
 const gArt = g => 'gifts/' + (g.art || g.k) + '.webp?v=1';
 const SGIFTS = [
@@ -258,7 +259,7 @@ function openSetup(u) {
         diamonds: 0, silver: C.welcomeSilver, xp: 0, charm: 0, followers: 0, following: 0, lastCheckin: '',
         createdAt: FV.serverTimestamp()
       }, { merge: true });
-      toast('🎉 هدية ترحيب ' + C.welcomeSilver + ' 🪙 عملة فضية');
+      toast('🎉 هدية ترحيب ' + C.welcomeSilver + ' عملة فضية');
     } catch (e) { toast(errMsg(e)); }
     $('btnSetup').disabled = false;
   };
@@ -286,11 +287,11 @@ function renderMe() {
   $('meDia').textContent = '◆ ' + fmtK(ME.diamonds || 0);
   $('homeDia').lastElementChild.textContent = fmtK(ME.diamonds || 0);
   $('homeSil').lastElementChild.textContent = fmtK(ME.silver || 0);
-  $('meSil').textContent = '🪙 ' + fmtK(ME.silver || 0);
+  $('meSil').innerHTML = SC + ' ' + fmtK(ME.silver || 0);
 }
 async function doCheckin() {
   if (ME.lastCheckin === today()) return toast('أخذت هدية اليوم، تعال باچر 🌙');
-  try { await db.collection('users').doc(ME.uid).update({ silver: FV.increment(C.dailySilver), lastCheckin: today() }); chime(); toast('🎁 +' + C.dailySilver + ' 🪙 عملة فضية'); } catch (e) { toast(errMsg(e)); }
+  try { await db.collection('users').doc(ME.uid).update({ silver: FV.increment(C.dailySilver), lastCheckin: today() }); chime(); toast('🎁 +' + C.dailySilver + ' عملة فضية'); } catch (e) { toast(errMsg(e)); }
 }
 function copyTxt(t, el) {
   const ok = () => toast('انتسخ ✅');
@@ -308,7 +309,7 @@ function openRecharge() {
     '<div style="font-size:13px;color:var(--fg2);line-height:1.9">١. حوّل مبلغ الباقة على وحدة من الطرق جوه<br>٢. دز صورة التحويل والـ ID مالتك على التلكرام<br>٣. توصلك الماسات خلال دقايق</div>' +
     '<div class="list" style="margin:0">' + row('🆔', 'الـ ID مالتك', ME.hid || '') + row('📱', 'رصيد ' + (R2.balanceNetwork || '') + ' على الرقم', R2.balanceNumber) + row('💳', R2.cardLabel || 'ماستر كارد', R2.cardNumber) + '</div>' +
     (tg ? '<a class="btn btn-p" style="text-decoration:none;background:#229ED9" href="https://t.me/' + tg + '" target="_blank">✈️ راسلنا على التلكرام</a><div style="text-align:center;font-size:12px;color:var(--fg2)">لا تنسى تدز الـ ID مالتك (' + esc(ME.hid || '') + ') ويا صورة التحويل</div>' : '') +
-    '<button class="btn btn-s" onclick="doCheckin();closeTopModal()">🎁 هدية اليوم: ' + C.dailySilver + ' 🪙 عملة فضية</button>');
+    '<button class="btn btn-s" onclick="doCheckin();closeTopModal()">🎁 هدية اليوم: ' + C.dailySilver + ' ' + SC + ' عملة فضية</button>');
 }
 /* ---- لوحة الإدارة ---- */
 function openAdmin() {
@@ -595,9 +596,9 @@ function openGifts(preUid) {
   const sel = new Set(seated.length ? [preUid && seated.some(s => s.uid === preUid) ? preUid : (seated.find(s => s.uid === R.data.ownerUid) || seated[0]).uid] : []);
   let gi = 0, cur = 'love';
   const list = () => cur === 's' ? SGIFTS : GIFTS.filter(g => g.c === cur);
-  const grid = () => list().map((g, i) => '<div class="gi' + (i === gi ? ' on' : '') + '" data-i="' + i + '">' + (g.fx ? '<span class="fx">🎬</span>' : '') + '<img src="' + gArt(g) + '" alt=""><span class="n">' + g.n + '</span><span class="p"' + (cur === 's' ? ' style="color:#C9D1DC"' : '') + '>' + (cur !== 's' ? '◆ ' : '🪙 ') + g.p + '</span></div>').join('');
+  const grid = () => list().map((g, i) => '<div class="gi' + (i === gi ? ' on' : '') + '" data-i="' + i + '">' + (g.fx ? '<span class="fx">🎬</span>' : '') + '<img src="' + gArt(g) + '" alt=""><span class="n">' + g.n + '</span><span class="p"' + (cur === 's' ? ' style="color:#C9D1DC"' : '') + '>' + (cur !== 's' ? '◆ ' : SC + ' ') + g.p + '</span></div>').join('');
   const m = modal('<div class="gs-to"><span>إلى</span><div class="gs-avs" id="gAv"></div><button class="gs-all" id="gAll"><i>✓</i>الكل</button></div><div class="cats" id="gTabs" style="padding:0">' + GCATS.map(c => '<button data-c="' + c.k + '" class="' + (c.k === 'love' ? 'on' : '') + '">' + c.n + '</button>').join('') + '</div><div class="gifts" id="gGrid">' + grid() + '</div><div class="gs-bar"><div class="gs-bal" id="gBal"></div><div class="gs-send"><select id="gQ"><option>1</option><option>5</option><option>10</option><option>66</option><option>99</option></select><button id="gS">إرسال</button></div></div>');
-  const bal = () => { m.querySelector('#gBal').innerHTML = cur !== 's' ? '<span class="d">◆ ' + fmtK(ME.diamonds || 0) + '</span><span style="color:var(--or);cursor:pointer" onclick="closeTopModal();openRecharge()">شحن ‹</span>' : '<span style="color:#C9D1DC">🪙 ' + fmtK(ME.silver || 0) + '</span>'; };
+  const bal = () => { m.querySelector('#gBal').innerHTML = cur !== 's' ? '<span class="d">◆ ' + fmtK(ME.diamonds || 0) + '</span><span style="color:var(--or);cursor:pointer" onclick="closeTopModal();openRecharge()">شحن ‹</span>' : '<span style="color:#C9D1DC">' + SC + ' ' + fmtK(ME.silver || 0) + '</span>'; };
   bal();
   m.querySelector('#gTabs').onclick = e => { const c = e.target.dataset.c; if (!c) return; cur = c; gi = 0; [...e.currentTarget.children].forEach(x => x.classList.toggle('on', x.dataset.c === c)); m.querySelector('#gGrid').innerHTML = grid(); bal(); };
   const drawAv = () => { if (!seated.length) { m.querySelector('#gAv').innerHTML = '<span style="font-size:12.5px;color:var(--fg2)">ماكو أحد عالمايك هسه، تكدر تتفرج على الهدايا</span>'; m.querySelector('#gAll').hidden = true; return; } m.querySelector('#gAv').innerHTML = seated.map(s => '<div class="av' + (sel.has(s.uid) ? ' on' : '') + '" data-u="' + esc(s.uid) + '" style="background:' + esc(s.color) + '">' + esc(s.name.charAt(0)) + '</div>').join(''); m.querySelector('#gAll').classList.toggle('on', sel.size === seated.length); };

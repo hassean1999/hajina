@@ -77,7 +77,7 @@ function wgRender(prev) {
   const opp = (g.players || []).find(p => p.uid !== me);
   const pl = (p, mine) => p ? '<div class="wg-p">' + avHtml(p, 58) + '<b>' + nameHtml(p, true) + '</b><span>' + toAr((g.scores || {})[p.uid] || 0) + '</span></div>' : '<div class="wg-p"><div class="av" style="width:58px;height:58px;background:rgba(255,255,255,.15)">👤</div><b>' + (mine ? 'أنا' : 'الخصم') + '</b><span>-</span></div>';
   const meP = (g.players || []).find(p => p.uid === me);
-  const top = '<div class="wg-top"><button class="x" onclick="gameClose()">✕</button><b>🧩 تحدي الكلمات</b><span class="coins">🪙 ' + fmtK(ME.silver || 0) + '</span></div>' +
+  const top = '<div class="wg-top"><button class="x" onclick="gameClose()">✕</button><b>🧩 تحدي الكلمات</b><span class="coins">' + SC + ' ' + fmtK(ME.silver || 0) + '</span></div>' +
     '<div class="wg-pl">' + pl(iAmIn ? meP : p1, true) + '<div class="wg-mid" id="wgMid"></div>' + pl(iAmIn ? opp : p2, false) + '</div>';
   if (g.status === 'wait') {
     const mine = g.by === me;
@@ -92,7 +92,7 @@ function wgRender(prev) {
     '<div class="wg-cat">الموضوع: ' + esc(g.cat) + ' — لاكي ' + toAr(g.words.length) + ' كلمات</div>' +
     '<div class="wg-words">' + g.words.map(x => { const f = found[x]; return '<span class="' + (f ? (f.uid === me ? 'me' : 'op') : '') + '">' + (f ? Array.from(x).join(' ') : Array.from(x).map(() => '_').join(' ')) + '</span>'; }).join('') + '</div>' +
     '<div class="wg-grid" id="wgGrid" style="grid-template-columns:repeat(' + WG_COLS + ',1fr)">' + g.grid.map((ch, i) => '<div class="wg-c' + (owner[i] ? (owner[i] === me ? ' me' : ' op') : '') + '" data-i="' + i + '" style="background:' + WG_TILE[(i * 7 + g.ts) % WG_TILE.length] + '">' + ch + '</div>').join('') + '</div>' +
-    '<div class="wg-bot">' + (g.status === 'done' ? '<button onclick="gameClose()">رجوع للروم</button>' : '<button id="wgHint">تلميح (🪙 10)</button>') + '</div>';
+    '<div class="wg-bot">' + (g.status === 'done' ? '<button onclick="gameClose()">رجوع للروم</button>' : '<button id="wgHint">تلميح (' + SC + ' 10)</button>') + '</div>';
   if (g.status === 'done') {
     const win = (g.players || []).find(p => p.uid === g.winner);
     w.querySelector('#wgMid').innerHTML = win ? '🏆 ' + esc(win.name) : 'تعادل 🤝';
