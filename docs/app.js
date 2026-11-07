@@ -266,12 +266,12 @@ function openSetup(u) {
 }
 function openEdit() {
   let col = ME.color;
-  const m = modal('<h3>تعديل الملف</h3><label class="l">الاسم</label><input id="edN" maxlength="20" value="' + esc(ME.name) + '"><label class="l">المدينة</label><select id="edC"></select><label class="l">اللون</label><div class="colors" id="edCol">' + COLORS.map(c => '<i style="background:' + c + '" data-c="' + c + '" class="' + (c === col ? 'on' : '') + '"></i>').join('') + '</div><button class="btn btn-p" id="edS">حفظ</button>');
+  const m = modal('<h3>تعديل الملف</h3><label class="l">الاسم</label><input id="edN" maxlength="20" value="' + esc(ME.name) + '"><label class="l">المدينة</label><select id="edC"></select><label class="l">اللون</label><div class="colors" id="edCol">' + COLORS.map(c => '<i style="background:' + c + '" data-c="' + c + '" class="' + (c === col ? 'on' : '') + '"></i>').join('') + '</div><label class="l">نبذة عنك</label><textarea id="edB" rows="2" maxlength="80" placeholder="اكتب شي عن نفسك...">' + esc(ME.bio || '') + '</textarea><button class="btn btn-p" id="edS">حفظ</button>');
   fillCities(m.querySelector('#edC'), ME.city);
   m.querySelector('#edCol').onclick = e => { if (!e.target.dataset.c) return; col = e.target.dataset.c; [...e.currentTarget.children].forEach(i => i.classList.toggle('on', i.dataset.c === col)); };
   m.querySelector('#edS').onclick = async () => {
     const n = m.querySelector('#edN').value.trim(); if (n.length < 2) return toast('الاسم قصير');
-    await db.collection('users').doc(ME.uid).update({ name: n, city: m.querySelector('#edC').value, color: col }).catch(e => toast(errMsg(e)));
+    await db.collection('users').doc(ME.uid).update({ name: n, city: m.querySelector('#edC').value, color: col, bio: m.querySelector('#edB').value.trim().slice(0, 80) }).catch(e => toast(errMsg(e)));
     m.close(); toast('انحفظ ✅');
   };
 }
@@ -280,7 +280,7 @@ function renderMe() {
   $('meAv').outerHTML = avHtml(meLite(), 96).replace('class="av', 'id="meAv" class="av pf-av');
   $('meName').innerHTML = nameHtml(meLite());
   $('meVipT').textContent = vipOf(ME.recharged || 0) ? 'VIP' + vipOf(ME.recharged || 0) : 'اشحن وصير VIP'; $('meId').textContent = 'ID: ' + (ME.hid || '');
-  $('meTags').innerHTML = '<span class="tag lv">⭐ مستوى ' + toAr(l) + '</span><span class="tag">📍 ' + esc(ME.city || '') + '</span>';
+  $('meTags').innerHTML = '<span class="tag lv">⭐ مستوى ' + toAr(l) + '</span><span class="tag">📍 ' + esc(ME.city || '') + '</span>' + (ME.family && ME.family.name ? '<span class="tag">' + esc(ME.family.emoji) + ' ' + esc(ME.family.name) + '</span>' : '') + (ME.bio ? '<div class="uc-bio" style="width:100%">' + esc(ME.bio) + '</div>' : '');
   $('meFollowers').textContent = fmtK(ME.followers || 0); $('meFollowing').textContent = fmtK(ME.following || 0); $('meCharm').textContent = fmtK(ME.charm || 0);
   $('meLvl').textContent = 'المستوى ' + toAr(l); $('meXpT').textContent = toAr((ME.xp || 0) - lo) + ' / ' + toAr(hi - lo);
   $('meXp').style.width = Math.min(100, ((ME.xp || 0) - lo) / (hi - lo) * 100) + '%';
@@ -405,6 +405,7 @@ async function openCreate() {
 let R = {};
 const roomRef = () => db.collection('rooms').doc(R.id);
 const isOwner = () => R.data && ME && R.data.ownerUid === ME.uid;
+const isMod = () => isOwner() || !!(R.data && ME && (R.data.admins || []).includes(ME.uid));
 const agoraOK = () => window.AgoraRTC && C.agoraAppId && C.agoraAppId !== 'AGORA_APP_ID';
 
 async function enterRoom(id, skipPw) {
@@ -413,6 +414,7 @@ async function enterRoom(id, skipPw) {
   let snap; try { snap = await db.collection('rooms').doc(id).get(); } catch (e) { return toast(errMsg(e)); }
   if (!snap.exists) return toast('الروم انسد');
   const d = snap.data();
+  if (((d.banned || {})[ME.uid] || 0) > Date.now()) return toast('🚫 مطرود من هذا الروم مؤقتاً');
   if (d.password && d.ownerUid !== ME.uid && !skipPw) {
     const m = modal('<h3>🔒 روم خاص</h3><input id="pwI" placeholder="اكتب الرمز السري" style="text-align:center"><button class="btn btn-p" id="pwG">دخول</button>');
     m.querySelector('#pwG').onclick = () => { if (m.querySelector('#pwI').value.trim() === d.password) { m.close(); enterRoom(id, true); } else toast('الرمز غلط'); };
@@ -426,7 +428,8 @@ async function enterRoom(id, skipPw) {
   roomRef().update({ lastActive: FV.serverTimestamp() }).catch(() => {});
   R.unsubs.push(roomRef().onSnapshot(s => {
     if (!s.exists || (s.data().closed && !isOwner())) { toast('صاحب الروم سدّه'); leaveRoom(); return; }
-    const prevBg = R.data && R.data.bgV; R.data = s.data(); $('room').className = 'scr ' + (R.data.theme || ''); renderRoom(); syncMySeat(); if (R.data.bgV !== prevBg) loadRoomBg(R.data); syncYT(); syncGameBanner(); if (window.syncPK) syncPK();
+    if (((s.data().banned || {})[ME.uid] || 0) > Date.now()) { toast('🚫 انطردت من الروم'); leaveRoom(); return; }
+    const prevBg = R.data && R.data.bgV; R.data = s.data(); $('room').className = 'scr ' + (R.data.theme || ''); renderRoom(); syncMySeat(); if (R.data.bgV !== prevBg) loadRoomBg(R.data); syncYT(); syncGameBanner(); if (window.syncPK) syncPK(); if (window.syncNotice) syncNotice();
   }));
   R.unsubs.push(roomRef().collection('members').onSnapshot(s => { R.members = {}; s.docs.forEach(d => R.members[d.id] = d.data()); renderCount(); }));
   R.unsubs.push(roomRef().collection('messages').orderBy('ts', 'desc').limit(40).onSnapshot(s => {
@@ -463,21 +466,24 @@ function renderRoom() {
   $('rmHostAv').outerHTML = '<div class="av" id="rmHostAv" style="width:38px;height:38px;font-size:15px;background:' + esc(d.ownerColor || '#FF8A1F') + '">' + esc((d.ownerName || '؟').charAt(0)) + '</div>';
   const seats = d.seats || Array(10).fill(null), hearts = d.hearts || {};
   $('seats').innerHTML = seats.map((s, i) => {
-    if (!s) return '<div class="seat" data-i="' + i + '"><div class="seat-ring">' + (i === 0 ? '👑' : '🎙️') + '</div><div class="seat-n" style="color:var(--fg3)">' + (i === 0 ? 'المضيف' : toAr(i)) + '</div></div>';
+    if (!s) return '<div class="seat' + ((d.locks || [])[i] ? ' locked' : '') + '" data-i="' + i + '"><div class="seat-ring">' + ((d.locks || [])[i] ? '🔒' : i === 0 ? '👑' : '🎙️') + '</div><div class="seat-n" style="color:var(--fg3)">' + (i === 0 ? 'المضيف' : toAr(i)) + '</div></div>';
     const host = s.uid === d.ownerUid;
     return '<div class="seat full' + (host ? ' host' : '') + (R.speaking.has(s.uid) ? ' speak' : '') + '" data-i="' + i + '" data-uid="' + esc(s.uid) + '">' + (host ? '<span class="seat-crown">👑</span>' : '') + '<div class="seat-ring">' + avHtml(s, 52) + '<span class="seat-mic">' + (s.muted ? '🔇' : '🎙️') + '</span></div><div class="seat-n">' + nameHtml(s, true) + '</div><div class="seat-h">💗 ' + fmtK(hearts[s.uid] || 0) + '</div></div>';
   }).join('');
 }
-$('seats').onclick = e => { const el = e.target.closest('.seat'); if (!el) return; const i = +el.dataset.i, s = (R.data.seats || [])[i]; if (s) userCard(s.uid); else takeSeat(i); };
+$('seats').onclick = e => { const el = e.target.closest('.seat'); if (!el) return; const i = +el.dataset.i, s = (R.data.seats || [])[i]; if (s) userCard(s.uid); else if (window.emptySeatClick) emptySeatClick(i); else takeSeat(i); };
 function syncMySeat() {
   const i = (R.data.seats || []).findIndex(s => s && s.uid === ME.uid);
   if (i === -1 && R.mySeat !== -1) { R.mySeat = -1; stopPublish(); toast('نزلت من المايك'); }
   else if (i !== -1 && R.mySeat === -1) { R.mySeat = i; startPublish(); }
   else R.mySeat = i;
   $('rbMic').hidden = R.mySeat === -1;
+  const ms_ = i >= 0 ? R.data.seats[i] : null;
+  if (ms_ && ms_.fm && !R.muted) { R.muted = true; if (R.localTrack) R.localTrack.setMuted(true); updMicBtn(); toast('🔇 المشرف كتم مايكك'); }
 }
 async function takeSeat(i) {
   if (i === 0 && !isOwner()) return toast('هذا كرسي صاحب الروم');
+  if ((R.data.locks || [])[i] && !isMod()) return toast('🔒 هذا الكرسي مقفول');
   if (!agoraOK()) toast('الصوت بعده مو مفعّل بالإعدادات');
   const ref = roomRef();
   try {
@@ -563,7 +569,7 @@ async function stopPublish() {
 async function toggleMic() {
   if (R.mySeat === -1) return;
   const m = modal('<h3>🎙️ المايك</h3><button class="btn btn-s" id="mM">' + (R.muted ? '🎙️ شغّل المايك' : '🔇 اكتم المايك') + '</button><button class="btn btn-s" id="mL" style="color:var(--danger)">⬇️ انزل من المايك</button>');
-  m.querySelector('#mM').onclick = async () => { m.close(); R.muted = !R.muted; if (R.localTrack) await R.localTrack.setMuted(R.muted); setMuteFlag(R.muted); updMicBtn(); };
+  m.querySelector('#mM').onclick = async () => { m.close(); const ss = (R.data.seats || [])[R.mySeat]; if (R.muted && ss && ss.fm) return toast('🔇 المشرف كاتم مايكك'); R.muted = !R.muted; if (R.localTrack) await R.localTrack.setMuted(R.muted); setMuteFlag(R.muted); updMicBtn(); };
   m.querySelector('#mL').onclick = () => { m.close(); leaveSeat(); };
 }
 function updMicBtn() { const b = $('rbMic'); b.textContent = R.muted ? '🔇' : '🎙️'; b.className = 'rb ' + (R.muted ? 'mic-off' : 'mic-on'); }
@@ -583,7 +589,7 @@ async function leaveRoom(silent) {
   ref.collection('members').doc(ME.uid).delete().catch(() => {});
   const left = Object.values(r.members).filter(m => m.uid !== ME.uid && ms(m.ts) > Date.now() - 90000).length;
   ref.update({ online: Math.max(0, left) }).catch(() => {});
-  $('rbMic').hidden = true; $('sayRow').hidden = true; $('rmBar').hidden = false; ytStop(); $('pkBar').hidden = true; $('room').style.backgroundImage = ''; if (window.gameClose) gameClose(true);
+  $('rbMic').hidden = true; $('sayRow').hidden = true; $('rmBar').hidden = false; ytStop(); $('pkBar').hidden = true; $('rmNotice').hidden = true; $('room').style.backgroundImage = ''; if (window.gameClose) gameClose(true);
   if (!silent) show('home');
 }
 window.addEventListener('pagehide', () => { if (R.id) leaveRoom(true); });
@@ -702,8 +708,9 @@ function openMembers() {
 }
 function openRoomMenu() {
   if (isOwner()) {
-    const m = modal('<h3>إدارة الروم</h3><button class="btn btn-s" id="rmF">' + (FAVS.has(R.id) ? '★ شيل من المفضلة' : '⭐ أضف للمفضلة') + '</button><button class="btn btn-s" id="rmE">✏️ تعديل الروم (الاسم والرمز السري)</button><button class="btn btn-s" id="rmBg">🖼️ خلفية الروم من الاستوديو</button>' + (vipOf(ME.recharged || 0) >= 3 ? '<button class="btn btn-s" id="rmCv">🎞️ صورة الروم المتحركة (VIP3)</button>' : '') + '<button class="btn btn-s" id="rmPk">⚔️ تحدي PK للدعم</button><button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button><button class="btn btn-s" id="rmC" style="color:var(--danger)">⛔ سد الروم</button>');
+    const m = modal('<h3>إدارة الروم</h3><button class="btn btn-s" id="rmF">' + (FAVS.has(R.id) ? '★ شيل من المفضلة' : '⭐ أضف للمفضلة') + '</button><button class="btn btn-s" id="rmE">✏️ تعديل الروم (الاسم والرمز السري)</button><button class="btn btn-s" id="rmBg">🖼️ خلفية الروم من الاستوديو</button>' + (vipOf(ME.recharged || 0) >= 3 ? '<button class="btn btn-s" id="rmCv">🎞️ صورة الروم المتحركة (VIP3)</button>' : '') + '<button class="btn btn-s" id="rmNt">📢 إعلان الروم</button><button class="btn btn-s" id="rmPk">⚔️ تحدي PK للدعم</button><button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button><button class="btn btn-s" id="rmC" style="color:var(--danger)">⛔ سد الروم</button>');
     m.querySelector('#rmPk').onclick = () => { m.close(); openPK(); };
+    m.querySelector('#rmNt').onclick = () => { m.close(); editNotice(); };
     m.querySelector('#rmE').onclick = () => { m.close(); openCreate(); };
     m.querySelector('#rmF').onclick = () => { m.close(); toggleFav(); };
     m.querySelector('#rmBg').onclick = () => { m.close(); setRoomImage('bg'); };
@@ -711,9 +718,10 @@ function openRoomMenu() {
     m.querySelector('#rmYt').onclick = () => { m.close(); openYT(); };
     m.querySelector('#rmC').onclick = async () => { m.close(); await roomRef().update({ closed: true, seats: Array(10).fill(null), online: 0 }).catch(() => {}); leaveRoom(); };
   } else {
-    const m = modal('<h3>' + esc(R.data.title) + '</h3><button class="btn btn-s" id="rmF">' + (FAVS.has(R.id) ? '★ شيل من المفضلة' : '⭐ أضف للمفضلة') + '</button>' + (R.mySeat !== -1 ? '<button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button>' : '') + '<button class="btn btn-s" id="rmR">🚩 إبلاغ عن الروم</button>');
+    const m = modal('<h3>' + esc(R.data.title) + '</h3>' + (isMod() ? '<button class="btn btn-s" id="rmNt">📢 إعلان الروم</button>' : '') + '<button class="btn btn-s" id="rmF">' + (FAVS.has(R.id) ? '★ شيل من المفضلة' : '⭐ أضف للمفضلة') + '</button>' + (R.mySeat !== -1 ? '<button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button>' : '') + '<button class="btn btn-s" id="rmR">🚩 إبلاغ عن الروم</button>');
     if (m.querySelector('#rmYt')) m.querySelector('#rmYt').onclick = () => { m.close(); openYT(); };
     m.querySelector('#rmF').onclick = () => { m.close(); toggleFav(); };
+    if (m.querySelector('#rmNt')) m.querySelector('#rmNt').onclick = () => { m.close(); editNotice(); };
     m.querySelector('#rmR').onclick = () => { db.collection('reports').add({ room: R.id, by: ME.uid, ts: FV.serverTimestamp() }); m.close(); toast('وصل البلاغ للإدارة، شكراً'); };
   }
 }
@@ -726,11 +734,12 @@ async function userCard(uid) {
   let following = false;
   if (!self) { try { following = (await db.collection('users').doc(ME.uid).collection('following').doc(uid).get()).exists; } catch (e) {} }
   const seated = R.id && (R.data.seats || []).some(s => s && s.uid === uid);
-  const m = modal('<div class="uc">' + avHtml(u, 84) + '<div class="pf-name">' + nameHtml(u) + '</div><div class="pf-id">ID: ' + esc(u.hid || '') + '</div><div class="tags"><span class="tag lv">⭐ ' + toAr(lvlOf(u.xp)) + '</span><span class="tag">📍 ' + esc(u.city || '') + '</span><span class="tag">💗 ' + fmtK(u.charm || 0) + '</span><span class="tag">👥 ' + fmtK(u.followers || 0) + '</span></div></div>' +
+  const m = modal('<div class="uc">' + avHtml(u, 84) + '<div class="pf-name">' + nameHtml(u) + '</div><div class="pf-id">ID: ' + esc(u.hid || '') + '</div>' + (u.bio ? '<div class="uc-bio">' + esc(u.bio) + '</div>' : '') + '<div class="tags"><span class="tag lv">⭐ ' + toAr(lvlOf(u.xp)) + '</span><span class="tag">📍 ' + esc(u.city || '') + '</span><span class="tag">💗 ' + fmtK(u.charm || 0) + '</span><span class="tag">👥 ' + fmtK(u.followers || 0) + '</span></div></div>' +
     (self ? (R.mySeat !== -1 && seated ? '<button class="btn btn-s" id="ucDown">⬇️ انزل من المايك</button>' : '') :
       '<div class="row2"><button class="btn ' + (following ? 'btn-s' : 'btn-p') + '" id="ucF">' + (following ? '✓ تتابعه' : '+ متابعة') + '</button><button class="btn btn-s" id="ucM">💬 رسالة</button></div>' +
       (R.id ? '<button class="btn btn-s" id="ucG">🎁 أهديه</button>' : '') +
-      (seated && isOwner() ? '<button class="btn btn-s" id="ucK" style="color:var(--danger)">⬇️ نزّله من المايك</button>' : '')));
+      (window.modButtons ? modButtons(u, seated) : '')));
+  if (window.bindModButtons) bindModButtons(m, u);
   const on = (id, f) => { const b = m.querySelector(id); if (b) b.onclick = f; };
   on('#ucDown', () => { m.close(); leaveSeat(); });
   on('#ucF', async () => { m.close(); await toggleFollow(u, following); });
