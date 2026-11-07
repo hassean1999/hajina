@@ -18,18 +18,116 @@ const COLORS = ['#FF8A1F','#E74C3C','#3498DB','#2ECC71','#9B59B6','#F1C40F','#1A
 const CATS = [{k:'all',n:'الكل',e:'🔥'},{k:'chat',n:'سوالف',e:'☕'},{k:'sport',n:'رياضة',e:'⚽'},{k:'music',n:'موسيقى',e:'🎵'},{k:'poetry',n:'شعر',e:'📜'},{k:'games',n:'ألعاب',e:'🎮'},{k:'religion',n:'دينية',e:'🕌'},{k:'love',n:'تعارف',e:'💞'}];
 const THEMES = [{k:'',n:'برتقالي',c:'#5a2a0c'},{k:'th-blue',n:'ليلي',c:'#1d3b78'},{k:'th-green',n:'أخضر',c:'#14603e'},{k:'th-purple',n:'بنفسجي',c:'#5b2384'}];
 const GIFTS = [
-  {k:'tea',n:'استكان چاي',p:5},{k:'rose',n:'وردة',p:10},{k:'heart',n:'قلب',p:15},{k:'candy',n:'حلاوة',p:18},{k:'cake',n:'كيكة',p:20},
-  {k:'star',n:'نجمة',p:25},{k:'lollipop',n:'مصاصة',p:30},{k:'coffee',n:'قهوة',p:35},{k:'giftbox',n:'صندوق هدية',p:40},{k:'icecream',n:'موطا',p:45},
-  {k:'donut',n:'دونات',p:48},{k:'trophy',n:'كأس',p:50},{k:'lips',n:'بوسة',p:55},{k:'balloon',n:'بالون',p:60},{k:'cupcake',n:'كب كيك',p:65},
-  {k:'moon',n:'هلال',p:70},{k:'chocolate',n:'جكليت',p:75},{k:'bouquet',n:'باقة ورد',p:80},{k:'tulip',n:'توليب',p:85},{k:'champagne',n:'شمبانيا',p:90},
-  {k:'ring',n:'خاتم',p:100},{k:'loveletter',n:'رسالة حب',p:110},{k:'teddy',n:'دبدوب',p:120},{k:'butterfly',n:'فراشة',p:130},{k:'lipstick',n:'روج',p:150},
-  {k:'mic',n:'مايك',p:180},{k:'partypopper',n:'احتفال',p:190},{k:'rocket',n:'صاروخ',p:200,fx:1},{k:'dallah',n:'إبريق چاي',p:220},{k:'car',n:'سيارة سباق',p:250,fx:1},
-  {k:'oud',n:'كيتار',p:260},{k:'watch',n:'ساعة',p:300},{k:'moneybag',n:'كيس فلوس',p:350},{k:'diamond',n:'ألماسة',p:400,fx:1},{k:'palm',n:'نخلة',p:450},
-  {k:'lantern',n:'فانوس',p:500,fx:1},{k:'goldrose',n:'عباد الشمس',p:600,fx:1},{k:'fireworks',n:'ألعاب نارية',p:700,fx:1},{k:'plane',n:'طيارة',p:800,fx:1},
-  {k:'roses',art:'bouquet',n:'الورد الملكي',p:999,fx:2},{k:'crown',n:'تاج ملكي',p:1000,fx:1},{k:'unicorn',n:'يونيكورن',p:1200,fx:1},{k:'goldbar',n:'عملة ذهب',p:1500,fx:1},
-  {k:'lion',n:'أسد',p:2000,fx:1},{k:'eagle',n:'نسر',p:2500,fx:1},{k:'yacht',n:'يخت',p:3000,fx:1},{k:'helicopter',n:'هليكوبتر',p:3500,fx:1},
-  {k:'castle',n:'قصر',p:5000,fx:1},{k:'dragon',n:'تنين',p:8000,fx:1}
+  {k:'tea',n:'استكان چاي',p:5,c:'food'},
+  {k:'rose',n:'وردة',p:10,c:'love'},
+  {k:'banana',n:'موز',p:12,c:'food'},
+  {k:'watermelon',n:'ركي',p:12,c:'food'},
+  {k:'strawberry',n:'فراولة',p:14,c:'food'},
+  {k:'heart',n:'قلب',p:15,c:'love'},
+  {k:'grapes',n:'عنب',p:16,c:'food'},
+  {k:'candy',n:'حلاوة',p:18,c:'food'},
+  {k:'cherries',n:'كرز',p:18,c:'food'},
+  {k:'cake',n:'كيكة',p:20,c:'food'},
+  {k:'mango',n:'عنبة',p:22,c:'food'},
+  {k:'star',n:'نجمة',p:25,c:'lux'},
+  {k:'cookie',n:'كوكيز',p:26,c:'food'},
+  {k:'pineapple',n:'أناناس',p:28,c:'food'},
+  {k:'lollipop',n:'مصاصة',p:30,c:'food'},
+  {k:'popcorn',n:'شامية',p:32,c:'food'},
+  {k:'coffee',n:'قهوة',p:35,c:'food'},
+  {k:'honey',n:'عسل',p:38,c:'food'},
+  {k:'falafel',n:'فلافل',p:40,c:'food'},
+  {k:'giftbox',n:'صندوق هدية',p:40,c:'lux'},
+  {k:'bubbletea',n:'ببل تي',p:42,c:'food'},
+  {k:'icecream',n:'موطا',p:45,c:'food'},
+  {k:'sandwich',n:'لفة',p:46,c:'food'},
+  {k:'donut',n:'دونات',p:48,c:'food'},
+  {k:'trophy',n:'كأس',p:50,c:'lux'},
+  {k:'tropical',n:'عصير',p:52,c:'food'},
+  {k:'pan',n:'بيض بالطاوة',p:54,c:'food'},
+  {k:'lips',n:'بوسة',p:55,c:'love'},
+  {k:'fries',n:'بطاطا',p:58,c:'food'},
+  {k:'balloon',n:'بالون',p:60,c:'lux'},
+  {k:'pizza',n:'بيتزا',p:62,c:'food'},
+  {k:'cupcake',n:'كب كيك',p:65,c:'food'},
+  {k:'burger',n:'برگر',p:68,c:'food'},
+  {k:'bicycle',n:'بايسكل',p:70,c:'car'},
+  {k:'moon',n:'هلال',p:70,c:'lux'},
+  {k:'chocolate',n:'جكليت',p:75,c:'food'},
+  {k:'bouquet',n:'باقة ورد',p:80,c:'love'},
+  {k:'tulip',n:'توليب',p:85,c:'love'},
+  {k:'scooter',n:'سكوتر',p:85,c:'car'},
+  {k:'champagne',n:'شمبانيا',p:90,c:'food'},
+  {k:'rabbit',n:'أرنب',p:90,c:'animal'},
+  {k:'hibiscus',n:'وردة جورية',p:95,c:'love'},
+  {k:'pot',n:'طبخة',p:95,c:'food'},
+  {k:'ring',n:'خاتم',p:100,c:'love'},
+  {k:'loveletter',n:'رسالة حب',p:110,c:'love'},
+  {k:'teddy',n:'دبدوب',p:120,c:'love'},
+  {k:'butterfly',n:'فراشة',p:130,c:'love'},
+  {k:'cat',n:'بزونة',p:140,c:'animal'},
+  {k:'lipstick',n:'روج',p:150,c:'love'},
+  {k:'dog',n:'جرو',p:150,c:'animal'},
+  {k:'bdcake',n:'كيكة عيد ميلاد',p:160,c:'food'},
+  {k:'owl',n:'بومة',p:170,c:'animal'},
+  {k:'mic',n:'مايك',p:180,c:'lux'},
+  {k:'parrot',n:'ببغاء',p:190,c:'animal'},
+  {k:'partypopper',n:'احتفال',p:190,c:'lux'},
+  {k:'rocket',n:'صاروخ',p:200,c:'car',fx:1},
+  {k:'penguin',n:'بطريق',p:210,c:'animal'},
+  {k:'dallah',n:'إبريق چاي',p:220,c:'food'},
+  {k:'fox',n:'ثعلب',p:230,c:'animal'},
+  {k:'monkey',n:'قرد',p:240,c:'animal'},
+  {k:'car',n:'سيارة سباق',p:250,c:'car',fx:1},
+  {k:'taxi',n:'تكسي',p:260,c:'car'},
+  {k:'oud',n:'كيتار',p:260,c:'lux'},
+  {k:'panda',n:'باندا',p:280,c:'animal'},
+  {k:'koala',n:'كوالا',p:300,c:'animal'},
+  {k:'tractor',n:'تراكتور',p:300,c:'car'},
+  {k:'watch',n:'ساعة',p:300,c:'lux'},
+  {k:'motorcycle',n:'ماطور',p:320,c:'car'},
+  {k:'auto',n:'سيارة',p:350,c:'car'},
+  {k:'moneybag',n:'كيس فلوس',p:350,c:'lux'},
+  {k:'ambulance',n:'إسعاف',p:380,c:'car'},
+  {k:'dolphin',n:'دولفين',p:400,c:'animal',fx:1},
+  {k:'diamond',n:'ألماسة',p:400,c:'lux',fx:1},
+  {k:'flamingo',n:'فلامنكو',p:420,c:'animal'},
+  {k:'police',n:'شرطة',p:450,c:'car'},
+  {k:'palm',n:'نخلة',p:450,c:'lux'},
+  {k:'swan',n:'بجعة',p:480,c:'animal'},
+  {k:'bus',n:'باص',p:480,c:'car'},
+  {k:'lantern',n:'فانوس',p:500,c:'lux',fx:1},
+  {k:'firetruck',n:'إطفاء',p:520,c:'car'},
+  {k:'goldrose',n:'عباد الشمس',p:600,c:'love',fx:1},
+  {k:'suv',n:'جكسارة',p:600,c:'car',fx:1},
+  {k:'peacock',n:'طاووس',p:650,c:'animal',fx:1},
+  {k:'train',n:'قطار',p:700,c:'car',fx:1},
+  {k:'fireworks',n:'ألعاب نارية',p:700,c:'lux',fx:1},
+  {k:'plane',n:'طيارة',p:800,c:'car',fx:1},
+  {k:'horse',n:'حصان',p:900,c:'animal',fx:1},
+  {k:'roses',n:'الورد الملكي',p:999,c:'love',fx:2,art:'bouquet'},
+  {k:'crown',n:'تاج ملكي',p:1000,c:'lux',fx:1},
+  {k:'camel',n:'جمل',p:1100,c:'animal',fx:1},
+  {k:'unicorn',n:'يونيكورن',p:1200,c:'animal',fx:1},
+  {k:'hst',n:'قطار سريع',p:1300,c:'car',fx:1},
+  {k:'jet',n:'طيارة خاصة',p:1400,c:'car',fx:1},
+  {k:'goldbar',n:'عملة ذهب',p:1500,c:'lux',fx:1},
+  {k:'giraffe',n:'زرافة',p:1600,c:'animal',fx:1},
+  {k:'sailboat',n:'مركب شراعي',p:1700,c:'car',fx:1},
+  {k:'tiger',n:'نمر',p:1800,c:'animal',fx:1},
+  {k:'lion',n:'أسد',p:2000,c:'animal',fx:1},
+  {k:'elephant',n:'فيل',p:2200,c:'animal',fx:1},
+  {k:'eagle',n:'نسر',p:2500,c:'animal',fx:1},
+  {k:'shark',n:'قرش',p:2600,c:'animal',fx:1},
+  {k:'whale',n:'حوت',p:2800,c:'animal',fx:1},
+  {k:'yacht',n:'يخت',p:3000,c:'car',fx:1},
+  {k:'helicopter',n:'هليكوبتر',p:3500,c:'car',fx:1},
+  {k:'ship',n:'سفينة',p:4000,c:'car',fx:1},
+  {k:'castle',n:'قصر',p:5000,c:'lux',fx:1},
+  {k:'ufo',n:'صحن طائر',p:6000,c:'car',fx:1},
+  {k:'dragon',n:'تنين',p:8000,c:'animal',fx:1}
 ];
+const GCATS = [{k:'love',n:'❤️ حب'},{k:'food',n:'🍰 أكل'},{k:'animal',n:'🦁 حيوانات'},{k:'car',n:'🚗 مركبات'},{k:'lux',n:'👑 مميزة'},{k:'s',n:'🪙 فضية'}];
 const GART_URI = {}; Object.keys(GART).forEach(k => { if (k !== 'shadow') GART_URI[k] = gartURI(k); });
 const gArt = g => 'gifts/' + (g.art || g.k) + '.webp?v=1';
 const SGIFTS = [
@@ -495,10 +593,11 @@ function openGifts(preUid) {
   const seated = (R.data.seats || []).filter(s => s && s.uid !== ME.uid);
   if (preUid && preUid !== ME.uid && !seated.some(s => s.uid === preUid)) { const mm = R.members[preUid]; if (mm) seated.unshift(Object.assign({ uid: preUid }, mm)); }
   const sel = new Set(seated.length ? [preUid && seated.some(s => s.uid === preUid) ? preUid : (seated.find(s => s.uid === R.data.ownerUid) || seated[0]).uid] : []);
-  let gi = 0, cur = 'd';
-  const grid = () => (cur === 'd' ? GIFTS : SGIFTS).map((g, i) => '<div class="gi' + (i === gi ? ' on' : '') + '" data-i="' + i + '">' + (g.fx ? '<span class="fx">🎬</span>' : '') + '<img src="' + gArt(g) + '" alt=""><span class="n">' + g.n + '</span><span class="p"' + (cur === 's' ? ' style="color:#C9D1DC"' : '') + '>' + (cur === 'd' ? '◆ ' : '🪙 ') + g.p + '</span></div>').join('');
-  const m = modal('<div class="gs-to"><span>إلى</span><div class="gs-avs" id="gAv"></div><button class="gs-all" id="gAll"><i>✓</i>الكل</button></div><div class="cats" id="gTabs" style="padding:0"><button class="on" data-c="d">💎 هدايا الماس</button><button data-c="s">🪙 هدايا فضية</button></div><div class="gifts" id="gGrid">' + grid() + '</div><div class="gs-bar"><div class="gs-bal" id="gBal"></div><div class="gs-send"><select id="gQ"><option>1</option><option>5</option><option>10</option><option>66</option><option>99</option></select><button id="gS">إرسال</button></div></div>');
-  const bal = () => { m.querySelector('#gBal').innerHTML = cur === 'd' ? '<span class="d">◆ ' + fmtK(ME.diamonds || 0) + '</span><span style="color:var(--or);cursor:pointer" onclick="closeTopModal();openRecharge()">شحن ‹</span>' : '<span style="color:#C9D1DC">🪙 ' + fmtK(ME.silver || 0) + '</span>'; };
+  let gi = 0, cur = 'love';
+  const list = () => cur === 's' ? SGIFTS : GIFTS.filter(g => g.c === cur);
+  const grid = () => list().map((g, i) => '<div class="gi' + (i === gi ? ' on' : '') + '" data-i="' + i + '">' + (g.fx ? '<span class="fx">🎬</span>' : '') + '<img src="' + gArt(g) + '" alt=""><span class="n">' + g.n + '</span><span class="p"' + (cur === 's' ? ' style="color:#C9D1DC"' : '') + '>' + (cur !== 's' ? '◆ ' : '🪙 ') + g.p + '</span></div>').join('');
+  const m = modal('<div class="gs-to"><span>إلى</span><div class="gs-avs" id="gAv"></div><button class="gs-all" id="gAll"><i>✓</i>الكل</button></div><div class="cats" id="gTabs" style="padding:0">' + GCATS.map(c => '<button data-c="' + c.k + '" class="' + (c.k === 'love' ? 'on' : '') + '">' + c.n + '</button>').join('') + '</div><div class="gifts" id="gGrid">' + grid() + '</div><div class="gs-bar"><div class="gs-bal" id="gBal"></div><div class="gs-send"><select id="gQ"><option>1</option><option>5</option><option>10</option><option>66</option><option>99</option></select><button id="gS">إرسال</button></div></div>');
+  const bal = () => { m.querySelector('#gBal').innerHTML = cur !== 's' ? '<span class="d">◆ ' + fmtK(ME.diamonds || 0) + '</span><span style="color:var(--or);cursor:pointer" onclick="closeTopModal();openRecharge()">شحن ‹</span>' : '<span style="color:#C9D1DC">🪙 ' + fmtK(ME.silver || 0) + '</span>'; };
   bal();
   m.querySelector('#gTabs').onclick = e => { const c = e.target.dataset.c; if (!c) return; cur = c; gi = 0; [...e.currentTarget.children].forEach(x => x.classList.toggle('on', x.dataset.c === c)); m.querySelector('#gGrid').innerHTML = grid(); bal(); };
   const drawAv = () => { if (!seated.length) { m.querySelector('#gAv').innerHTML = '<span style="font-size:12.5px;color:var(--fg2)">ماكو أحد عالمايك هسه، تكدر تتفرج على الهدايا</span>'; m.querySelector('#gAll').hidden = true; return; } m.querySelector('#gAv').innerHTML = seated.map(s => '<div class="av' + (sel.has(s.uid) ? ' on' : '') + '" data-u="' + esc(s.uid) + '" style="background:' + esc(s.color) + '">' + esc(s.name.charAt(0)) + '</div>').join(''); m.querySelector('#gAll').classList.toggle('on', sel.size === seated.length); };
@@ -507,7 +606,7 @@ function openGifts(preUid) {
   m.querySelector('#gAll').onclick = () => { if (sel.size === seated.length) { const f = [...sel][0]; sel.clear(); sel.add(f); } else seated.forEach(s => sel.add(s.uid)); drawAv(); };
   m.querySelector('#gGrid').onclick = e => { const el = e.target.closest('.gi'); if (!el) return; gi = +el.dataset.i; m.querySelectorAll('.gi').forEach(x => x.classList.toggle('on', x === el)); };
   m.querySelector('#gS').onclick = async () => {
-    const g = (cur === 'd' ? GIFTS : SGIFTS)[gi], qty = +m.querySelector('#gQ').value, targets = seated.filter(s => sel.has(s.uid));
+    const g = list()[gi], qty = +m.querySelector('#gQ').value, targets = seated.filter(s => sel.has(s.uid));
     if (!targets.length) return toast('اختار شخص عالمايك حتى تهديه، أو اضغط على اسم أي واحد بالروم');
     m.close(); sendGift(g, qty, targets);
   };
