@@ -277,3 +277,5 @@ label.l{font-size:13px;font-weight:800;color:var(--fg2);margin-bottom:-6px}
 .wg-bot button{background:#E5ECF4;color:#1d4359;border-radius:20px;padding:9px 20px;font-weight:900;font-size:14px;box-shadow:0 3px 0 #9fb3c4}
 .wg-wait{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
 .wg-wait b{font-size:20px}
+.vip-demo{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;border-radius:18px;background:radial-gradient(circle at 50% 0,rgba(255,201,60,.18),transparent 70%),var(--surface);border:1px solid rgba(255,201,60,.3)}
+.vip-demo small{color:var(--fg3);font-size:11px}

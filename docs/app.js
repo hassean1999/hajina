@@ -669,7 +669,7 @@ function openVip() {
   const pct = next ? Math.min(100, r / next * 100) : 100;
   const m = modal('<h3>👑 VIP</h3><div class="vip-cur">' + (v ? '<span class="vipb v' + v + '" style="font-size:16px;padding:4px 14px">VIP' + v + '</span>' : '<span style="color:var(--fg2)">بعدك مو VIP</span>') + '</div>' +
     '<div style="font-size:12.5px;color:var(--fg2);text-align:center">مجموع شحنك: ◆ ' + r.toLocaleString('en') + (next ? ' — باقي ◆ ' + (next - r).toLocaleString('en') + ' للمستوى الجاي' : ' — وصلت أعلى مستوى 🎉') + '</div><div class="xp"><i style="width:' + pct + '%"></i></div>' +
-    VIP_INFO.map((x, i) => '<div class="vip-row' + (v > i ? ' on' : '') + '"><span class="e">' + x.e + '</span><div style="flex:1;min-width:0"><b>VIP' + (i + 1) + ' — ' + x.t + '</b><div>' + x.d + '</div><small>شحن ◆ ' + VIPT[i].toLocaleString('en') + '</small></div><span>' + (v > i ? '✅' : '🔒') + '</span></div>').join('') +
+    VIP_INFO.map((x, i) => '<div class="vip-row' + (v > i ? ' on' : '') + '" data-l="' + i + '" style="cursor:pointer"><span class="e">' + x.e + '</span><div style="flex:1;min-width:0"><b>VIP' + (i + 1) + ' — ' + x.t + '</b><div>' + x.d + '</div><small>شحن ◆ ' + VIPT[i].toLocaleString('en') + '</small></div><span>' + (v > i ? '✅' : '🔒') + ' ‹</span></div>').join('') +
     (v >= 2 ? '<button class="btn btn-s" id="vAv">📷 غيّر صورتك (صورة أو GIF)</button>' : '') +
     (v >= 3 ? '<button class="btn btn-s" id="vFx">🎙️ مؤثر الصوت: ' + fxName(ME.vfx) + '</button>' : '') +
     '<button class="btn btn-p" id="vR">◆ اشحن ماسات</button>');
@@ -677,6 +677,29 @@ function openVip() {
   on('#vAv', () => { m.close(); setAvatar(); });
   on('#vFx', () => { m.close(); openFx(); });
   on('#vR', () => { m.close(); openRecharge(); });
+  m.querySelectorAll('.vip-row').forEach(el => el.onclick = () => { m.close(); openVipLevel(+el.dataset.l); });
+}
+const VIP_DETAIL = [
+  ['اسمك يتلون بألوان قوس قزح متحركة', 'يبين بالكراسي، والدردشة، وملفك، والترتيب، وبطاقتك', 'شارة VIP1 زرقاء يم اسمك'],
+  ['كل مميزات VIP1', 'إطار ملون يدور حول صورتك بكل مكان', 'تكدر تحط صورتك الخاصة أو صورة GIF متحركة', 'اسمك يصير بلون ذهبي-وردي', 'شارة VIP2 برتقالية'],
+  ['كل مميزات VIP1 و VIP2', 'مؤثرات صوت للمايك: صدى، قاعة، راديو، روبوت', 'لما تدخل أي روم: شريط ذهبي باسمك يطلع للكل، وموسيقى وترحيب صوتي', 'صورة متحركة (GIF) لرومك تبين بالصفحة الرئيسية', 'اسمك بلون ذهبي لامع، وشارة VIP3 ذهبية']
+];
+function openVipLevel(i) {
+  const lv = i + 1, have = vipOf(ME.recharged || 0) >= lv, need = Math.max(0, VIPT[i] - (ME.recharged || 0));
+  const demo = Object.assign(meLite(), { vip: lv });
+  const m = modal('<h3>' + VIP_INFO[i].e + ' VIP' + lv + ' — ' + VIP_INFO[i].t + '</h3>' +
+    '<div class="vip-demo">' + avHtml(demo, 76) + '<div style="font-size:19px">' + nameHtml(demo) + '</div><small>هيج راح تبين للناس</small></div>' +
+    '<div class="list" style="margin:0">' + VIP_DETAIL[i].map(t => '<div class="li" style="cursor:default;font-weight:700;font-size:13.5px"><span class="ic">✨</span>' + t + '</div>').join('') + '</div>' +
+    '<div style="text-align:center;font-weight:900;color:' + (have ? 'var(--live)' : 'var(--or2)') + '">' + (have ? '✅ هذا المستوى مفعّل عندك' : '🔒 تحتاج تشحن ◆ ' + VIPT[i].toLocaleString('en') + ' بالمجموع (باقيلك ◆ ' + need.toLocaleString('en') + ')') + '</div>' +
+    (lv === 3 ? '<button class="btn btn-s" id="vlDemo">👀 شوف مثال الدخول للروم</button>' : '') +
+    (have ? (lv === 2 ? '<button class="btn btn-p" id="vlAv">📷 غيّر صورتك</button>' : lv === 3 ? '<button class="btn btn-p" id="vlFx">🎙️ اختار مؤثر الصوت</button>' : '') : '<button class="btn btn-p" id="vlR">◆ اشحن وصير VIP' + lv + '</button>') +
+    '<button class="btn btn-s" id="vlB">→ رجوع</button>');
+  const on = (id, f) => { const b = m.querySelector(id); if (b) b.onclick = f; };
+  on('#vlDemo', () => vipEntrance(demo));
+  on('#vlAv', () => { m.close(); setAvatar(); });
+  on('#vlFx', () => { m.close(); openFx(); });
+  on('#vlR', () => { m.close(); openRecharge(); });
+  on('#vlB', () => { m.close(); openVip(); });
 }
 const FX = [{ k: 'none', n: 'بدون' }, { k: 'echo', n: 'صدى' }, { k: 'hall', n: 'قاعة' }, { k: 'radio', n: 'راديو' }, { k: 'robot', n: 'روبوت' }];
 const fxName = k => (FX.find(f => f.k === (k || 'none')) || FX[0]).n;
