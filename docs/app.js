@@ -62,7 +62,7 @@ function errMsg(e) {
     'auth/invalid-verification-code': 'الرمز غلط', 'auth/code-expired': 'الرمز انتهى، اطلب رمز جديد',
     'auth/popup-closed-by-user': 'انسدت نافذة كوكل', 'auth/quota-exceeded': 'خلص عدد الرسائل اليوم، جرب بحساب كوكل',
     'auth/network-request-failed': 'تأكد من الإنترنت', 'permission-denied': 'ما عندك صلاحية',
-    'auth/operation-not-allowed': 'طريقة الدخول مو مفعلة', 'auth/captcha-check-failed': 'فشل التحقق، جرب مرة ثانية'
+    'auth/operation-not-allowed': 'طريقة الدخول مو مفعلة', 'auth/email-already-in-use': 'هذا الرقم مسجّل، اضغط دخول', 'auth/invalid-credential': 'الرقم أو الرمز السري غلط', 'auth/wrong-password': 'الرمز السري غلط', 'auth/user-not-found': 'هذا الرقم مو مسجّل، اضغط حساب جديد', 'auth/weak-password': 'الرمز السري ضعيف، خليه 6 أو أكثر', 'auth/invalid-email': 'رقم الهاتف غلط', 'auth/captcha-check-failed': 'فشل التحقق، جرب مرة ثانية'
   };
   return map[c] || ('صار خطأ: ' + (c || (e && e.message) || ''));
 }
@@ -80,26 +80,25 @@ $('btnGoogle').onclick = () => {
 window.onNativeGoogleToken = tok => { auth.signInWithCredential(firebase.auth.GoogleAuthProvider.credential(tok)).catch(e => { $('btnGoogle').disabled = false; toast(errMsg(e)); }); };
 window.onNativeGoogleError = m => { $('btnGoogle').disabled = false; if (m) toast('ما تم الدخول: ' + m); };
 
-let recaptcha = null, confirmRes = null;
-$('btnSendCode').onclick = async () => {
+// الدخول برقم الهاتف + رمز سري (بدون SMS)
+function phoneEmail() {
   let n = $('phNum').value.replace(/\D/g, ''); if (n.startsWith('0')) n = n.slice(1);
-  if (n.length < 9) return toast('اكتب رقمك صح');
-  const full = $('phCC').value.trim().replace(/\s/g, '') + n;
-  const b = $('btnSendCode'); b.disabled = true; b.textContent = 'جاري الإرسال...';
+  const cc = $('phCC').value.replace(/\D/g, '') || '964';
+  if (n.length < 9) { toast('اكتب رقمك صح'); return null; }
+  if ($('phPass').value.length < 6) { toast('الرمز السري لازم 6 أحرف أو أكثر'); return null; }
+  return 'p' + cc + n + '@hajina.app';
+}
+async function phoneAuth(isNew) {
+  const em = phoneEmail(); if (!em) return;
+  const btns = [$('btnLogin'), $('btnRegister')]; btns.forEach(b => b.disabled = true);
   try {
-    if (!recaptcha) { $('recap').innerHTML = ''; const box = document.createElement('div'); $('recap').appendChild(box); recaptcha = new firebase.auth.RecaptchaVerifier(box, { size: 'invisible' }); }
-    confirmRes = await auth.signInWithPhoneNumber(full, recaptcha);
-    $('loginMain').hidden = true; $('loginCode').hidden = false; $('codeSentTo').textContent = 'دزينا رمز على ' + full; $('phCode').focus();
-  } catch (e) { toast(errMsg(e)); try { recaptcha.clear(); } catch (_) {} recaptcha = null; $('recap').innerHTML = ''; }
-  b.disabled = false; b.textContent = 'إرسال رمز التحقق';
-};
-$('btnVerify').onclick = async () => {
-  const c = $('phCode').value.replace(/\D/g, ''); if (c.length < 6 || !confirmRes) return toast('اكتب الرمز من 6 أرقام');
-  $('btnVerify').disabled = true;
-  try { await confirmRes.confirm(c); } catch (e) { toast(errMsg(e)); }
-  $('btnVerify').disabled = false;
-};
-$('btnBackPhone').onclick = () => { $('loginMain').hidden = false; $('loginCode').hidden = true; };
+    if (isNew) await auth.createUserWithEmailAndPassword(em, $('phPass').value);
+    else await auth.signInWithEmailAndPassword(em, $('phPass').value);
+  } catch (e) { toast(errMsg(e)); }
+  btns.forEach(b => b.disabled = false);
+}
+$('btnLogin').onclick = () => phoneAuth(false);
+$('btnRegister').onclick = () => phoneAuth(true);
 
 auth.onAuthStateChanged(u => {
   if (meUnsub) { meUnsub(); meUnsub = null; }

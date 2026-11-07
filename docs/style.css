@@ -213,4 +213,4 @@ label.l{font-size:13px;font-weight:800;color:var(--fg2);margin-bottom:-6px}
 .uc .av{width:84px;height:84px;font-size:34px}
 .row2{display:flex;gap:10px;width:100%}
 .mic-hint{position:absolute;bottom:calc(76px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.65);padding:8px 16px;border-radius:18px;font-size:12.5px;font-weight:800;white-space:nowrap;z-index:5}
-   .or-line,.phone-row,#btnSendCode{display:none!important}
+
