@@ -7,7 +7,7 @@ window.openAdmin = function () {
     '<button data-a="charge"><span>💎</span>شحن ماسات</button><button data-a="reports"><span>🚩</span>البلاغات</button>' +
     '<button data-a="ban"><span>⛔</span>حظر حساب</button><button data-a="hist"><span>🧾</span>سجل الشحن</button>' +
     '<button data-a="events"><span>🎉</span>الأنشطة</button><button data-a="admins"><span>🛡️</span>تعيين مدير</button></div>');
-  m.querySelector('.adm-g').onclick = e => { const b = e.target.closest('button'); if (!b) return; m.close();
+  m.querySelector('.adm-g').onclick = e => { const b = e.target.closest('button'); if (!b || !b.dataset.a) return; m.close();
     ({ charge: _openAdminCharge, reports: admReports, ban: admBan, hist: admHist, events: () => openEvents(), admins: admAdmins })[b.dataset.a](); };
 };
 async function admFindUser(label, cb) {

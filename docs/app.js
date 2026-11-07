@@ -623,6 +623,7 @@ function onRoomMsg(m) {
     el.className = 'cm gift'; el.innerHTML = '<div class="gc-line">' + nm + ' <span class="v">ارسال</span> ' + esc(to) + '</div><div class="gc-box"><img src="' + gArt(g) + '" alt=""><span>' + (m.qty || 1) + 'x</span></div>';
     const fresh = !m.ts || ms(m.ts) > R.joinTs - 3000;
     if (fresh) playGift(g, m);
+  } else if (m.type === 'react') { if (!m.ts || ms(m.ts) > R.joinTs - 3000) floatReact(m); return;
   } else if (m.type === 'sys') { el.className = 'cm sys'; el.textContent = m.text; }
   else { el.className = 'cm'; el.innerHTML = nm + ': ' + esc(m.text); }
   box.appendChild(el);
@@ -793,20 +794,23 @@ function openDM(u) {
   const cref = db.collection('chats').doc(DM.id);
   cref.update({ ['unread.' + ME.uid]: 0 }).catch(() => {});
   dmUnsub = cref.collection('messages').orderBy('ts', 'desc').limit(100).onSnapshot(s => {
-    $('dmMsgs').innerHTML = s.docs.slice().reverse().map(d => { const m = d.data(); return '<div class="bub ' + (m.uid === ME.uid ? 'me' : 'them') + '">' + esc(m.text) + '</div>'; }).join('');
+    $('dmMsgs').innerHTML = s.docs.slice().reverse().map(d => { const m = d.data(); return '<div class="bub ' + (m.uid === ME.uid ? 'me' : 'them') + (m.img ? ' img' : '') + '">' + (m.img ? '<img src="' + m.img + '" alt="" onclick="viewImg(this.src)">' : '') + esc(m.text || '') + '</div>'; }).join('');
     $('dmMsgs').scrollTop = 1e9;
     if (s.docChanges().some(c => c.type === 'added' && c.doc.data().uid !== ME.uid)) cref.update({ ['unread.' + ME.uid]: 0 }).catch(() => {});
   });
 }
 function closeDM() { if (dmUnsub) dmUnsub(); dmUnsub = null; const back = DM && DM.from; DM = null; show(back === 'room' && R.id ? 'room' : 'chats'); }
-$('dmForm').onsubmit = e => {
-  e.preventDefault(); const t = $('dmInput').value.trim(); if (!t || !DM) return; $('dmInput').value = '';
+function dmSend(t, img) {
+  if (!DM) return;
   const cref = db.collection('chats').doc(DM.id), o = DM.u;
   const batch = db.batch();
-  batch.set(cref.collection('messages').doc(), { uid: ME.uid, text: t.slice(0, 500), ts: FV.serverTimestamp() });
-  batch.set(cref, { members: [ME.uid, o.uid], info: { [ME.uid]: { name: ME.name, color: ME.color }, [o.uid]: { name: o.name, color: o.color } }, last: t.slice(0, 80), lastTs: FV.serverTimestamp(), unread: { [o.uid]: FV.increment(1) } }, { merge: true });
+  batch.set(cref.collection('messages').doc(), Object.assign({ uid: ME.uid, text: t.slice(0, 500), ts: FV.serverTimestamp() }, img ? { img } : {}));
+  batch.set(cref, { members: [ME.uid, o.uid], info: { [ME.uid]: { name: ME.name, color: ME.color }, [o.uid]: { name: o.name, color: o.color } }, last: img ? '📷 صورة' : t.slice(0, 80), lastTs: FV.serverTimestamp(), unread: { [o.uid]: FV.increment(1) } }, { merge: true });
   batch.commit().catch(e => toast(errMsg(e)));
-};
+}
+$('dmForm').onsubmit = e => { e.preventDefault(); const t = $('dmInput').value.trim(); if (!t || !DM) return; $('dmInput').value = ''; dmSend(t); };
+async function dmPhoto() { try { const img = await pickImage({ size: 900, maxKB: 230 }); dmSend('', img); } catch (e) {} }
+function viewImg(src) { const d = document.createElement('div'); d.className = 'imgview'; d.innerHTML = '<img src="' + src + '" alt="">'; d.onclick = () => d.remove(); document.body.appendChild(d); }
 
 /* ---------- RANK ---------- */
 let rankBy = 'xp';

@@ -8,7 +8,7 @@
 <link rel="icon" href="logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
 </head>
 <body>
 
@@ -83,7 +83,7 @@
 <section class="scr" id="dm" hidden>
   <div class="hdr"><button class="rm-x" onclick="closeDM()">→</button><div class="av" id="dmAv" style="width:38px;height:38px"></div><div class="t" id="dmName"></div></div>
   <div class="msgs" id="dmMsgs"></div>
-  <form class="composer" id="dmForm"><input id="dmInput" placeholder="اكتب رسالة..." autocomplete="off" maxlength="500"><button>➤</button></form>
+  <form class="composer" id="dmForm"><button type="button" class="dm-ph" onclick="dmPhoto()">📷</button><input id="dmInput" placeholder="اكتب رسالة..." autocomplete="off" maxlength="500"><button>➤</button></form>
 </section>
 
 <!-- profile -->
@@ -102,6 +102,7 @@
       <div style="font-size:11.5px;color:var(--fg3);margin-top:6px">ترسل هدايا = تصعد مستوى</div>
     </div>
     <div class="list">
+      <div class="li" onclick="openEarnings()"><span class="ic">💰</span>أرباحي<span class="end" id="meEarn"></span></div>
       <div class="li" onclick="openVip()"><span class="ic">👑</span>VIP<span class="end" id="meVipT"></span></div>
       <div class="li" onclick="openRecharge()"><span class="ic">◆</span>الماسات<span class="end" id="meDia"></span></div>
       <div class="li" onclick="doCheckin()"><span class="ic"><img class="sc" src="silver.svg" alt=""></span>العملات الفضية<span class="end" id="meSil"></span></div>
@@ -132,6 +133,7 @@
     <div class="say" onclick="openSay()">قل شيئاً...</div>
     <button class="rb" id="rbMic" onclick="toggleMic()" hidden>🎙️</button>
     <button class="rb" id="rbSpk" onclick="toggleSpeaker()">🔊</button>
+    <button class="rb" onclick="openReacts()">😊</button>
     <button class="rb" onclick="openGames()">🎮</button>
     <button class="rb gift" onclick="openGifts()">🎁</button>
   </div>
@@ -169,18 +171,19 @@ setTimeout(function(){var l=document.getElementById('loading');if(l&&!l.hidden){
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng@4.20.2/AgoraRTC_N-production.js"></script>
-<script src="gart.js?v=22"></script>
-<script src="config.js?v=22"></script>
-<script src="app.js?v=22"></script>
-<script src="game.js?v=22"></script>
-<script src="games2.js?v=22"></script>
-<script src="runner.js?v=22"></script>
-<script src="ludo.js?v=22"></script>
-<script src="carrom.js?v=22"></script>
-<script src="social.js?v=22"></script>
-<script src="pk.js?v=22"></script>
-<script src="extras.js?v=22"></script>
-<script src="moments.js?v=22"></script>
-<script src="admin.js?v=22"></script>
+<script src="gart.js?v=23"></script>
+<script src="config.js?v=23"></script>
+<script src="app.js?v=23"></script>
+<script src="game.js?v=23"></script>
+<script src="games2.js?v=23"></script>
+<script src="runner.js?v=23"></script>
+<script src="ludo.js?v=23"></script>
+<script src="carrom.js?v=23"></script>
+<script src="social.js?v=23"></script>
+<script src="pk.js?v=23"></script>
+<script src="extras.js?v=23"></script>
+<script src="moments.js?v=23"></script>
+<script src="admin.js?v=23"></script>
+<script src="earn.js?v=23"></script>
 </body>
 </html>

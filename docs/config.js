@@ -32,6 +32,8 @@ window.HAJINA_CONFIG = {
   // مفتاح YouTube Data API (اختياري، للبحث بيوتيوب)
   youtubeKey: "",
   // العملات الفضية المجانية (ما تنشحن، بس هدايا فضية)
+  // أرباح المضيفين: كل نقطة جاذبية (💗) تساوي ماسة وحدة استلمها الشخص
+  earnings: { minWithdraw: 10000, rateText: "كل 10,000 نقطة = 7,000 دينار" },
   welcomeSilver: 100,
   dailySilver: 100
 };
