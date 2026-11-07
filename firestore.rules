@@ -14,7 +14,7 @@ service cloud.firestore {
         && request.resource.data.get('silver', 0) <= 100;
       allow update: if isAdmin()
         || (signed() && request.auth.uid == uid
-            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['admin', 'charm', 'followers', 'recharged'])
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['admin', 'charm', 'followers', 'recharged', 'banned'])
             && request.resource.data.get('diamonds', 0) <= resource.data.get('diamonds', 0)
             && (request.resource.data.get('silver', 0) <= resource.data.get('silver', 0)
                 || (request.resource.data.get('silver', 0) <= resource.data.get('silver', 0) + 100
@@ -53,7 +53,10 @@ service cloud.firestore {
       }
     }
 
-    match /reports/{r} { allow create: if signed(); }
+    match /reports/{r} {
+      allow create: if signed();
+      allow read, delete: if isAdmin();
+    }
     match /recharges/{x} { allow read, create: if isAdmin(); }
     match /families/{f} {
       allow read: if signed();

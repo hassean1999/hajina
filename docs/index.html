@@ -8,7 +8,7 @@
 <link rel="icon" href="logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap">
-<link rel="stylesheet" href="style.css?v=21">
+<link rel="stylesheet" href="style.css?v=22">
 </head>
 <body>
 
@@ -31,7 +31,7 @@
     <input id="phPass" type="password" placeholder="الرمز السري (6 أحرف أو أكثر)" autocomplete="current-password">
     <div class="row2"><button class="btn btn-p" id="btnLogin">دخول</button><button class="btn btn-s" id="btnRegister">حساب جديد</button></div>
   </div>
-  <p class="legal">بالدخول توافق على شروط الاستخدام وسياسة الخصوصية لحجينه</p>
+  <p class="legal">بالدخول توافق على <a href="terms.html" target="_blank" style="color:var(--or2)">شروط الاستخدام</a> و<a href="privacy.html" target="_blank" style="color:var(--or2)">سياسة الخصوصية</a> لحجينه</p>
 </section>
 
 <!-- setup profile -->
@@ -107,6 +107,7 @@
       <div class="li" onclick="doCheckin()"><span class="ic"><img class="sc" src="silver.svg" alt=""></span>العملات الفضية<span class="end" id="meSil"></span></div>
       <div class="li" onclick="doCheckin()"><span class="ic">🎡</span>عجلة الحظ اليومية<span class="end">حتى 100 <img class="sc" src="silver.svg" alt=""></span></div>
       <div class="li" onclick="openEdit()"><span class="ic">✏️</span>تعديل الملف الشخصي</div>
+      <div class="li" onclick="openSettings()"><span class="ic">⚙️</span>الإعدادات</div>
       <div class="li" id="meAdmin" onclick="openAdmin()" hidden><span class="ic">🛠️</span>لوحة الإدارة<span class="end">شحن الماسات</span></div>
       <div class="li" onclick="logout()" style="color:var(--danger)"><span class="ic">🚪</span>تسجيل خروج</div>
     </div>
@@ -168,17 +169,18 @@ setTimeout(function(){var l=document.getElementById('loading');if(l&&!l.hidden){
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng@4.20.2/AgoraRTC_N-production.js"></script>
-<script src="gart.js?v=21"></script>
-<script src="config.js?v=21"></script>
-<script src="app.js?v=21"></script>
-<script src="game.js?v=21"></script>
-<script src="games2.js?v=21"></script>
-<script src="runner.js?v=21"></script>
-<script src="ludo.js?v=21"></script>
-<script src="carrom.js?v=21"></script>
-<script src="social.js?v=21"></script>
-<script src="pk.js?v=21"></script>
-<script src="extras.js?v=21"></script>
-<script src="moments.js?v=21"></script>
+<script src="gart.js?v=22"></script>
+<script src="config.js?v=22"></script>
+<script src="app.js?v=22"></script>
+<script src="game.js?v=22"></script>
+<script src="games2.js?v=22"></script>
+<script src="runner.js?v=22"></script>
+<script src="ludo.js?v=22"></script>
+<script src="carrom.js?v=22"></script>
+<script src="social.js?v=22"></script>
+<script src="pk.js?v=22"></script>
+<script src="extras.js?v=22"></script>
+<script src="moments.js?v=22"></script>
+<script src="admin.js?v=22"></script>
 </body>
 </html>

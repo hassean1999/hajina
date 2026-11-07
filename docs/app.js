@@ -229,6 +229,7 @@ auth.onAuthStateChanged(u => {
   meUnsub = ref.onSnapshot(s => {
     const d = s.data();
     if (!d || !d.name) { if (curScr !== 'setup') openSetup(u); return; }
+    if (d.banned) { stopAll(); booted = false; show('login'); $('loginMain').innerHTML = '<div class="empty"><div class="e">⛔</div><b>حسابك محظور</b><span>إذا تعتقد صار غلط، تواصل وية الإدارة</span><button class="btn btn-s" onclick="auth.signOut();location.reload()">تسجيل خروج</button></div>'; return; }
     const prevLvl = ME && ME.name ? lvlOf(ME.xp) : null;
     const prevDia = ME && ME.name ? (ME.diamonds || 0) : null;
     ME = Object.assign({ uid: u.uid }, d);
@@ -236,7 +237,7 @@ auth.onAuthStateChanged(u => {
     if (prevDia !== null && (ME.diamonds || 0) > prevDia) { chime(true); toast('💎 وصلتك ' + ((ME.diamonds || 0) - prevDia).toLocaleString('en') + ' ماسة!'); }
     $('meAdmin').hidden = !ME.admin;
     if (prevLvl && lvlOf(ME.xp) > prevLvl) { const nl = lvlOf(ME.xp); setTimeout(() => levelUpFx(nl), 3600); }
-    if (!booted) { booted = true; show('home'); startHome(); startChats(); if (window.startNotifs) startNotifs(); }
+    if (!booted) { booted = true; show('home'); startHome(); startChats(); if (window.startNotifs) startNotifs(); if (window.welcomeTips) setTimeout(welcomeTips, 1500); }
   }, e => toast(errMsg(e)));
 });
 
@@ -541,6 +542,13 @@ async function joinVoice(channel) {
     await c.setClientRole('audience');
     c.on('user-published', async (user, type) => { if (type !== 'audio') return; await c.subscribe(user, 'audio'); user.audioTrack.play(); user.audioTrack.setVolume(R.spkOff ? 0 : 100); });
     c.enableAudioVolumeIndicator();
+    c.on('connection-state-change', (cur, prev, reason) => {
+      if (cur === 'DISCONNECTED' && reason !== 'LEAVE' && R.client === c && R.id) {
+        toast('📡 انقطع الصوت، دا نرجع نتصل...'); const id = R.id, wasSeat = R.mySeat !== -1;
+        try { if (R.localTrack) R.localTrack.close(); } catch (e) {} R.localTrack = null; R.client = null;
+        setTimeout(() => { if (R.id === id) joinVoice(id); }, 2500);
+      }
+    });
     c.on('volume-indicator', vols => {
       const sp = new Set(vols.filter(v => v.level > 6).map(v => String(v.uid)));
       if (R.localTrack && !R.muted && R.localTrack.getVolumeLevel() > 0.06) sp.add(ME.uid);

@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
         s.setDatabaseEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setTextZoom(100);
-        s.setUserAgentString(s.getUserAgentString() + " HajinaApp/3");
+        s.setUserAgentString(s.getUserAgentString() + " HajinaApp/4");
         web.addJavascriptInterface(new Bridge(), "HajinaNative");
         web.setWebViewClient(new WebViewClient() {
             @Override
@@ -92,6 +92,15 @@ public class MainActivity extends Activity {
                     else { pendingPerm = request; askMic(); }
                 });
             }
+        });
+        web.setOnApplyWindowInsetsListener((v, insets) -> {
+            int top, bottom;
+            if (Build.VERSION.SDK_INT >= 30) {
+                android.graphics.Insets i = insets.getInsets(android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.ime());
+                top = i.top; bottom = i.bottom;
+            } else { top = insets.getSystemWindowInsetTop(); bottom = insets.getSystemWindowInsetBottom(); }
+            v.setPadding(0, top, 0, bottom);
+            return insets;
         });
         setContentView(web);
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
@@ -176,7 +185,7 @@ public class MainActivity extends Activity {
     @Override
     public void onBackPressed() {
         web.evaluateJavascript("(window.hajinaBack?hajinaBack():'exit')", v -> {
-            if (v == null || v.contains("exit")) moveTaskToBack(true);
+            if (v == null || v.contains("exit")) { if (web.canGoBack() && !APP_URL.equals(web.getUrl())) web.goBack(); else moveTaskToBack(true); }
         });
     }
 }
