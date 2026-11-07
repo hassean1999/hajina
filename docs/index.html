@@ -8,7 +8,7 @@
 <link rel="icon" href="logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap">
-<link rel="stylesheet" href="style.css?v=16">
+<link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
 
@@ -58,9 +58,14 @@
       <button class="ibtn" onclick="doCheckin()" title="هدية يومية">🎁</button>
     </div>
   </div>
+  <div class="hero3">
+    <div class="h3c rich" onclick="openRich()"><span class="h3i">💰</span><b>قائمة الثراء</b><div class="h3av" id="richAv"></div></div>
+    <div class="h3c ev" onclick="openEvents()"><span class="h3i">🎉</span><b>الأنشطة</b><small id="evT">شوف الجديد</small></div>
+    <div class="h3c fam" onclick="openFamilies()"><span class="h3i">👨‍👩‍👧</span><b>العائلات</b><small id="famT">انضم لعائلة</small></div>
+  </div>
   <div class="cats" id="homeCats"></div>
   <div class="scroll" id="homeScroll">
-    <div class="sec-t"><span>🔥 الرومات المباشرة</span><span style="font-size:12px;color:var(--fg3)" id="roomsCount"></span></div>
+    <div class="sec-t"><span id="roomsTitle">🔥 الترند</span><span style="font-size:12px;color:var(--fg3)" id="roomsCount"></span></div>
     <div class="rooms" id="roomsGrid"></div>
     <div class="empty" id="roomsEmpty" hidden><div class="e">🎙️</div><b>ماكو رومات مفتوحة هسه</b><span>كون أول واحد يفتح روم ويجمع الناس</span><button class="btn btn-p" style="width:auto;padding:12px 28px" onclick="openCreate()">افتح روم</button></div>
   </div>
@@ -153,10 +158,11 @@ setTimeout(function(){var l=document.getElementById('loading');if(l&&!l.hidden){
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng@4.20.2/AgoraRTC_N-production.js"></script>
-<script src="gart.js?v=16"></script>
-<script src="config.js?v=16"></script>
-<script src="app.js?v=16"></script>
-<script src="game.js?v=16"></script>
-<script src="games2.js?v=16"></script>
+<script src="gart.js?v=17"></script>
+<script src="config.js?v=17"></script>
+<script src="app.js?v=17"></script>
+<script src="game.js?v=17"></script>
+<script src="games2.js?v=17"></script>
+<script src="social.js?v=17"></script>
 </body>
 </html>

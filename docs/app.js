@@ -339,23 +339,46 @@ function openAdmin() {
 async function logout() { await leaveRoom(true); auth.signOut(); }
 
 /* ---------- HOME ---------- */
-let roomsUnsub = null, roomsData = [], homeCat = 'all', homeTimer = null;
-$('homeCats').innerHTML = CATS.map(c => '<button data-k="' + c.k + '" class="' + (c.k === 'all' ? 'on' : '') + '">' + c.e + ' ' + c.n + '</button>').join('');
-$('homeCats').onclick = e => { const k = e.target.closest('button') && e.target.closest('button').dataset.k; if (!k) return; homeCat = k; [...$('homeCats').children].forEach(b => b.classList.toggle('on', b.dataset.k === k)); renderRooms(); };
+let roomsUnsub = null, roomsData = [], homeTab = 'trend', homeTimer = null, FOLLOW = new Set(), FAVS = new Set(), followUnsub = null, favUnsub = null;
+const EXTRA = {};
+const HTABS = [{ k: 'fav', n: '⭐ المفضلة' }, { k: 'trend', n: '🔥 الترند' }, { k: 'follow', n: '👥 المتابَعين' }, { k: 'recent', n: '🕘 آخر الرومات' }, { k: 'rec', n: '✨ موصى به' }];
+$('homeCats').innerHTML = HTABS.map(c => '<button data-k="' + c.k + '" class="' + (c.k === homeTab ? 'on' : '') + '">' + c.n + '</button>').join('');
+$('homeCats').onclick = e => { const b = e.target.closest('button'); if (!b) return; homeTab = b.dataset.k; [...$('homeCats').children].forEach(x => x.classList.toggle('on', x === b)); renderRooms(); };
 function startHome() {
   roomsUnsub = db.collection('rooms').orderBy('lastActive', 'desc').limit(80).onSnapshot(s => { roomsData = s.docs.map(d => Object.assign({ id: d.id }, d.data())); renderRooms(); }, e => toast(errMsg(e)));
+  followUnsub = db.collection('users').doc(ME.uid).collection('following').onSnapshot(s => { FOLLOW = new Set(s.docs.map(d => d.id)); renderRooms(); }, () => {});
+  favUnsub = db.collection('users').doc(ME.uid).collection('favRooms').onSnapshot(s => { FAVS = new Set(s.docs.map(d => d.id)); renderRooms(); }, () => {});
   homeTimer = setInterval(renderRooms, 30000);
+  if (window.loadHomeHero) loadHomeHero();
 }
+function recentIds() { try { return JSON.parse(localStorage.getItem('hj_recent') || '[]'); } catch (e) { return []; } }
+function pushRecent(id) { try { const l = recentIds().filter(x => x !== id); l.unshift(id); localStorage.setItem('hj_recent', JSON.stringify(l.slice(0, 20))); } catch (e) {} }
+const isLive = r => r && !r.closed && ms(r.lastActive) > Date.now() - 3 * 60000;
+const heat = r => (r.online || 0) * 10 + Object.values(r.hearts || {}).reduce((a, b) => a + b, 0) / 100;
+function roomById(id) { const r = roomsData.find(x => x.id === id) || EXTRA[id]; if (!r && EXTRA[id] === undefined) { EXTRA[id] = null; db.collection('rooms').doc(id).get().then(s => { if (s.exists) { EXTRA[id] = Object.assign({ id }, s.data()); renderRooms(); } }).catch(() => {}); } return r || null; }
 function renderRooms() {
-  const now = Date.now();
-  const list = roomsData.filter(r => !r.closed && ms(r.lastActive) > now - 3 * 60000 && (homeCat === 'all' || r.cat === homeCat)).sort((a, b) => (b.online || 0) - (a.online || 0));
+  const live = roomsData.filter(isLive);
+  let list = [], empty = '';
+  if (homeTab === 'trend') { list = live.slice().sort((a, b) => heat(b) - heat(a)); empty = 'ماكو رومات مفتوحة هسه|كون أول واحد يفتح روم ويجمع الناس'; }
+  else if (homeTab === 'fav') { list = [...FAVS].map(roomById).filter(Boolean).sort((a, b) => isLive(b) - isLive(a)); empty = 'ما ضفت رومات للمفضلة|ادخل أي روم واضغط ⋯ ← ⭐ أضف للمفضلة'; }
+  else if (homeTab === 'follow') { list = roomsData.filter(r => !r.closed && (FOLLOW.has(r.ownerUid) || (r.seats || []).some(x => x && FOLLOW.has(x.uid)))).sort((a, b) => isLive(b) - isLive(a) || heat(b) - heat(a)); empty = 'ماكو رومات لناس تتابعهم|تابع الناس من بطاقتهم حتى تلكى رومهم هنا'; }
+  else if (homeTab === 'recent') { list = recentIds().map(roomById).filter(r => r && !r.closed); empty = 'بعدك ما دخلت أي روم|الرومات اللي تدخلها تبين هنا'; }
+  else { list = live.slice().sort((a, b) => ((b.city === ME.city) * 50 + heat(b) + (FOLLOW.has(b.ownerUid) ? 30 : 0)) - ((a.city === ME.city) * 50 + heat(a) + (FOLLOW.has(a.ownerUid) ? 30 : 0))); empty = 'ماكو رومات نوصيك بيها هسه|ارجع بعد شوية'; }
+  const [et, es] = empty.split('|');
   $('roomsEmpty').hidden = list.length > 0;
+  $('roomsEmpty').querySelector('b').textContent = et; $('roomsEmpty').querySelector('span').textContent = es;
   $('roomsCount').textContent = list.length ? toAr(list.length) + ' روم' : '';
+  $('roomsTitle').textContent = (HTABS.find(t => t.k === homeTab) || HTABS[1]).n;
   $('roomsGrid').innerHTML = list.map(r => {
-    const cat = CATS.find(c => c.k === r.cat) || CATS[1], th = THEMES.find(t => t.k === (r.theme || '')) || THEMES[0];
+    const cat = CATS.find(c => c.k === r.cat) || CATS[1], th = THEMES.find(t => t.k === (r.theme || '')) || THEMES[0], lv = isLive(r);
     const cv = r.coverV ? coverOf(r) : '';
-    return '<div class="rc" onclick="enterRoom(\'' + r.id + '\')"><div class="rc-top" data-cover="' + r.id + '" style="background:' + (cv ? 'url(' + cv + ') center/cover' : 'radial-gradient(circle at 50% 30%,' + th.c + ',#140A04)') + '">' + (cv ? '' : cat.e) + '<span class="rc-live">مباشر</span><span class="rc-cnt">👤 ' + toAr(Math.max(1, r.online || 0)) + '</span>' + (r.locked ? '<span class="rc-lock">🔒</span>' : '') + '</div><div class="rc-b"><div class="rc-t">' + esc(r.title) + '</div><div class="rc-h">' + esc(r.ownerName) + ' · ' + esc(r.city || '') + '</div></div></div>';
+    return '<div class="rc' + (lv ? '' : ' off') + '" onclick="enterRoom(\'' + r.id + '\')"><div class="rc-top" data-cover="' + r.id + '" style="background:' + (cv ? 'url(' + cv + ') center/cover' : 'radial-gradient(circle at 50% 30%,' + th.c + ',#140A04)') + '">' + (cv ? '' : cat.e) + (lv ? '<span class="rc-live">مباشر</span><span class="rc-cnt">👤 ' + toAr(Math.max(1, r.online || 0)) + '</span>' : '<span class="rc-live off">غير مباشر</span>') + (r.locked ? '<span class="rc-lock">🔒</span>' : '') + (FAVS.has(r.id) ? '<span class="rc-fav">⭐</span>' : '') + '</div><div class="rc-b"><div class="rc-t">' + esc(r.title) + '</div><div class="rc-h">' + esc(r.ownerName) + ' · ' + esc(r.city || '') + '</div></div></div>';
   }).join('');
+}
+async function toggleFav() {
+  const ref = db.collection('users').doc(ME.uid).collection('favRooms').doc(R.id);
+  if (FAVS.has(R.id)) { await ref.delete().catch(e => toast(errMsg(e))); toast('انشال من المفضلة'); }
+  else { await ref.set({ title: R.data.title, ts: Date.now() }).catch(e => toast(errMsg(e))); toast('⭐ انضاف للمفضلة'); }
 }
 async function openCreate() {
   if (!ME) return;
@@ -395,6 +418,7 @@ async function enterRoom(id, skipPw) {
     m.querySelector('#pwG').onclick = () => { if (m.querySelector('#pwI').value.trim() === d.password) { m.close(); enterRoom(id, true); } else toast('الرمز غلط'); };
     return;
   }
+  pushRecent(id);
   R = { id, data: d, unsubs: [], members: {}, mySeat: -1, muted: false, spkOff: false, joinTs: Date.now(), speaking: new Set(), seen: new Set() };
   $('room').className = 'scr ' + (d.theme || ''); show('room'); $('rmChat').innerHTML = ''; renderRoom(); loadRoomBg(d);
   const me = meLite();
@@ -627,6 +651,7 @@ async function sendGift(g, qty, targets) {
       targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(heart) }); hu['hearts.' + t.uid] = FV.increment(heart); });
       tx.update(ref, hu);
     });
+    if (!sv && ME.family && ME.family.id) db.collection('families').doc(ME.family.id).update({ total: FV.increment(total) }).catch(() => {});
     await ref.collection('messages').add({ type: 'gift', ...meLite(), gift: g.k, qty, val: heart, to: targets.map(t => ({ uid: t.uid, name: t.name })), ts: FV.serverTimestamp() });
   } catch (e) {
     if (e.message === 'nobal') { if (sv) toast('عملاتك الفضية ما تكفي، خذ هدية اليوم 🎁'); else { toast('ماساتك ما تكفي (' + total + ' ◆)'); openRecharge(); } }
@@ -677,15 +702,17 @@ function openMembers() {
 }
 function openRoomMenu() {
   if (isOwner()) {
-    const m = modal('<h3>إدارة الروم</h3><button class="btn btn-s" id="rmE">✏️ تعديل الروم (الاسم والرمز السري)</button><button class="btn btn-s" id="rmBg">🖼️ خلفية الروم من الاستوديو</button>' + (vipOf(ME.recharged || 0) >= 3 ? '<button class="btn btn-s" id="rmCv">🎞️ صورة الروم المتحركة (VIP3)</button>' : '') + '<button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button><button class="btn btn-s" id="rmC" style="color:var(--danger)">⛔ سد الروم</button>');
+    const m = modal('<h3>إدارة الروم</h3><button class="btn btn-s" id="rmF">' + (FAVS.has(R.id) ? '★ شيل من المفضلة' : '⭐ أضف للمفضلة') + '</button><button class="btn btn-s" id="rmE">✏️ تعديل الروم (الاسم والرمز السري)</button><button class="btn btn-s" id="rmBg">🖼️ خلفية الروم من الاستوديو</button>' + (vipOf(ME.recharged || 0) >= 3 ? '<button class="btn btn-s" id="rmCv">🎞️ صورة الروم المتحركة (VIP3)</button>' : '') + '<button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button><button class="btn btn-s" id="rmC" style="color:var(--danger)">⛔ سد الروم</button>');
     m.querySelector('#rmE').onclick = () => { m.close(); openCreate(); };
+    m.querySelector('#rmF').onclick = () => { m.close(); toggleFav(); };
     m.querySelector('#rmBg').onclick = () => { m.close(); setRoomImage('bg'); };
     if (m.querySelector('#rmCv')) m.querySelector('#rmCv').onclick = () => { m.close(); setRoomImage('cover'); };
     m.querySelector('#rmYt').onclick = () => { m.close(); openYT(); };
     m.querySelector('#rmC').onclick = async () => { m.close(); await roomRef().update({ closed: true, seats: Array(10).fill(null), online: 0 }).catch(() => {}); leaveRoom(); };
   } else {
-    const m = modal('<h3>' + esc(R.data.title) + '</h3>' + (R.mySeat !== -1 ? '<button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button>' : '') + '<button class="btn btn-s" id="rmR">🚩 إبلاغ عن الروم</button>');
+    const m = modal('<h3>' + esc(R.data.title) + '</h3><button class="btn btn-s" id="rmF">' + (FAVS.has(R.id) ? '★ شيل من المفضلة' : '⭐ أضف للمفضلة') + '</button>' + (R.mySeat !== -1 ? '<button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button>' : '') + '<button class="btn btn-s" id="rmR">🚩 إبلاغ عن الروم</button>');
     if (m.querySelector('#rmYt')) m.querySelector('#rmYt').onclick = () => { m.close(); openYT(); };
+    m.querySelector('#rmF').onclick = () => { m.close(); toggleFav(); };
     m.querySelector('#rmR').onclick = () => { db.collection('reports').add({ room: R.id, by: ME.uid, ts: FV.serverTimestamp() }); m.close(); toast('وصل البلاغ للإدارة، شكراً'); };
   }
 }
@@ -919,7 +946,7 @@ function ytStop() { R.ytVid = null; if (YTP && YTP.destroy) { try { YTP.destroy(
 $('ytVol').oninput = e => { if (YTP && YTP.setVolume) YTP.setVolume(+e.target.value); };
 
 /* ---------- misc ---------- */
-function stopAll() { [roomsUnsub, chatsUnsub, dmUnsub].forEach(u => u && u()); roomsUnsub = chatsUnsub = dmUnsub = null; clearInterval(homeTimer); }
+function stopAll() { [roomsUnsub, chatsUnsub, dmUnsub, followUnsub, favUnsub].forEach(u => u && u()); roomsUnsub = chatsUnsub = dmUnsub = null; clearInterval(homeTimer); }
 // زر الرجوع بالأندرويد
 window.hajinaBack = function () {
   if (closeTopModal()) return 'x';

@@ -320,3 +320,33 @@ img.sc{width:1.15em;height:1.15em;vertical-align:-.22em;display:inline-block;fil
 .qz-o button{background:#E5ECF4;color:#1d4359;border-radius:16px;padding:14px 8px;font-weight:900;font-size:15px;box-shadow:0 4px 0 #9fb3c4}
 .qz-o button.ok{background:#4ADE80;color:#0b3d1c;box-shadow:0 4px 0 #1f9a4a}
 .qz-o button.no{background:#F87171;color:#fff;box-shadow:0 4px 0 #b91c1c}
+/* home hero + tabs */
+.hero3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:2px 16px 10px}
+.h3c{border-radius:18px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;min-height:96px;justify-content:center;text-align:center;border:1px solid rgba(255,255,255,.12);box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.h3c.rich{background:linear-gradient(150deg,#FFB13B,#C2410C)}
+.h3c.ev{background:linear-gradient(150deg,#E8304C,#7A0A3A)}
+.h3c.fam{background:linear-gradient(150deg,#2E9BD6,#1A3F7A)}
+.h3c .h3i{font-size:28px;line-height:1}
+.h3c b{font-size:13px;color:#fff}
+.h3c small{font-size:10.5px;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.h3av{display:flex;justify-content:center}
+.h3av .av{margin:0 -4px;border:2px solid #fff;font-size:11px!important}
+.rc.off{opacity:.7}
+.rc-live.off{background:rgba(0,0,0,.55)}
+.rc-live.off::before{background:#8E6C50}
+.rc-fav{position:absolute;bottom:8px;right:8px;font-size:15px}
+.ev-card{display:flex;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px}
+.ev-card .e{font-size:30px}
+.ev-card b{font-size:14.5px}
+.ev-card p{font-size:12.5px;color:var(--fg2);line-height:1.7;margin-top:2px}
+.ev-card small{font-size:11px;color:var(--or2)}
+.ev-del{font-size:18px;align-self:flex-start}
+textarea{font-family:inherit;font-size:15px;color:var(--fg);background:var(--surface2);border:1.5px solid var(--border2);border-radius:14px;padding:12px 14px;width:100%;outline:none;resize:vertical}
+.fam-mine{display:flex;align-items:center;gap:12px;background:linear-gradient(150deg,#2E9BD6,#1A3F7A);border-radius:18px;padding:12px 14px;cursor:pointer}
+.fam-mine>span:first-child{font-size:34px}
+.fam-mine div{flex:1}.fam-mine small{display:block;font-size:11px;opacity:.8}.fam-mine b{font-size:16px}
+.fam-emo{font-size:28px}
+.fam-head{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.fam-head>span{font-size:54px}
+.fam-head b{font-size:20px}
+.fam-head small{color:var(--fg2);font-size:12.5px}
