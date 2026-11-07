@@ -49,7 +49,16 @@ function show(id) {
   if (id === 'rank') loadRank();
 }
 document.querySelectorAll('#nav [data-t]').forEach(b => b.onclick = () => show(b.dataset.t));
-function avHtml(u, size) { const s = size || 44; return '<div class="av" style="width:' + s + 'px;height:' + s + 'px;font-size:' + Math.round(s * .4) + 'px;background:' + esc(u.color || '#FF8A1F') + '">' + esc((u.name || '؟').trim().charAt(0)) + '</div>'; }
+const VIPT = C.vipLevels || [1000, 5000, 20000];
+const vipOf = r => r >= VIPT[2] ? 3 : r >= VIPT[1] ? 2 : r >= VIPT[0] ? 1 : 0;
+const AVC = {};
+function meLite() { return { uid: ME.uid, name: ME.name, color: ME.color, vip: vipOf(ME.recharged || 0), pv: ME.pv || 0 }; }
+function nameHtml(u, noBadge) { const v = u.vip || 0; return '<span class="' + (v ? 'vipn v' + v : '') + '">' + esc(u.name) + '</span>' + (v && !noBadge ? ' <span class="vipb v' + v + '">VIP' + v + '</span>' : ''); }
+function avInner(u) { const k = u.uid + ':' + (u.pv || 0); if (u.uid && u.pv && AVC[k] === undefined) loadAv(u.uid, u.pv); return u.uid && AVC[k] ? '<img src="' + AVC[k] + '" alt="">' : esc((u.name || '؟').trim().charAt(0)); }
+function avHtml(u, size) { const s = size || 44, v = u.vip || 0; const st = 'width:' + s + 'px;height:' + s + 'px;font-size:' + Math.round(s * .4) + 'px;'; const inner = avInner(u);
+  if (v >= 2) return '<div class="av vframe" style="' + st + '"><i data-av="' + esc(u.uid || '') + '" style="background:' + esc(u.color || '#FF8A1F') + '">' + inner + '</i></div>';
+  return '<div class="av" data-av="' + esc(u.uid || '') + '" style="' + st + 'background:' + esc(u.color || '#FF8A1F') + '">' + inner + '</div>'; }
+async function loadAv(uid, pv) { const k = uid + ':' + pv; AVC[k] = ''; try { const d = await db.collection('avatars').doc(uid).get(); if (d.exists && d.data().img) { AVC[k] = d.data().img; document.querySelectorAll('[data-av="' + uid + '"]').forEach(el => el.innerHTML = '<img src="' + AVC[k] + '" alt="">'); } } catch (e) {} }
 function modal(html, cls) {
   const ov = document.createElement('div'); ov.className = 'ov';
   ov.innerHTML = '<div class="sheet ' + (cls || '') + '"><div class="handle"></div>' + html + '</div>';
@@ -160,8 +169,9 @@ function openEdit() {
 }
 function renderMe() {
   const l = lvlOf(ME.xp), lo = lvlFloor(l), hi = lvlFloor(l + 1);
-  $('meAv').textContent = ME.name.charAt(0); $('meAv').style.background = ME.color;
-  $('meName').textContent = ME.name; $('meId').textContent = 'ID: ' + (ME.hid || '');
+  $('meAv').outerHTML = avHtml(meLite(), 96).replace('class="av', 'id="meAv" class="av pf-av');
+  $('meName').innerHTML = nameHtml(meLite());
+  $('meVipT').textContent = vipOf(ME.recharged || 0) ? 'VIP' + vipOf(ME.recharged || 0) : 'اشحن وصير VIP'; $('meId').textContent = 'ID: ' + (ME.hid || '');
   $('meTags').innerHTML = '<span class="tag lv">⭐ مستوى ' + toAr(l) + '</span><span class="tag">📍 ' + esc(ME.city || '') + '</span>';
   $('meFollowers').textContent = fmtK(ME.followers || 0); $('meFollowing').textContent = fmtK(ME.following || 0); $('meCharm').textContent = fmtK(ME.charm || 0);
   $('meLvl').textContent = 'المستوى ' + toAr(l); $('meXpT').textContent = toAr((ME.xp || 0) - lo) + ' / ' + toAr(hi - lo);
@@ -210,7 +220,7 @@ function openAdmin() {
         const n = parseInt(box.querySelector('#adAmt').value.replace(/\D/g, ''), 10); if (!n || n <= 0) return toast('اكتب العدد');
         try {
           const b = db.batch();
-          b.update(db.collection('users').doc(u.uid), { diamonds: FV.increment(n) });
+          b.update(db.collection('users').doc(u.uid), { diamonds: FV.increment(n), recharged: FV.increment(n) });
           b.set(db.collection('recharges').doc(), { to: u.uid, toHid: u.hid, toName: u.name, amount: n, by: ME.uid, byName: ME.name, ts: FV.serverTimestamp() });
           await b.commit(); m.close(); toast('✅ انضافت ' + n.toLocaleString('en') + ' ماسة لـ ' + u.name);
         } catch (e) { toast(errMsg(e)); }
@@ -235,7 +245,8 @@ function renderRooms() {
   $('roomsCount').textContent = list.length ? toAr(list.length) + ' روم' : '';
   $('roomsGrid').innerHTML = list.map(r => {
     const cat = CATS.find(c => c.k === r.cat) || CATS[1], th = THEMES.find(t => t.k === (r.theme || '')) || THEMES[0];
-    return '<div class="rc" onclick="enterRoom(\'' + r.id + '\')"><div class="rc-top" style="background:radial-gradient(circle at 50% 30%,' + th.c + ',#140A04)">' + cat.e + '<span class="rc-live">مباشر</span><span class="rc-cnt">👤 ' + toAr(Math.max(1, r.online || 0)) + '</span>' + (r.locked ? '<span class="rc-lock">🔒</span>' : '') + '</div><div class="rc-b"><div class="rc-t">' + esc(r.title) + '</div><div class="rc-h">' + esc(r.ownerName) + ' · ' + esc(r.city || '') + '</div></div></div>';
+    const cv = r.coverV ? coverOf(r) : '';
+    return '<div class="rc" onclick="enterRoom(\'' + r.id + '\')"><div class="rc-top" data-cover="' + r.id + '" style="background:' + (cv ? 'url(' + cv + ') center/cover' : 'radial-gradient(circle at 50% 30%,' + th.c + ',#140A04)') + '">' + (cv ? '' : cat.e) + '<span class="rc-live">مباشر</span><span class="rc-cnt">👤 ' + toAr(Math.max(1, r.online || 0)) + '</span>' + (r.locked ? '<span class="rc-lock">🔒</span>' : '') + '</div><div class="rc-b"><div class="rc-t">' + esc(r.title) + '</div><div class="rc-h">' + esc(r.ownerName) + ' · ' + esc(r.city || '') + '</div></div></div>';
   }).join('');
 }
 async function openCreate() {
@@ -277,20 +288,20 @@ async function enterRoom(id, skipPw) {
     return;
   }
   R = { id, data: d, unsubs: [], members: {}, mySeat: -1, muted: false, spkOff: false, joinTs: Date.now(), speaking: new Set(), seen: new Set() };
-  $('room').className = 'scr ' + (d.theme || ''); show('room'); $('rmChat').innerHTML = ''; renderRoom();
-  const me = { uid: ME.uid, name: ME.name, color: ME.color };
+  $('room').className = 'scr ' + (d.theme || ''); show('room'); $('rmChat').innerHTML = ''; renderRoom(); loadRoomBg(d);
+  const me = meLite();
   roomRef().collection('members').doc(ME.uid).set(Object.assign({ ts: FV.serverTimestamp() }, me)).catch(() => {});
   roomRef().update({ lastActive: FV.serverTimestamp() }).catch(() => {});
   R.unsubs.push(roomRef().onSnapshot(s => {
     if (!s.exists || (s.data().closed && !isOwner())) { toast('صاحب الروم سدّه'); leaveRoom(); return; }
-    R.data = s.data(); $('room').className = 'scr ' + (R.data.theme || ''); renderRoom(); syncMySeat();
+    const prevBg = R.data && R.data.bgV; R.data = s.data(); $('room').className = 'scr ' + (R.data.theme || ''); renderRoom(); syncMySeat(); if (R.data.bgV !== prevBg) loadRoomBg(R.data); syncYT(); syncGameBanner();
   }));
   R.unsubs.push(roomRef().collection('members').onSnapshot(s => { R.members = {}; s.docs.forEach(d => R.members[d.id] = d.data()); renderCount(); }));
   R.unsubs.push(roomRef().collection('messages').orderBy('ts', 'desc').limit(40).onSnapshot(s => {
     const adds = s.docChanges().filter(c => c.type === 'added').map(c => Object.assign({ id: c.doc.id }, c.doc.data())).reverse();
     adds.forEach(onRoomMsg);
   }));
-  roomRef().collection('messages').add({ type: 'join', uid: ME.uid, name: ME.name, color: ME.color, ts: FV.serverTimestamp() }).catch(() => {});
+  roomRef().collection('messages').add(Object.assign({ type: 'join', ts: FV.serverTimestamp() }, meLite())).catch(() => {});
   R.hb = setInterval(roomHeartbeat, 25000); setTimeout(roomHeartbeat, 4000);
   await joinVoice(id);
   if (isOwner() && R.data.seats && !R.data.seats[0]) takeSeat(0);
@@ -321,7 +332,7 @@ function renderRoom() {
   $('seats').innerHTML = seats.map((s, i) => {
     if (!s) return '<div class="seat" data-i="' + i + '"><div class="seat-ring">' + (i === 0 ? '👑' : '🎙️') + '</div><div class="seat-n" style="color:var(--fg3)">' + (i === 0 ? 'المضيف' : toAr(i)) + '</div></div>';
     const host = s.uid === d.ownerUid;
-    return '<div class="seat full' + (host ? ' host' : '') + (R.speaking.has(s.uid) ? ' speak' : '') + '" data-i="' + i + '" data-uid="' + esc(s.uid) + '">' + (host ? '<span class="seat-crown">👑</span>' : '') + '<div class="seat-ring">' + avHtml(s, 52) + '<span class="seat-mic">' + (s.muted ? '🔇' : '🎙️') + '</span></div><div class="seat-n">' + esc(s.name) + '</div><div class="seat-h">💗 ' + fmtK(hearts[s.uid] || 0) + '</div></div>';
+    return '<div class="seat full' + (host ? ' host' : '') + (R.speaking.has(s.uid) ? ' speak' : '') + '" data-i="' + i + '" data-uid="' + esc(s.uid) + '">' + (host ? '<span class="seat-crown">👑</span>' : '') + '<div class="seat-ring">' + avHtml(s, 52) + '<span class="seat-mic">' + (s.muted ? '🔇' : '🎙️') + '</span></div><div class="seat-n">' + nameHtml(s, true) + '</div><div class="seat-h">💗 ' + fmtK(hearts[s.uid] || 0) + '</div></div>';
   }).join('');
 }
 $('seats').onclick = e => { const el = e.target.closest('.seat'); if (!el) return; const i = +el.dataset.i, s = (R.data.seats || [])[i]; if (s) userCard(s.uid); else takeSeat(i); };
@@ -341,7 +352,7 @@ async function takeSeat(i) {
       const s = await tx.get(ref); const st = (s.data().seats || Array(10).fill(null)).slice();
       if (st[i]) throw new Error('taken');
       for (let k = 0; k < st.length; k++) if (st[k] && st[k].uid === ME.uid) st[k] = null;
-      st[i] = { uid: ME.uid, name: ME.name, color: ME.color, muted: false };
+      st[i] = Object.assign({ muted: false }, meLite());
       tx.update(ref, { seats: st });
     });
   } catch (e) { toast(e.message === 'taken' ? 'الكرسي مأخوذ' : errMsg(e)); }
@@ -406,14 +417,15 @@ async function startPublish() {
   try {
     if (window.HajinaNative && window.HajinaNative.ensureMic) window.HajinaNative.ensureMic();
     await R.client.setClientRole('host');
-    R.localTrack = await AgoraRTC.createMicrophoneAudioTrack({ AEC: true, ANS: true, AGC: true, encoderConfig: 'speech_standard' });
+    const fx = vipOf(ME.recharged || 0) >= 3 && ME.vfx && ME.vfx !== 'none' ? ME.vfx : null;
+    R.localTrack = fx ? await makeFxTrack(fx) : await AgoraRTC.createMicrophoneAudioTrack({ AEC: true, ANS: true, AGC: true, encoderConfig: 'speech_standard' });
     await R.client.publish(R.localTrack);
     R.muted = false; updMicBtn(); chime();
   } catch (e) { console.error(e); toast('اسمح للتطبيق يستخدم المايك'); leaveSeat(); }
   R.publishing = false;
 }
 async function stopPublish() {
-  try { if (R.localTrack) { await R.client.unpublish(R.localTrack).catch(() => {}); R.localTrack.close(); } R.localTrack = null; if (R.client) await R.client.setClientRole('audience'); } catch (e) {}
+  try { if (R.localTrack) { await R.client.unpublish(R.localTrack).catch(() => {}); R.localTrack.close(); } R.localTrack = null; if (R.fxStop) { R.fxStop(); R.fxStop = null; } if (R.client) await R.client.setClientRole('audience'); } catch (e) {}
 }
 async function toggleMic() {
   if (R.mySeat === -1) return;
@@ -438,7 +450,7 @@ async function leaveRoom(silent) {
   ref.collection('members').doc(ME.uid).delete().catch(() => {});
   const left = Object.values(r.members).filter(m => m.uid !== ME.uid && ms(m.ts) > Date.now() - 90000).length;
   ref.update({ online: Math.max(0, left) }).catch(() => {});
-  $('rbMic').hidden = true; $('sayRow').hidden = true; $('rmBar').hidden = false;
+  $('rbMic').hidden = true; $('sayRow').hidden = true; $('rmBar').hidden = false; ytStop(); $('room').style.backgroundImage = ''; if (window.gameClose) gameClose(true);
   if (!silent) show('home');
 }
 window.addEventListener('pagehide', () => { if (R.id) leaveRoom(true); });
@@ -449,14 +461,14 @@ $('sayRow').onsubmit = e => {
   e.preventDefault(); const t = $('sayInput').value.trim(); $('sayInput').value = '';
   $('sayRow').hidden = true; $('rmBar').hidden = false;
   if (!t || !R.id) return;
-  roomRef().collection('messages').add({ type: 'msg', uid: ME.uid, name: ME.name, color: ME.color, text: t.slice(0, 200), ts: FV.serverTimestamp() }).catch(e => toast(errMsg(e)));
+  roomRef().collection('messages').add(Object.assign({ type: 'msg', text: t.slice(0, 200), ts: FV.serverTimestamp() }, meLite())).catch(e => toast(errMsg(e)));
 };
 $('sayInput').onblur = () => setTimeout(() => { if (!$('sayInput').value) { $('sayRow').hidden = true; $('rmBar').hidden = false; } }, 150);
 function onRoomMsg(m) {
   if (R.seen.has(m.id)) return; R.seen.add(m.id);
   const box = $('rmChat'), el = document.createElement('div');
-  const nm = '<b onclick="userCard(\'' + esc(m.uid) + '\')">' + esc(m.name) + '</b>';
-  if (m.type === 'join') { el.className = 'cm sys'; el.innerHTML = '👋 ' + esc(m.name) + ' دخل الروم'; }
+  const nm = '<b onclick="userCard(\'' + esc(m.uid) + '\')">' + nameHtml(m, true) + '</b>';
+  if (m.type === 'join') { el.className = 'cm sys'; el.innerHTML = (m.vip ? '👑 ' : '👋 ') + nameHtml(m) + ' دخل الروم'; if (m.vip >= 3 && (!m.ts || ms(m.ts) > R.joinTs - 3000)) vipEntrance(m); }
   else if (m.type === 'gift') {
     const g = giftBy(m.gift), to = (m.to || []).map(t => t.name).join('، ');
     el.className = 'cm gift'; el.innerHTML = '<div class="gc-line">' + nm + ' <span class="v">ارسال</span> ' + esc(to) + '</div><div class="gc-box"><img src="' + gArt(g) + '" alt=""><span>' + (m.qty || 1) + 'x</span></div>';
@@ -504,7 +516,7 @@ async function sendGift(g, qty, targets) {
       targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(heart) }); hu['hearts.' + t.uid] = FV.increment(heart); });
       tx.update(ref, hu);
     });
-    await ref.collection('messages').add({ type: 'gift', uid: ME.uid, name: ME.name, color: ME.color, gift: g.k, qty, val: heart, to: targets.map(t => ({ uid: t.uid, name: t.name })), ts: FV.serverTimestamp() });
+    await ref.collection('messages').add({ type: 'gift', ...meLite(), gift: g.k, qty, val: heart, to: targets.map(t => ({ uid: t.uid, name: t.name })), ts: FV.serverTimestamp() });
   } catch (e) {
     if (e.message === 'nobal') { if (sv) toast('عملاتك الفضية ما تكفي، خذ هدية اليوم 🎁'); else { toast('ماساتك ما تكفي (' + total + ' ◆)'); openRecharge(); } }
     else toast(errMsg(e));
@@ -549,16 +561,20 @@ function levelUpFx(l) {
 /* ---- room menu / members ---- */
 function openMembers() {
   const list = freshMembers();
-  const m = modal('<h3>الموجودين (' + toAr(list.length) + ')</h3>' + list.map(u => '<div class="ci" data-u="' + esc(u.uid) + '">' + avHtml(u, 42) + '<div class="ci-m"><div class="ci-n">' + esc(u.name) + (u.uid === R.data.ownerUid ? ' 👑' : '') + '</div></div></div>').join(''));
+  const m = modal('<h3>الموجودين (' + toAr(list.length) + ')</h3>' + list.map(u => '<div class="ci" data-u="' + esc(u.uid) + '">' + avHtml(u, 42) + '<div class="ci-m"><div class="ci-n">' + nameHtml(u) + (u.uid === R.data.ownerUid ? ' 👑' : '') + '</div></div></div>').join(''));
   m.onclick = e => { const el = e.target.closest('[data-u]'); if (el) { m.close(); userCard(el.dataset.u); } };
 }
 function openRoomMenu() {
   if (isOwner()) {
-    const m = modal('<h3>إدارة الروم</h3><button class="btn btn-s" id="rmE">✏️ تعديل الروم</button><button class="btn btn-s" id="rmC" style="color:var(--danger)">⛔ سد الروم</button>');
+    const m = modal('<h3>إدارة الروم</h3><button class="btn btn-s" id="rmE">✏️ تعديل الروم (الاسم والرمز السري)</button><button class="btn btn-s" id="rmBg">🖼️ خلفية الروم من الاستوديو</button>' + (vipOf(ME.recharged || 0) >= 3 ? '<button class="btn btn-s" id="rmCv">🎞️ صورة الروم المتحركة (VIP3)</button>' : '') + '<button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button><button class="btn btn-s" id="rmC" style="color:var(--danger)">⛔ سد الروم</button>');
     m.querySelector('#rmE').onclick = () => { m.close(); openCreate(); };
+    m.querySelector('#rmBg').onclick = () => { m.close(); setRoomImage('bg'); };
+    if (m.querySelector('#rmCv')) m.querySelector('#rmCv').onclick = () => { m.close(); setRoomImage('cover'); };
+    m.querySelector('#rmYt').onclick = () => { m.close(); openYT(); };
     m.querySelector('#rmC').onclick = async () => { m.close(); await roomRef().update({ closed: true, seats: Array(10).fill(null), online: 0 }).catch(() => {}); leaveRoom(); };
   } else {
-    const m = modal('<h3>' + esc(R.data.title) + '</h3><button class="btn btn-s" id="rmR">🚩 إبلاغ عن الروم</button>');
+    const m = modal('<h3>' + esc(R.data.title) + '</h3>' + (R.mySeat !== -1 ? '<button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button>' : '') + '<button class="btn btn-s" id="rmR">🚩 إبلاغ عن الروم</button>');
+    if (m.querySelector('#rmYt')) m.querySelector('#rmYt').onclick = () => { m.close(); openYT(); };
     m.querySelector('#rmR').onclick = () => { db.collection('reports').add({ room: R.id, by: ME.uid, ts: FV.serverTimestamp() }); m.close(); toast('وصل البلاغ للإدارة، شكراً'); };
   }
 }
@@ -566,11 +582,12 @@ function openRoomMenu() {
 /* ---------- USER CARD / FOLLOW ---------- */
 async function userCard(uid) {
   let u; try { const s = await db.collection('users').doc(uid).get(); u = Object.assign({ uid }, s.data() || { name: '؟' }); } catch (e) { return toast(errMsg(e)); }
+  u.vip = vipOf(u.recharged || 0);
   const self = uid === ME.uid;
   let following = false;
   if (!self) { try { following = (await db.collection('users').doc(ME.uid).collection('following').doc(uid).get()).exists; } catch (e) {} }
   const seated = R.id && (R.data.seats || []).some(s => s && s.uid === uid);
-  const m = modal('<div class="uc">' + avHtml(u, 84) + '<div class="pf-name">' + esc(u.name) + '</div><div class="pf-id">ID: ' + esc(u.hid || '') + '</div><div class="tags"><span class="tag lv">⭐ ' + toAr(lvlOf(u.xp)) + '</span><span class="tag">📍 ' + esc(u.city || '') + '</span><span class="tag">💗 ' + fmtK(u.charm || 0) + '</span><span class="tag">👥 ' + fmtK(u.followers || 0) + '</span></div></div>' +
+  const m = modal('<div class="uc">' + avHtml(u, 84) + '<div class="pf-name">' + nameHtml(u) + '</div><div class="pf-id">ID: ' + esc(u.hid || '') + '</div><div class="tags"><span class="tag lv">⭐ ' + toAr(lvlOf(u.xp)) + '</span><span class="tag">📍 ' + esc(u.city || '') + '</span><span class="tag">💗 ' + fmtK(u.charm || 0) + '</span><span class="tag">👥 ' + fmtK(u.followers || 0) + '</span></div></div>' +
     (self ? (R.mySeat !== -1 && seated ? '<button class="btn btn-s" id="ucDown">⬇️ انزل من المايك</button>' : '') :
       '<div class="row2"><button class="btn ' + (following ? 'btn-s' : 'btn-p') + '" id="ucF">' + (following ? '✓ تتابعه' : '+ متابعة') + '</button><button class="btn btn-s" id="ucM">💬 رسالة</button></div>' +
       (seated ? '<button class="btn btn-s" id="ucG">🎁 أهديه</button>' : '') +
@@ -635,11 +652,137 @@ async function loadRank() {
   $('rankList').innerHTML = '<div class="empty">...</div>';
   try {
     const s = await db.collection('users').orderBy(rankBy, 'desc').limit(30).get();
-    const list = s.docs.map(d => Object.assign({ uid: d.id }, d.data())).filter(u => (u[rankBy] || 0) > 0);
+    const list = s.docs.map(d => Object.assign({ uid: d.id }, d.data())).filter(u => (u[rankBy] || 0) > 0); list.forEach(u => u.vip = vipOf(u.recharged || 0));
     $('rankList').innerHTML = list.length ? list.map((u, i) => '<div class="ci" data-u="' + esc(u.uid) + '"><b style="width:26px;text-align:center;font-size:' + (i < 3 ? 22 : 15) + 'px">' + (['🥇', '🥈', '🥉'][i] || toAr(i + 1)) + '</b>' + avHtml(u, 46) + '<div class="ci-m"><div class="ci-n">' + esc(u.name) + '</div><div class="ci-l">⭐ ' + toAr(lvlOf(u.xp)) + ' · ' + esc(u.city || '') + '</div></div><b style="color:var(--or2)">' + (rankBy === 'xp' ? '◆ ' : '💗 ') + fmtK(u[rankBy]) + '</b></div>').join('') : '<div class="empty"><div class="e">🏆</div><b>الترتيب بعده فارغ</b><span>أول واحد يدز هدية يصير بالقمة</span></div>';
   } catch (e) { $('rankList').innerHTML = '<div class="empty">' + esc(errMsg(e)) + '</div>'; }
 }
 $('rankList').onclick = e => { const el = e.target.closest('[data-u]'); if (el) userCard(el.dataset.u); };
+
+/* ---------- VIP ---------- */
+const VIP_INFO = [
+  { t: 'الاسم الملوّن', d: 'اسمك يطلع بألوان قوس قزح بكل مكان بالتطبيق', e: '🌈' },
+  { t: 'صورة متحركة', d: 'إطار متحرك حول صورتك، وتكدر تحط صورتك أو GIF متحرك', e: '🖼️' },
+  { t: 'النهائي', d: 'مؤثرات صوتية للمايك، وترحيب صوتي وشريط ذهبي لما تدخل أي روم، وصورة متحركة لرومك', e: '👑' }
+];
+function openVip() {
+  const r = ME.recharged || 0, v = vipOf(r), next = VIPT[v] || null;
+  const pct = next ? Math.min(100, r / next * 100) : 100;
+  const m = modal('<h3>👑 VIP</h3><div class="vip-cur">' + (v ? '<span class="vipb v' + v + '" style="font-size:16px;padding:4px 14px">VIP' + v + '</span>' : '<span style="color:var(--fg2)">بعدك مو VIP</span>') + '</div>' +
+    '<div style="font-size:12.5px;color:var(--fg2);text-align:center">مجموع شحنك: ◆ ' + r.toLocaleString('en') + (next ? ' — باقي ◆ ' + (next - r).toLocaleString('en') + ' للمستوى الجاي' : ' — وصلت أعلى مستوى 🎉') + '</div><div class="xp"><i style="width:' + pct + '%"></i></div>' +
+    VIP_INFO.map((x, i) => '<div class="vip-row' + (v > i ? ' on' : '') + '"><span class="e">' + x.e + '</span><div style="flex:1;min-width:0"><b>VIP' + (i + 1) + ' — ' + x.t + '</b><div>' + x.d + '</div><small>شحن ◆ ' + VIPT[i].toLocaleString('en') + '</small></div><span>' + (v > i ? '✅' : '🔒') + '</span></div>').join('') +
+    (v >= 2 ? '<button class="btn btn-s" id="vAv">📷 غيّر صورتك (صورة أو GIF)</button>' : '') +
+    (v >= 3 ? '<button class="btn btn-s" id="vFx">🎙️ مؤثر الصوت: ' + fxName(ME.vfx) + '</button>' : '') +
+    '<button class="btn btn-p" id="vR">◆ اشحن ماسات</button>');
+  const on = (id, f) => { const b = m.querySelector(id); if (b) b.onclick = f; };
+  on('#vAv', () => { m.close(); setAvatar(); });
+  on('#vFx', () => { m.close(); openFx(); });
+  on('#vR', () => { m.close(); openRecharge(); });
+}
+const FX = [{ k: 'none', n: 'بدون' }, { k: 'echo', n: 'صدى' }, { k: 'hall', n: 'قاعة' }, { k: 'radio', n: 'راديو' }, { k: 'robot', n: 'روبوت' }];
+const fxName = k => (FX.find(f => f.k === (k || 'none')) || FX[0]).n;
+function openFx() {
+  const m = modal('<h3>🎙️ مؤثر الصوت</h3><div class="opts" id="fxO">' + FX.map(f => '<button data-k="' + f.k + '" class="' + ((ME.vfx || 'none') === f.k ? 'on' : '') + '">' + f.n + '</button>').join('') + '</div><p style="font-size:12px;color:var(--fg2);text-align:center">الكل يسمع صوتك بالمؤثر لما تكون عالمايك</p>');
+  m.querySelector('#fxO').onclick = async e => {
+    const k = e.target.dataset.k; if (!k) return; m.close();
+    await db.collection('users').doc(ME.uid).update({ vfx: k }).catch(er => toast(errMsg(er)));
+    ME.vfx = k; toast('🎙️ ' + fxName(k));
+    if (R.id && R.mySeat !== -1) { await stopPublish(); startPublish(); }
+  };
+}
+async function makeFxTrack(kind) {
+  const st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+  const ac = new (window.AudioContext || window.webkitAudioContext)();
+  const src = ac.createMediaStreamSource(st), out = ac.createMediaStreamDestination(), dry = ac.createGain();
+  src.connect(dry);
+  if (kind === 'echo') { const d = ac.createDelay(1); d.delayTime.value = .22; const fb = ac.createGain(); fb.gain.value = .38; const wet = ac.createGain(); wet.gain.value = .55; src.connect(d); d.connect(fb); fb.connect(d); d.connect(wet); wet.connect(out); dry.connect(out); }
+  else if (kind === 'hall') { const cv = ac.createConvolver(), len = ac.sampleRate * 2.4, ir = ac.createBuffer(2, len, ac.sampleRate); for (let c = 0; c < 2; c++) { const ch = ir.getChannelData(c); for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); } cv.buffer = ir; const wet = ac.createGain(); wet.gain.value = .5; src.connect(cv); cv.connect(wet); wet.connect(out); dry.connect(out); }
+  else if (kind === 'radio') { const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 600; const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2800; const ws = ac.createWaveShaper(), c = new Float32Array(256); for (let i = 0; i < 256; i++) { const x = i / 128 - 1; c[i] = Math.tanh(x * 2.5); } ws.curve = c; const g = ac.createGain(); g.gain.value = 1.6; src.connect(hp); hp.connect(lp); lp.connect(ws); ws.connect(g); g.connect(out); }
+  else if (kind === 'robot') { const osc = ac.createOscillator(); osc.frequency.value = 50; const mod = ac.createGain(); mod.gain.value = 0; osc.connect(mod.gain); src.connect(mod); const g = ac.createGain(); g.gain.value = 1.8; mod.connect(g); g.connect(out); osc.start(); }
+  else dry.connect(out);
+  R.fxStop = () => { st.getTracks().forEach(t => t.stop()); ac.close().catch(() => {}); };
+  return AgoraRTC.createCustomAudioTrack({ mediaStreamTrack: out.stream.getAudioTracks()[0] });
+}
+function vipEntrance(m) {
+  const w = document.createElement('div'); w.className = 'vip-in';
+  w.innerHTML = '<div class="vip-in-r">' + avHtml(m, 46) + '<div><span class="vipb v3">VIP3</span><div class="t">' + nameHtml(m, true) + ' دخل الروم ✨</div></div></div>';
+  document.body.appendChild(w); setTimeout(() => w.remove(), 4200);
+  [392, 523, 659, 784, 1047].forEach((f, i) => sfx(f, .4, 'sawtooth', .05, i * .12));
+  try { if (window.speechSynthesis) { const u = new SpeechSynthesisUtterance('أهلاً وسهلاً ب ' + m.name); u.lang = 'ar'; u.rate = .95; setTimeout(() => speechSynthesis.speak(u), 700); } } catch (e) {}
+}
+
+/* ---------- الصور ---------- */
+function pickImage(opt) {
+  return new Promise((res, rej) => {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*';
+    inp.onchange = () => {
+      const f = inp.files && inp.files[0]; if (!f) return rej(new Error('cancel'));
+      if (opt.gif && f.type === 'image/gif') {
+        if (f.size > opt.maxKB * 1024) return rej(new Error('big'));
+        const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(f); return;
+      }
+      const img = new Image(); img.onload = () => {
+        const sc = Math.min(1, opt.size / Math.max(img.width, img.height)), c = document.createElement('canvas');
+        c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        let q = .85, d = c.toDataURL('image/jpeg', q); while (d.length > opt.maxKB * 1370 && q > .3) { q -= .1; d = c.toDataURL('image/jpeg', q); }
+        URL.revokeObjectURL(img.src); res(d);
+      }; img.onerror = rej; img.src = URL.createObjectURL(f);
+    };
+    inp.style.display = 'none'; document.body.appendChild(inp); setTimeout(() => inp.remove(), 120000);
+    inp.click();
+  });
+}
+async function setAvatar() {
+  let d; try { d = await pickImage({ size: 320, maxKB: 280, gif: true }); } catch (e) { if (e.message === 'big') toast('الـ GIF كبير، لازم أقل من 280 كيلوبايت'); return; }
+  toast('جاري الرفع...');
+  try { await db.collection('avatars').doc(ME.uid).set({ img: d }); await db.collection('users').doc(ME.uid).update({ pv: Date.now() }); toast('✅ تغيرت صورتك'); } catch (e) { toast(errMsg(e)); }
+}
+const RMEDIA = {};
+async function roomMedia(id, kind, v) { const k = id + kind + v; if (RMEDIA[k] !== undefined) return RMEDIA[k]; RMEDIA[k] = null; try { const s = await db.collection('roomMedia').doc(id + '_' + kind).get(); RMEDIA[k] = s.exists ? s.data().img : ''; } catch (e) { RMEDIA[k] = ''; } return RMEDIA[k]; }
+function coverOf(r) { const k = r.id + 'cover' + r.coverV; if (RMEDIA[k]) return RMEDIA[k]; if (RMEDIA[k] === undefined) roomMedia(r.id, 'cover', r.coverV).then(u => { const el = document.querySelector('[data-cover="' + r.id + '"]'); if (u && el) { el.style.background = 'url(' + u + ') center/cover'; el.childNodes[0] && el.childNodes[0].nodeType === 3 && el.childNodes[0].remove(); } }); return ''; }
+async function loadRoomBg(d) {
+  const id = R.id; if (!d.bgV) { $('room').style.backgroundImage = ''; return; }
+  const u = await roomMedia(id, 'bg', d.bgV);
+  if (u && R.id === id) { $('room').style.backgroundImage = 'linear-gradient(rgba(10,5,2,.35),rgba(10,5,2,.65)),url(' + u + ')'; $('room').style.backgroundSize = 'cover'; $('room').style.backgroundPosition = 'center'; }
+}
+async function setRoomImage(kind) {
+  let d; try { d = await pickImage(kind === 'bg' ? { size: 900, maxKB: 260 } : { size: 400, maxKB: 280, gif: true }); } catch (e) { if (e.message === 'big') toast('الـ GIF كبير، لازم أقل من 280 كيلوبايت'); return; }
+  toast('جاري الرفع...');
+  try { await db.collection('roomMedia').doc(R.id + '_' + kind).set({ img: d, owner: ME.uid }); await roomRef().update({ [kind + 'V']: Date.now() }); toast('✅ انحفظت'); } catch (e) { toast(errMsg(e)); }
+}
+
+/* ---------- يوتيوب بالروم ---------- */
+let YTP = null, ytApi = null;
+function ytId(u) { const m = String(u).match(/(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/); return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(u.trim()) ? u.trim() : null); }
+function loadYTApi() { if (ytApi) return ytApi; ytApi = new Promise(res => { if (window.YT && YT.Player) return res(); window.onYouTubeIframeAPIReady = () => res(); const s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(s); }); return ytApi; }
+function openYT() {
+  const canSet = isOwner() || R.mySeat !== -1;
+  const key = C.youtubeKey;
+  const m = modal('<h3>▶️ يوتيوب بالروم</h3>' + (canSet ? (key ? '<div class="row2"><input id="ytQ" placeholder="ابحث عن فيديو..."><button class="btn btn-p" id="ytS" style="width:90px">بحث</button></div><div id="ytR"></div><div class="or-line">أو</div>' : '') + '<input id="ytU" placeholder="الصق رابط يوتيوب هنا" style="direction:ltr"><button class="btn btn-p" id="ytGo">▶️ شغّل للكل</button>' : '<p style="text-align:center;color:var(--fg2)">لازم تكعد عالمايك حتى تشغل فيديو</p>') + (R.data.yt ? '<button class="btn btn-s" id="ytX" style="color:var(--danger)">⏹️ إيقاف الفيديو للكل</button>' : ''));
+  const play = vid => { m.close(); roomRef().update({ yt: { vid, at: Date.now(), by: ME.name } }).catch(e => toast(errMsg(e))); };
+  const go = m.querySelector('#ytGo'); if (go) go.onclick = () => { const v = ytId(m.querySelector('#ytU').value); v ? play(v) : toast('الرابط غلط'); };
+  const x = m.querySelector('#ytX'); if (x) x.onclick = () => { m.close(); roomRef().update({ yt: null }); };
+  const sb = m.querySelector('#ytS'); if (sb) sb.onclick = async () => {
+    const q = m.querySelector('#ytQ').value.trim(); if (!q) return; const box = m.querySelector('#ytR'); box.innerHTML = '...';
+    try { const r = await fetch('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=8&q=' + encodeURIComponent(q) + '&key=' + key).then(r => r.json());
+      box.innerHTML = (r.items || []).map(it => '<div class="ci" data-v="' + it.id.videoId + '" style="padding:8px 0"><img src="' + it.snippet.thumbnails.default.url + '" style="width:80px;border-radius:8px"><div class="ci-m"><div class="ci-l" style="white-space:normal;color:var(--fg)">' + esc(it.snippet.title) + '</div></div></div>').join('') || 'ماكو نتائج';
+      box.onclick = e => { const el = e.target.closest('[data-v]'); if (el) play(el.dataset.v); };
+    } catch (e) { box.innerHTML = 'ما اشتغل البحث'; }
+  };
+}
+async function syncYT() {
+  const y = R.data && R.data.yt;
+  if (!y || !y.vid) { ytStop(); return; }
+  if (R.ytVid === y.vid && R.ytAt === y.at) return;
+  R.ytVid = y.vid; R.ytAt = y.at;
+  $('ytBox').hidden = false; $('ytBy').textContent = '▶️ شغّله ' + (y.by || '');
+  await loadYTApi();
+  const start = Math.max(0, Math.floor((Date.now() - y.at) / 1000));
+  if (YTP && YTP.loadVideoById) YTP.loadVideoById({ videoId: y.vid, startSeconds: start });
+  else YTP = new YT.Player('ytP', { videoId: y.vid, playerVars: { autoplay: 1, start, playsinline: 1, rel: 0, modestbranding: 1 }, events: { onReady: e => { e.target.setVolume(+$('ytVol').value); e.target.playVideo(); } } });
+}
+function ytStop() { R.ytVid = null; if (YTP && YTP.destroy) { try { YTP.destroy(); } catch (e) {} } YTP = null; const b = $('ytBox'); if (b) { b.hidden = true; b.querySelector('#ytWrap').innerHTML = '<div id="ytP"></div>'; } }
+$('ytVol').oninput = e => { if (YTP && YTP.setVolume) YTP.setVolume(+e.target.value); };
 
 /* ---------- misc ---------- */
 function stopAll() { [roomsUnsub, chatsUnsub, dmUnsub].forEach(u => u && u()); roomsUnsub = chatsUnsub = dmUnsub = null; clearInterval(homeTimer); }

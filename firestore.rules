@@ -14,7 +14,7 @@ service cloud.firestore {
         && request.resource.data.get('silver', 0) <= 100;
       allow update: if isAdmin()
         || (signed() && request.auth.uid == uid
-            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['admin', 'charm', 'followers'])
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['admin', 'charm', 'followers', 'recharged'])
             && request.resource.data.get('diamonds', 0) <= resource.data.get('diamonds', 0)
             && (request.resource.data.get('silver', 0) <= resource.data.get('silver', 0)
                 || (request.resource.data.get('silver', 0) <= resource.data.get('silver', 0) + 100
@@ -48,5 +48,16 @@ service cloud.firestore {
 
     match /reports/{r} { allow create: if signed(); }
     match /recharges/{x} { allow read, create: if isAdmin(); }
+    match /games/{g} { allow read, create, update: if signed(); }
+    match /avatars/{uid} {
+      allow read: if signed();
+      allow write: if signed() && request.auth.uid == uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('recharged', 0) >= 5000;
+    }
+    match /roomMedia/{m} {
+      allow read: if signed();
+      allow write: if signed() && request.resource.data.owner == request.auth.uid
+        && (resource == null || resource.data.owner == request.auth.uid);
+    }
   }
 }

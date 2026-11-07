@@ -8,7 +8,7 @@
 <link rel="icon" href="logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
@@ -95,6 +95,7 @@
       <div style="font-size:11.5px;color:var(--fg3);margin-top:6px">ترسل هدايا = تصعد مستوى</div>
     </div>
     <div class="list">
+      <div class="li" onclick="openVip()"><span class="ic">👑</span>VIP<span class="end" id="meVipT"></span></div>
       <div class="li" onclick="openRecharge()"><span class="ic">◆</span>الماسات<span class="end" id="meDia"></span></div>
       <div class="li" onclick="doCheckin()"><span class="ic">🪙</span>العملات الفضية<span class="end" id="meSil"></span></div>
       <div class="li" onclick="doCheckin()"><span class="ic">🎁</span>الهدية اليومية<span class="end">+100 🪙</span></div>
@@ -114,11 +115,14 @@
     <button class="rm-x" onclick="leaveRoom()">✕</button>
   </div>
   <div class="seats" id="seats"></div>
+  <div id="gameBanner" hidden></div>
+  <div id="ytBox" hidden><div id="ytWrap"><div id="ytP"></div></div><div class="yt-ctl"><span id="ytBy"></span><span>🔊</span><input type="range" id="ytVol" min="0" max="100" value="70"></div></div>
   <div class="rm-chat" id="rmChat"></div>
   <div class="rm-bar" id="rmBar">
     <div class="say" onclick="openSay()">قل شيئاً...</div>
     <button class="rb" id="rbMic" onclick="toggleMic()" hidden>🎙️</button>
     <button class="rb" id="rbSpk" onclick="toggleSpeaker()">🔊</button>
+    <button class="rb" onclick="openGames()">🎮</button>
     <button class="rb gift" onclick="openGifts()">🎁</button>
   </div>
   <form class="say-row" id="sayRow" hidden><input id="sayInput" placeholder="اكتب..." autocomplete="off" maxlength="200"><button>➤</button></form>
@@ -149,8 +153,9 @@ setTimeout(function(){var l=document.getElementById('loading');if(l&&!l.hidden){
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng@4.20.2/AgoraRTC_N-production.js"></script>
-<script src="gart.js?v=8"></script>
-<script src="config.js?v=8"></script>
-<script src="app.js?v=8"></script>
+<script src="gart.js?v=9"></script>
+<script src="config.js?v=9"></script>
+<script src="app.js?v=9"></script>
+<script src="game.js?v=9"></script>
 </body>
 </html>

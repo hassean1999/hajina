@@ -11,6 +11,7 @@ import android.os.CancellationSignal;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -37,6 +38,8 @@ public class MainActivity extends Activity {
     // Web client ID من google-services.json (client_type 3)
     static final String WEB_CLIENT_ID = "615591936540-6q7ff486oho2mmdf34on22nbe5lfopbf.apps.googleusercontent.com";
     static final int REQ_MIC = 7;
+    static final int REQ_FILE = 8;
+    private ValueCallback<Uri[]> fileCb;
 
     private WebView web;
     private PermissionRequest pendingPerm;
@@ -53,7 +56,7 @@ public class MainActivity extends Activity {
         s.setDatabaseEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setTextZoom(100);
-        s.setUserAgentString(s.getUserAgentString() + " HajinaApp/2");
+        s.setUserAgentString(s.getUserAgentString() + " HajinaApp/3");
         web.addJavascriptInterface(new Bridge(), "HajinaNative");
         web.setWebViewClient(new WebViewClient() {
             @Override
@@ -70,6 +73,18 @@ public class MainActivity extends Activity {
             }
         });
         web.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onShowFileChooser(WebView v, ValueCallback<Uri[]> cb, FileChooserParams params) {
+                if (fileCb != null) fileCb.onReceiveValue(null);
+                fileCb = cb;
+                try {
+                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                    i.addCategory(Intent.CATEGORY_OPENABLE);
+                    i.setType("image/*");
+                    startActivityForResult(Intent.createChooser(i, "اختار صورة"), REQ_FILE);
+                } catch (Exception e) { fileCb = null; return false; }
+                return true;
+            }
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
                 runOnUiThread(() -> {
@@ -141,6 +156,17 @@ public class MainActivity extends Activity {
                 });
         } catch (Exception e) {
             js("window.onNativeGoogleError && onNativeGoogleError(" + q(e.getMessage()) + ")");
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int code, int result, Intent data) {
+        super.onActivityResult(code, result, data);
+        if (code == REQ_FILE && fileCb != null) {
+            Uri[] res = null;
+            if (result == RESULT_OK && data != null && data.getData() != null) res = new Uri[]{data.getData()};
+            fileCb.onReceiveValue(res);
+            fileCb = null;
         }
     }
 
