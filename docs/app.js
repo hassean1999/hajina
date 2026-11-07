@@ -426,7 +426,7 @@ async function enterRoom(id, skipPw) {
   roomRef().update({ lastActive: FV.serverTimestamp() }).catch(() => {});
   R.unsubs.push(roomRef().onSnapshot(s => {
     if (!s.exists || (s.data().closed && !isOwner())) { toast('صاحب الروم سدّه'); leaveRoom(); return; }
-    const prevBg = R.data && R.data.bgV; R.data = s.data(); $('room').className = 'scr ' + (R.data.theme || ''); renderRoom(); syncMySeat(); if (R.data.bgV !== prevBg) loadRoomBg(R.data); syncYT(); syncGameBanner();
+    const prevBg = R.data && R.data.bgV; R.data = s.data(); $('room').className = 'scr ' + (R.data.theme || ''); renderRoom(); syncMySeat(); if (R.data.bgV !== prevBg) loadRoomBg(R.data); syncYT(); syncGameBanner(); if (window.syncPK) syncPK();
   }));
   R.unsubs.push(roomRef().collection('members').onSnapshot(s => { R.members = {}; s.docs.forEach(d => R.members[d.id] = d.data()); renderCount(); }));
   R.unsubs.push(roomRef().collection('messages').orderBy('ts', 'desc').limit(40).onSnapshot(s => {
@@ -583,7 +583,7 @@ async function leaveRoom(silent) {
   ref.collection('members').doc(ME.uid).delete().catch(() => {});
   const left = Object.values(r.members).filter(m => m.uid !== ME.uid && ms(m.ts) > Date.now() - 90000).length;
   ref.update({ online: Math.max(0, left) }).catch(() => {});
-  $('rbMic').hidden = true; $('sayRow').hidden = true; $('rmBar').hidden = false; ytStop(); $('room').style.backgroundImage = ''; if (window.gameClose) gameClose(true);
+  $('rbMic').hidden = true; $('sayRow').hidden = true; $('rmBar').hidden = false; ytStop(); $('pkBar').hidden = true; $('room').style.backgroundImage = ''; if (window.gameClose) gameClose(true);
   if (!silent) show('home');
 }
 window.addEventListener('pagehide', () => { if (R.id) leaveRoom(true); });
@@ -648,7 +648,7 @@ async function sendGift(g, qty, targets) {
       const mine = { [field]: d - total }; if (!sv) mine.xp = FV.increment(total);
       tx.update(myRef, mine);
       const hu = { lastActive: FV.serverTimestamp() };
-      targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(heart) }); hu['hearts.' + t.uid] = FV.increment(heart); });
+      targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(heart) }); hu['hearts.' + t.uid] = FV.increment(heart); const pu = window.pkGiftUpdate && pkGiftUpdate(t.uid, heart); if (pu) hu[pu[0]] = FV.increment(pu[1]); });
       tx.update(ref, hu);
     });
     if (!sv && ME.family && ME.family.id) db.collection('families').doc(ME.family.id).update({ total: FV.increment(total) }).catch(() => {});
@@ -702,7 +702,8 @@ function openMembers() {
 }
 function openRoomMenu() {
   if (isOwner()) {
-    const m = modal('<h3>إدارة الروم</h3><button class="btn btn-s" id="rmF">' + (FAVS.has(R.id) ? '★ شيل من المفضلة' : '⭐ أضف للمفضلة') + '</button><button class="btn btn-s" id="rmE">✏️ تعديل الروم (الاسم والرمز السري)</button><button class="btn btn-s" id="rmBg">🖼️ خلفية الروم من الاستوديو</button>' + (vipOf(ME.recharged || 0) >= 3 ? '<button class="btn btn-s" id="rmCv">🎞️ صورة الروم المتحركة (VIP3)</button>' : '') + '<button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button><button class="btn btn-s" id="rmC" style="color:var(--danger)">⛔ سد الروم</button>');
+    const m = modal('<h3>إدارة الروم</h3><button class="btn btn-s" id="rmF">' + (FAVS.has(R.id) ? '★ شيل من المفضلة' : '⭐ أضف للمفضلة') + '</button><button class="btn btn-s" id="rmE">✏️ تعديل الروم (الاسم والرمز السري)</button><button class="btn btn-s" id="rmBg">🖼️ خلفية الروم من الاستوديو</button>' + (vipOf(ME.recharged || 0) >= 3 ? '<button class="btn btn-s" id="rmCv">🎞️ صورة الروم المتحركة (VIP3)</button>' : '') + '<button class="btn btn-s" id="rmPk">⚔️ تحدي PK للدعم</button><button class="btn btn-s" id="rmYt">▶️ يوتيوب بالروم</button><button class="btn btn-s" id="rmC" style="color:var(--danger)">⛔ سد الروم</button>');
+    m.querySelector('#rmPk').onclick = () => { m.close(); openPK(); };
     m.querySelector('#rmE').onclick = () => { m.close(); openCreate(); };
     m.querySelector('#rmF').onclick = () => { m.close(); toggleFav(); };
     m.querySelector('#rmBg').onclick = () => { m.close(); setRoomImage('bg'); };

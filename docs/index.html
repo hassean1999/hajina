@@ -8,7 +8,7 @@
 <link rel="icon" href="logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap">
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=18">
 </head>
 <body>
 
@@ -120,6 +120,7 @@
     <button class="rm-x" onclick="leaveRoom()">✕</button>
   </div>
   <div class="seats" id="seats"></div>
+  <div id="pkBar" hidden></div>
   <div id="gameBanner" hidden></div>
   <div id="ytBox" hidden><div id="ytWrap"><div id="ytP"></div></div><div class="yt-ctl"><span id="ytBy"></span><span>🔊</span><input type="range" id="ytVol" min="0" max="100" value="70"></div></div>
   <div class="rm-chat" id="rmChat"></div>
@@ -158,11 +159,12 @@ setTimeout(function(){var l=document.getElementById('loading');if(l&&!l.hidden){
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng@4.20.2/AgoraRTC_N-production.js"></script>
-<script src="gart.js?v=17"></script>
-<script src="config.js?v=17"></script>
-<script src="app.js?v=17"></script>
-<script src="game.js?v=17"></script>
-<script src="games2.js?v=17"></script>
-<script src="social.js?v=17"></script>
+<script src="gart.js?v=18"></script>
+<script src="config.js?v=18"></script>
+<script src="app.js?v=18"></script>
+<script src="game.js?v=18"></script>
+<script src="games2.js?v=18"></script>
+<script src="social.js?v=18"></script>
+<script src="pk.js?v=18"></script>
 </body>
 </html>
