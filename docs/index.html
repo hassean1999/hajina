@@ -8,7 +8,8 @@
 <link rel="icon" href="logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap">
-<link rel="stylesheet" href="style.css?v=23">
+<link rel="stylesheet" href="style.css?v=24">
+<link rel="stylesheet" href="v2.css?v=24">
 </head>
 <body>
 
@@ -49,27 +50,39 @@
 </section>
 
 <!-- home -->
-<section class="scr" id="home" hidden>
-  <div class="top">
-    <div class="brand"><img src="logo.svg" alt="">حجينه</div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <div class="chip" id="homeSil" onclick="doCheckin()" style="padding:6px 10px"><img class="sc" src="silver.svg" alt=""><span>0</span></div>
-      <div class="chip" id="homeDia" onclick="openRecharge()"><span class="d">◆</span><span>0</span></div>
-      <button class="ibtn" onclick="openSearch()" title="بحث">🔍</button>
-      <button class="ibtn" onclick="openNotifs()" title="الإشعارات">🔔<span class="badge" id="ntBadge" hidden></span></button>
-      <button class="ibtn" onclick="doCheckin()" title="عجلة الحظ">🎡</button>
+<section class="scr v2" id="home" hidden>
+  <div class="hd">
+    <div class="hd-l"><img src="logo.svg" class="hd-logo" alt=""><div><b>حجينه</b><small>دردشة صوتية عراقية</small></div></div>
+    <div class="hd-r">
+      <button class="gbtn" onclick="openSearch()" aria-label="بحث"><img src="ui/search.webp" alt=""></button>
+      <button class="gbtn" onclick="openNotifs()" aria-label="الإشعارات"><img src="ui/bell.webp" alt=""><span class="badge" id="ntBadge" hidden></span></button>
     </div>
   </div>
-  <div class="hero3">
-    <div class="h3c rich" onclick="openRich()"><span class="h3i">💰</span><b>قائمة الثراء</b><div class="h3av" id="richAv"></div></div>
-    <div class="h3c ev" onclick="openEvents()"><span class="h3i">🎉</span><b>الأنشطة</b><small id="evT">شوف الجديد</small></div>
-    <div class="h3c fam" onclick="openFamilies()"><span class="h3i">👨‍👩‍👧</span><b>العائلات</b><small id="famT">انضم لعائلة</small></div>
-  </div>
-  <div class="cats" id="homeCats"></div>
   <div class="scroll" id="homeScroll">
+    <div class="wallet">
+      <div class="wl dia" id="homeDia" onclick="openRecharge()"><span class="d">◆</span><span>0</span></div>
+      <div class="wl sil" id="homeSil" onclick="doCheckin()"><img class="sc" src="silver.svg" alt=""><span>0</span></div>
+      <button class="wl-add" onclick="openRecharge()">+ شحن</button>
+    </div>
+    <div class="banners" id="banners">
+      <div class="bn" style="--a:#7B2FF7;--b:#F107A3" onclick="doCheckin()"><div><b>عجلة الحظ</b><small>لفّها كل يوم واربح عملات فضية مجانية</small><span class="bn-go">العب هسه</span></div><img src="ui/wheel.webp" alt=""></div>
+      <div class="bn" style="--a:#C8902A;--b:#7A4C00" onclick="openVip()"><div><b>صير VIP 👑</b><small>اسم ملون، إطار متحرك، وترحيب ذهبي بكل روم</small><span class="bn-go">اعرف أكثر</span></div><img src="ui/crown.webp" alt=""></div>
+      <div class="bn" style="--a:#FF8A1F;--b:#C2410C" onclick="openRich()"><div><b>قائمة الثراء</b><small>أكثر الناس إهداءً بحجينه</small><div class="h3av" id="richAv"></div></div><img src="ui/trophy.webp" alt=""></div>
+      <div class="bn" style="--a:#E8304C;--b:#7A0A3A" onclick="openEvents()"><div><b>الأنشطة</b><small id="evT">بطولات ومسابقات وجوائز</small><span class="bn-go">شوف الجديد</span></div><img src="ui/party.webp" alt=""></div>
+      <div class="bn" style="--a:#2E9BD6;--b:#1A3F7A" onclick="openFamilies()"><div><b>العائلات</b><small id="famT">سوّي عائلتك أو انضم لعائلة</small><span class="bn-go">ادخل</span></div><img src="ui/shield.webp" alt=""></div>
+    </div>
+    <div class="bn-dots" id="bnDots"></div>
+    <div class="quick">
+      <button onclick="openRich()"><i style="--c:#FFB13B"><img src="ui/trophy.webp" alt=""></i>الترتيب</button>
+      <button onclick="doCheckin()"><i style="--c:#F107A3"><img src="ui/wheel.webp" alt=""></i>العجلة</button>
+      <button onclick="openVip()"><i style="--c:#FFD24A"><img src="ui/crown.webp" alt=""></i>VIP</button>
+      <button onclick="openEvents()"><i style="--c:#E8304C"><img src="ui/party.webp" alt=""></i>الأنشطة</button>
+      <button onclick="openFamilies()"><i style="--c:#2E9BD6"><img src="ui/shield.webp" alt=""></i>العائلات</button>
+    </div>
+    <div class="cats tabs2" id="homeCats"></div>
     <div class="sec-t"><span id="roomsTitle">🔥 الترند</span><span style="font-size:12px;color:var(--fg3)" id="roomsCount"></span></div>
     <div class="rooms" id="roomsGrid"></div>
-    <div class="empty" id="roomsEmpty" hidden><div class="e">🎙️</div><b>ماكو رومات مفتوحة هسه</b><span>كون أول واحد يفتح روم ويجمع الناس</span><button class="btn btn-p" style="width:auto;padding:12px 28px" onclick="openCreate()">افتح روم</button></div>
+    <div class="empty" id="roomsEmpty" hidden><img src="ui/studio.webp" alt="" style="width:90px"><b>ماكو رومات مفتوحة هسه</b><span>كون أول واحد يفتح روم ويجمع الناس</span><button class="btn btn-p" style="width:auto;padding:12px 28px" onclick="openCreate()">🎙️ افتح روم</button></div>
   </div>
 </section>
 
@@ -87,31 +100,32 @@
 </section>
 
 <!-- profile -->
-<section class="scr" id="me" hidden>
-  <div class="scroll">
-    <div class="pf-head">
+<section class="scr v2" id="me" hidden>
+  <div class="scroll" style="padding-top:0">
+    <div class="pf-cover"><button class="gbtn pf-set" onclick="openSettings()" aria-label="الإعدادات"><img src="ui/gear.webp" alt=""></button><button class="gbtn pf-edit" onclick="openEdit()" aria-label="تعديل"><img src="ui/pencil.webp" alt=""></button></div>
+    <div class="pf-head2">
       <div class="av pf-av" id="meAv"></div>
       <div class="pf-name" id="meName"></div>
-      <div class="pf-id" id="meId"></div>
+      <div class="pf-id" id="meId" onclick="copyTxt(ME.hid)"></div>
       <div class="tags" id="meTags"></div>
     </div>
-    <div class="stats"><div><b id="meFollowers">0</b><span>متابعون</span></div><div><b id="meFollowing">0</b><span>يتابع</span></div><div><b id="meCharm">0</b><span>💗 جاذبية</span></div></div>
-    <div class="list" style="padding:14px">
-      <div style="display:flex;justify-content:space-between;font-weight:900"><span id="meLvl"></span><span style="font-size:12px;color:var(--fg3)" id="meXpT"></span></div>
-      <div class="xp"><i id="meXp"></i></div>
-      <div style="font-size:11.5px;color:var(--fg3);margin-top:6px">ترسل هدايا = تصعد مستوى</div>
+    <div class="stats2"><div><b id="meFollowers">0</b><span>متابعون</span></div><div><b id="meFollowing">0</b><span>يتابع</span></div><div><b id="meCharm">0</b><span>💗 جاذبية</span></div></div>
+    <div class="vipcard" onclick="openVip()"><img src="ui/crown.webp" alt=""><div><b>VIP</b><small id="meVipT"></small></div><span>›</span></div>
+    <div class="wallet2">
+      <div class="wc dia" onclick="openRecharge()"><small>الماسات</small><b id="meDia"></b><span>شحن ›</span></div>
+      <div class="wc sil" onclick="doCheckin()"><small>العملات الفضية</small><b id="meSil"></b><span>عجلة الحظ ›</span></div>
     </div>
-    <div class="list">
-      <div class="li" onclick="openEarnings()"><span class="ic">💰</span>أرباحي<span class="end" id="meEarn"></span></div>
-      <div class="li" onclick="openVip()"><span class="ic">👑</span>VIP<span class="end" id="meVipT"></span></div>
-      <div class="li" onclick="openRecharge()"><span class="ic">◆</span>الماسات<span class="end" id="meDia"></span></div>
-      <div class="li" onclick="doCheckin()"><span class="ic"><img class="sc" src="silver.svg" alt=""></span>العملات الفضية<span class="end" id="meSil"></span></div>
-      <div class="li" onclick="doCheckin()"><span class="ic">🎡</span>عجلة الحظ اليومية<span class="end">حتى 100 <img class="sc" src="silver.svg" alt=""></span></div>
-      <div class="li" onclick="openEdit()"><span class="ic">✏️</span>تعديل الملف الشخصي</div>
-      <div class="li" onclick="openSettings()"><span class="ic">⚙️</span>الإعدادات</div>
-      <div class="li" id="meAdmin" onclick="openAdmin()" hidden><span class="ic">🛠️</span>لوحة الإدارة<span class="end">شحن الماسات</span></div>
-      <div class="li" onclick="logout()" style="color:var(--danger)"><span class="ic">🚪</span>تسجيل خروج</div>
+    <div class="lvcard"><div class="lv-top"><span id="meLvl"></span><span id="meXpT"></span></div><div class="xp"><i id="meXp"></i></div><small>كل هدية ترسلها تصعّد مستواك</small></div>
+    <div class="tiles">
+      <button onclick="openEarnings()"><img src="ui/moneybag.webp" alt=""><b>أرباحي</b><small id="meEarn"></small></button>
+      <button onclick="openFamilies()"><img src="ui/shield.webp" alt=""><b>العائلة</b><small>عائلتي</small></button>
+      <button onclick="show('moments')"><img src="ui/camera.webp" alt=""><b>اللحظات</b><small>انشر</small></button>
+      <button onclick="openRich()"><img src="ui/trophy.webp" alt=""><b>الترتيب</b><small>الأقوى</small></button>
+      <button onclick="openEvents()"><img src="ui/party.webp" alt=""><b>الأنشطة</b><small>الجديد</small></button>
+      <button onclick="openSettings()"><img src="ui/gear.webp" alt=""><b>الإعدادات</b><small>الخصوصية</small></button>
+      <button id="meAdmin" onclick="openAdmin()" hidden><img src="ui/swords.webp" alt=""><b>الإدارة</b><small>لوحة التحكم</small></button>
     </div>
+    <button class="logout" onclick="logout()">🚪 تسجيل خروج</button>
   </div>
 </section>
 
@@ -171,19 +185,20 @@ setTimeout(function(){var l=document.getElementById('loading');if(l&&!l.hidden){
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng@4.20.2/AgoraRTC_N-production.js"></script>
-<script src="gart.js?v=23"></script>
-<script src="config.js?v=23"></script>
-<script src="app.js?v=23"></script>
-<script src="game.js?v=23"></script>
-<script src="games2.js?v=23"></script>
-<script src="runner.js?v=23"></script>
-<script src="ludo.js?v=23"></script>
-<script src="carrom.js?v=23"></script>
-<script src="social.js?v=23"></script>
-<script src="pk.js?v=23"></script>
-<script src="extras.js?v=23"></script>
-<script src="moments.js?v=23"></script>
-<script src="admin.js?v=23"></script>
-<script src="earn.js?v=23"></script>
+<script src="gart.js?v=24"></script>
+<script src="config.js?v=24"></script>
+<script src="app.js?v=24"></script>
+<script src="game.js?v=24"></script>
+<script src="games2.js?v=24"></script>
+<script src="runner.js?v=24"></script>
+<script src="ludo.js?v=24"></script>
+<script src="carrom.js?v=24"></script>
+<script src="social.js?v=24"></script>
+<script src="pk.js?v=24"></script>
+<script src="extras.js?v=24"></script>
+<script src="moments.js?v=24"></script>
+<script src="admin.js?v=24"></script>
+<script src="earn.js?v=24"></script>
+<script src="ui2.js?v=24"></script>
 </body>
 </html>
