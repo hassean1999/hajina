@@ -87,7 +87,7 @@ $('btnSendCode').onclick = async () => {
   const full = $('phCC').value.trim().replace(/\s/g, '') + n;
   const b = $('btnSendCode'); b.disabled = true; b.textContent = 'جاري الإرسال...';
   try {
-    if (!recaptcha) recaptcha = new firebase.auth.RecaptchaVerifier('recap', { size: 'invisible' });
+    if (!recaptcha) { $('recap').innerHTML = ''; const box = document.createElement('div'); $('recap').appendChild(box); recaptcha = new firebase.auth.RecaptchaVerifier(box, { size: 'invisible' }); }
     confirmRes = await auth.signInWithPhoneNumber(full, recaptcha);
     $('loginMain').hidden = true; $('loginCode').hidden = false; $('codeSentTo').textContent = 'دزينا رمز على ' + full; $('phCode').focus();
   } catch (e) { toast(errMsg(e)); try { recaptcha.clear(); } catch (_) {} recaptcha = null; $('recap').innerHTML = ''; }
