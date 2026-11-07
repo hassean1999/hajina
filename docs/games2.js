@@ -8,6 +8,7 @@ const GT = {
   rps: { n: 'حجرة ورقة مقص', e: '✊', d: 'أول واحد يوصل 3 نقاط يفوز', duo: 1 },
   dice: { n: 'الزار', e: '🎲', d: 'ارمِ الزار، والأعلى ياخذ الجولة، من 3 جولات', duo: 1 }
 };
+window.GINIT = {};
 const QUIZ = [
   ['شنو عاصمة العراق؟', ['بغداد', 'البصرة', 'الموصل', 'أربيل'], 0], ['أطول نهر بالعراق؟', ['دجلة', 'الفرات', 'الزاب', 'ديالى'], 1],
   ['بأي مدينة ملوية سامراء؟', ['سامراء', 'تكريت', 'الحلة', 'كركوك'], 0], ['شط العرب يتكون من التقاء؟', ['دجلة والفرات', 'الزاب ودجلة', 'الفرات والخابور', 'ديالى ودجلة'], 0],
@@ -46,6 +47,7 @@ async function gCreate(type) {
   if (type === 'xo') Object.assign(base, { board: Array(9).fill(''), turn: ME.uid });
   if (type === 'rps' || type === 'dice') Object.assign(base, { picks: {}, round: 1, last: null });
   if (type === 'muhaibis') Object.assign(base, { round: 1, hider: ME.uid, ring: -1, opened: [], phase: 'hide', last: null });
+  if (GINIT[type]) Object.assign(base, GINIT[type]());
   if (type === 'quiz') Object.assign(base, { qs: gShuffle(QUIZ.map((_, i) => i)).slice(0, 10), cur: 0, qTs: Date.now(), ans: null, names: { [ME.uid]: ME.name } });
   try {
     await ref.set(base);
