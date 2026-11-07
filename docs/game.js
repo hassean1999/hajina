@@ -48,8 +48,8 @@ async function gameCreate() {
   const b = wgBuild(); if (!b) return toast('صار خطأ، جرب مرة ثانية');
   const ref = db.collection('games').doc();
   try {
-    await ref.set({ room: R.id, status: 'wait', players: [meLite()], cat: b.cat, words: b.words, grid: b.grid, place: Object.fromEntries(Object.entries(b.place).map(([k, v]) => [k, v])), found: {}, scores: { [ME.uid]: 0 }, by: ME.uid, ts: Date.now() });
-    await roomRef().update({ game: { id: ref.id, status: 'wait', by: ME.name, ts: Date.now() } });
+    await ref.set({ room: R.id, type: 'word', status: 'wait', players: [meLite()], cat: b.cat, words: b.words, grid: b.grid, place: Object.fromEntries(Object.entries(b.place).map(([k, v]) => [k, v])), found: {}, scores: { [ME.uid]: 0 }, by: ME.uid, ts: Date.now() });
+    await roomRef().update({ game: { id: ref.id, type: 'word', status: 'wait', by: ME.name, byUid: ME.uid, ts: Date.now() } });
     roomRef().collection('messages').add(Object.assign({ type: 'sys', text: '🧩 ' + ME.name + ' فتح تحدي الكلمات، منو يتحداه؟', ts: FV.serverTimestamp() }, { uid: ME.uid })).catch(() => {});
     gameOpen(ref.id);
   } catch (e) { toast(errMsg(e)); }
@@ -67,9 +67,9 @@ function gameOpen(id) {
   gameClose(true);
   const w = document.createElement('div'); w.className = 'wg'; document.body.appendChild(w);
   WG = { id, el: w, sel: [], g: null };
-  WG.unsub = wgRef(id).onSnapshot(s => { if (!s.exists) { gameClose(); return; } const prev = WG.g; WG.g = s.data(); wgRender(prev); }, e => toast(errMsg(e)));
+  WG.unsub = wgRef(id).onSnapshot(s => { if (!s.exists) { gameClose(); return; } const prev = WG.g; WG.g = s.data(); if (WG.g.type && WG.g.type !== 'word') gRenderType(WG.g, prev); else wgRender(prev); }, e => toast(errMsg(e)));
 }
-window.gameClose = function (silent) { if (!WG) return; WG.unsub && WG.unsub(); WG.el.remove(); WG = null; };
+window.gameClose = function (silent) { if (!WG) return; clearInterval(WG.qTimer); WG.unsub && WG.unsub(); WG.el.remove(); WG = null; };
 function wgPlayer(g, i) { return (g.players || [])[i]; }
 function wgRender(prev) {
   const g = WG.g, w = WG.el, me = ME.uid, iAmIn = (g.players || []).some(p => p.uid === me);

@@ -409,7 +409,8 @@ async function enterRoom(id, skipPw) {
     const adds = s.docChanges().filter(c => c.type === 'added').map(c => Object.assign({ id: c.doc.id }, c.doc.data())).reverse();
     adds.forEach(onRoomMsg);
   }));
-  roomRef().collection('messages').add(Object.assign({ type: 'join', ts: FV.serverTimestamp() }, meLite())).catch(() => {});
+  let lastJ = 0; try { lastJ = +localStorage.getItem('hj_join_' + id) || 0; } catch (e) {}
+  if (Date.now() - lastJ > 15 * 60000) { try { localStorage.setItem('hj_join_' + id, Date.now()); } catch (e) {} roomRef().collection('messages').add(Object.assign({ type: 'join', ts: FV.serverTimestamp() }, meLite())).catch(() => {}); }
   R.hb = setInterval(roomHeartbeat, 25000); setTimeout(roomHeartbeat, 4000);
   await joinVoice(id);
   if (isOwner() && R.data.seats && !R.data.seats[0]) takeSeat(0);
