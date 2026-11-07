@@ -33,6 +33,14 @@ service cloud.firestore {
         allow read: if signed();
         allow write: if signed() && request.auth.uid == uid;
       }
+      match /followers/{other} {
+        allow read: if signed();
+        allow write: if signed() && request.auth.uid == other;
+      }
+      match /supporters/{other} {
+        allow read: if signed();
+        allow write: if signed() && request.auth.uid == other;
+      }
     }
 
     match /rooms/{rid} {

@@ -668,6 +668,7 @@ async function sendGift(g, qty, targets) {
       targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(heart), ['gw.' + g.k]: FV.increment(qty) }); hu['hearts.' + t.uid] = FV.increment(heart); const pu = window.pkGiftUpdate && pkGiftUpdate(t.uid, heart); if (pu) hu[pu[0]] = FV.increment(pu[1]); });
       tx.update(ref, hu);
     });
+    targets.forEach(t => { if (t.uid !== ME.uid) db.collection('users').doc(t.uid).collection('supporters').doc(ME.uid).set({ name: ME.name, color: ME.color || '', amt: FV.increment(heart), ts: FV.serverTimestamp() }, { merge: true }).catch(() => {}); });
     if (window.notify) targets.forEach(t => notify(t.uid, 'gift', 'أهداك ' + g.n + (qty > 1 ? ' x' + qty : '')));
     if (!sv && ME.family && ME.family.id) db.collection('families').doc(ME.family.id).update({ total: FV.increment(total) }).catch(() => {});
     await ref.collection('messages').add({ type: 'gift', ...meLite(), gift: g.k, qty, val: heart, to: targets.map(t => ({ uid: t.uid, name: t.name })), ts: FV.serverTimestamp() });
@@ -747,7 +748,7 @@ async function userCard(uid) {
   let following = false;
   if (!self) { try { following = (await db.collection('users').doc(ME.uid).collection('following').doc(uid).get()).exists; } catch (e) {} }
   const seated = R.id && (R.data.seats || []).some(s => s && s.uid === uid);
-  const m = modal('<div class="uc">' + avHtml(u, 84) + '<div class="pf-name">' + nameHtml(u) + '</div><div class="pf-id">ID: ' + esc(u.hid || '') + '</div>' + (u.bio ? '<div class="uc-bio">' + esc(u.bio) + '</div>' : '') + '<div class="tags"><span class="tag lv">⭐ ' + toAr(lvlOf(u.xp)) + '</span><span class="tag">📍 ' + esc(u.city || '') + '</span><span class="tag">💗 ' + fmtK(u.charm || 0) + '</span><span class="tag">👥 ' + fmtK(u.followers || 0) + '</span></div>' + (window.giftWall ? giftWall(u) : '') + '</div>' +
+  const m = modal('<div class="uc">' + avHtml(u, 84) + '<div class="pf-name">' + nameHtml(u) + '</div><div class="pf-id">ID: ' + esc(u.hid || '') + '</div>' + (u.bio ? '<div class="uc-bio">' + esc(u.bio) + '</div>' : '') + '<div class="tags"><span class="tag lv">⭐ ' + toAr(lvlOf(u.xp)) + '</span><span class="tag">📍 ' + esc(u.city || '') + '</span><span class="tag" onclick="closeTopModal();openCharm(\'' + uid + '\')" style="cursor:pointer">💗 ' + fmtK(u.charm || 0) + '</span><span class="tag" onclick="closeTopModal();openPeople(\'followers\',\'' + uid + '\')" style="cursor:pointer">👥 ' + fmtK(u.followers || 0) + '</span></div>' + (window.giftWall ? giftWall(u) : '') + '</div>' +
     (self ? (R.mySeat !== -1 && seated ? '<button class="btn btn-s" id="ucDown">⬇️ انزل من المايك</button>' : '') :
       '<div class="row2"><button class="btn ' + (following ? 'btn-s' : 'btn-p') + '" id="ucF">' + (following ? '✓ تتابعه' : '+ متابعة') + '</button><button class="btn btn-s" id="ucM">💬 رسالة</button></div>' +
       (R.id ? '<button class="btn btn-s" id="ucG">🎁 أهديه</button>' : '') +
@@ -766,7 +767,8 @@ async function toggleFollow(u, was) {
   const batch = db.batch();
   if (was) { batch.delete(f); batch.update(a, { following: FV.increment(-1) }); batch.update(b, { followers: FV.increment(-1) }); }
   else { batch.set(f, { name: u.name, color: u.color, ts: FV.serverTimestamp() }); batch.update(a, { following: FV.increment(1) }); batch.update(b, { followers: FV.increment(1) }); }
-  await batch.commit().then(() => { toast(was ? 'ألغيت المتابعة' : 'صرت تتابع ' + u.name); if (!was && window.notify) notify(u.uid, 'follow', 'صار يتابعك'); }).catch(e => toast(errMsg(e)));
+  await batch.commit().then(() => { toast(was ? 'ألغيت المتابعة' : 'صرت تتابع ' + u.name); if (!was && window.notify) notify(u.uid, 'follow', 'صار يتابعك');
+    const fr = b.collection('followers').doc(ME.uid); (was ? fr.delete() : fr.set({ name: ME.name, color: ME.color || '', ts: FV.serverTimestamp() })).catch(() => {}); }).catch(e => toast(errMsg(e)));
 }
 
 /* ---------- DMs ---------- */

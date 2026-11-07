@@ -8,8 +8,8 @@
 <link rel="icon" href="logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap">
-<link rel="stylesheet" href="style.css?v=24">
-<link rel="stylesheet" href="v2.css?v=24">
+<link rel="stylesheet" href="style.css?v=25">
+<link rel="stylesheet" href="v2.css?v=25">
 </head>
 <body>
 
@@ -109,7 +109,7 @@
       <div class="pf-id" id="meId" onclick="copyTxt(ME.hid)"></div>
       <div class="tags" id="meTags"></div>
     </div>
-    <div class="stats2"><div><b id="meFollowers">0</b><span>متابعون</span></div><div><b id="meFollowing">0</b><span>يتابع</span></div><div><b id="meCharm">0</b><span>💗 جاذبية</span></div></div>
+    <div class="stats2"><div onclick="openPeople('followers')"><b id="meFollowers">0</b><span>متابعون</span></div><div onclick="openPeople('following')"><b id="meFollowing">0</b><span>يتابع</span></div><div onclick="openCharm()"><b id="meCharm">0</b><span>💗 جاذبية</span></div></div>
     <div class="vipcard" onclick="openVip()"><img src="ui/crown.webp" alt=""><div><b>VIP</b><small id="meVipT"></small></div><span>›</span></div>
     <div class="wallet2">
       <div class="wc dia" onclick="openRecharge()"><small>الماسات</small><b id="meDia"></b><span>شحن ›</span></div>
@@ -185,20 +185,21 @@ setTimeout(function(){var l=document.getElementById('loading');if(l&&!l.hidden){
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng@4.20.2/AgoraRTC_N-production.js"></script>
-<script src="gart.js?v=24"></script>
-<script src="config.js?v=24"></script>
-<script src="app.js?v=24"></script>
-<script src="game.js?v=24"></script>
-<script src="games2.js?v=24"></script>
-<script src="runner.js?v=24"></script>
-<script src="ludo.js?v=24"></script>
-<script src="carrom.js?v=24"></script>
-<script src="social.js?v=24"></script>
-<script src="pk.js?v=24"></script>
-<script src="extras.js?v=24"></script>
-<script src="moments.js?v=24"></script>
-<script src="admin.js?v=24"></script>
-<script src="earn.js?v=24"></script>
-<script src="ui2.js?v=24"></script>
+<script src="gart.js?v=25"></script>
+<script src="config.js?v=25"></script>
+<script src="app.js?v=25"></script>
+<script src="game.js?v=25"></script>
+<script src="games2.js?v=25"></script>
+<script src="runner.js?v=25"></script>
+<script src="ludo.js?v=25"></script>
+<script src="carrom.js?v=25"></script>
+<script src="social.js?v=25"></script>
+<script src="pk.js?v=25"></script>
+<script src="extras.js?v=25"></script>
+<script src="moments.js?v=25"></script>
+<script src="admin.js?v=25"></script>
+<script src="earn.js?v=25"></script>
+<script src="ui2.js?v=25"></script>
+<script src="lists.js?v=25"></script>
 </body>
 </html>
