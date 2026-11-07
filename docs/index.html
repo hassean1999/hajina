@@ -8,7 +8,7 @@
 <link rel="icon" href="logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
@@ -53,6 +53,7 @@
   <div class="top">
     <div class="brand"><img src="logo.svg" alt="">حجينه</div>
     <div style="display:flex;gap:8px;align-items:center">
+      <div class="chip" id="homeSil" onclick="doCheckin()" style="padding:6px 10px"><span>🪙</span><span>0</span></div>
       <div class="chip" id="homeDia" onclick="openRecharge()"><span class="d">◆</span><span>0</span></div>
       <button class="ibtn" onclick="doCheckin()" title="هدية يومية">🎁</button>
     </div>
@@ -95,7 +96,8 @@
     </div>
     <div class="list">
       <div class="li" onclick="openRecharge()"><span class="ic">◆</span>الماسات<span class="end" id="meDia"></span></div>
-      <div class="li" onclick="doCheckin()"><span class="ic">🎁</span>الهدية اليومية<span class="end">+50 ◆</span></div>
+      <div class="li" onclick="doCheckin()"><span class="ic">🪙</span>العملات الفضية<span class="end" id="meSil"></span></div>
+      <div class="li" onclick="doCheckin()"><span class="ic">🎁</span>الهدية اليومية<span class="end">+100 🪙</span></div>
       <div class="li" onclick="openEdit()"><span class="ic">✏️</span>تعديل الملف الشخصي</div>
       <div class="li" id="meAdmin" onclick="openAdmin()" hidden><span class="ic">🛠️</span>لوحة الإدارة<span class="end">شحن الماسات</span></div>
       <div class="li" onclick="logout()" style="color:var(--danger)"><span class="ic">🚪</span>تسجيل خروج</div>
@@ -147,8 +149,8 @@ setTimeout(function(){var l=document.getElementById('loading');if(l&&!l.hidden){
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/agora-rtc-sdk-ng@4.20.2/AgoraRTC_N-production.js"></script>
-<script src="gart.js?v=7"></script>
-<script src="config.js?v=7"></script>
-<script src="app.js?v=7"></script>
+<script src="gart.js?v=8"></script>
+<script src="config.js?v=8"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>

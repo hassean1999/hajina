@@ -25,7 +25,11 @@ const GIFTS = [
 ];
 const GART_URI = {}; Object.keys(GART).forEach(k => { if (k !== 'shadow') GART_URI[k] = gartURI(k); });
 const gArt = g => GART_URI[g.art || g.k];
-const giftBy = k => GIFTS.find(g => g.k === k) || GIFTS[0];
+const SGIFTS = [
+  {k:'s_rose',art:'rose',n:'وردة',p:10,s:1},{k:'s_heart',art:'heart',n:'قلب',p:20,s:1},{k:'s_coffee',art:'coffee',n:'قهوة',p:30,s:1},
+  {k:'s_balloon',art:'balloon',n:'بالون',p:50,s:1},{k:'s_cake',art:'cake',n:'كيكة',p:80,s:1},{k:'s_giftbox',art:'giftbox',n:'صندوق',p:100,s:1}
+];
+const giftBy = k => GIFTS.find(g => g.k === k) || SGIFTS.find(g => g.k === k) || GIFTS[0];
 
 const lvlOf = xp => Math.floor(Math.sqrt((xp || 0) / 50)) + 1;
 const lvlFloor = l => 50 * (l - 1) * (l - 1);
@@ -111,7 +115,7 @@ auth.onAuthStateChanged(u => {
     const prevDia = ME && ME.name ? (ME.diamonds || 0) : null;
     ME = Object.assign({ uid: u.uid }, d);
     renderMe();
-    if (prevDia !== null && (ME.diamonds || 0) - prevDia > C.dailyDiamonds) { chime(true); toast('💎 وصلتك ' + ((ME.diamonds || 0) - prevDia).toLocaleString('en') + ' ماسة!'); }
+    if (prevDia !== null && (ME.diamonds || 0) > prevDia) { chime(true); toast('💎 وصلتك ' + ((ME.diamonds || 0) - prevDia).toLocaleString('en') + ' ماسة!'); }
     $('meAdmin').hidden = !ME.admin;
     if (prevLvl && lvlOf(ME.xp) > prevLvl) { const nl = lvlOf(ME.xp); setTimeout(() => levelUpFx(nl), 3600); }
     if (!booted) { booted = true; show('home'); startHome(); startChats(); }
@@ -135,10 +139,10 @@ function openSetup(u) {
     try {
       await db.collection('users').doc(u.uid).set({
         name, city: $('setupCity').value, color: setupColor, hid: String(Math.floor(10000000 + Math.random() * 89999999)),
-        diamonds: C.welcomeDiamonds, xp: 0, charm: 0, followers: 0, following: 0, lastCheckin: '',
+        diamonds: 0, silver: C.welcomeSilver, xp: 0, charm: 0, followers: 0, following: 0, lastCheckin: '',
         createdAt: FV.serverTimestamp()
       }, { merge: true });
-      toast('🎉 هدية ترحيب ' + C.welcomeDiamonds + ' ماسة');
+      toast('🎉 هدية ترحيب ' + C.welcomeSilver + ' 🪙 عملة فضية');
     } catch (e) { toast(errMsg(e)); }
     $('btnSetup').disabled = false;
   };
@@ -164,11 +168,12 @@ function renderMe() {
   $('meXp').style.width = Math.min(100, ((ME.xp || 0) - lo) / (hi - lo) * 100) + '%';
   $('meDia').textContent = '◆ ' + fmtK(ME.diamonds || 0);
   $('homeDia').lastElementChild.textContent = fmtK(ME.diamonds || 0);
+  $('homeSil').lastElementChild.textContent = fmtK(ME.silver || 0);
+  $('meSil').textContent = '🪙 ' + fmtK(ME.silver || 0);
 }
 async function doCheckin() {
   if (ME.lastCheckin === today()) return toast('أخذت هدية اليوم، تعال باچر 🌙');
-  await db.collection('users').doc(ME.uid).update({ diamonds: FV.increment(C.dailyDiamonds), lastCheckin: today() }).catch(e => toast(errMsg(e)));
-  chime(); toast('🎁 +' + C.dailyDiamonds + ' ماسة');
+  try { await db.collection('users').doc(ME.uid).update({ silver: FV.increment(C.dailySilver), lastCheckin: today() }); chime(); toast('🎁 +' + C.dailySilver + ' 🪙 عملة فضية'); } catch (e) { toast(errMsg(e)); }
 }
 function copyTxt(t, el) {
   const ok = () => toast('انتسخ ✅');
@@ -186,7 +191,7 @@ function openRecharge() {
     '<div style="font-size:13px;color:var(--fg2);line-height:1.9">١. حوّل مبلغ الباقة على وحدة من الطرق جوه<br>٢. دز صورة التحويل والـ ID مالتك على التلكرام<br>٣. توصلك الماسات خلال دقايق</div>' +
     '<div class="list" style="margin:0">' + row('🆔', 'الـ ID مالتك', ME.hid || '') + row('📱', 'رصيد ' + (R2.balanceNetwork || '') + ' على الرقم', R2.balanceNumber) + row('💳', R2.cardLabel || 'ماستر كارد', R2.cardNumber) + '</div>' +
     (tg ? '<a class="btn btn-p" style="text-decoration:none;background:#229ED9" href="https://t.me/' + tg + '" target="_blank">✈️ راسلنا على التلكرام</a><div style="text-align:center;font-size:12px;color:var(--fg2)">لا تنسى تدز الـ ID مالتك (' + esc(ME.hid || '') + ') ويا صورة التحويل</div>' : '') +
-    '<button class="btn btn-s" onclick="doCheckin();closeTopModal()">🎁 هدية اليوم المجانية (+' + C.dailyDiamonds + ')</button>');
+    '<button class="btn btn-s" onclick="doCheckin();closeTopModal()">🎁 هدية اليوم: ' + C.dailySilver + ' 🪙 عملة فضية</button>');
 }
 /* ---- لوحة الإدارة ---- */
 function openAdmin() {
@@ -469,32 +474,40 @@ function openGifts(preUid) {
   const seated = (R.data.seats || []).filter(s => s && s.uid !== ME.uid);
   if (!seated.length) return toast('ماكو أحد عالمايك حتى تهديه');
   const sel = new Set([preUid && seated.some(s => s.uid === preUid) ? preUid : (seated.find(s => s.uid === R.data.ownerUid) || seated[0]).uid]);
-  let gi = 0;
-  const m = modal('<div class="gs-to"><span>إلى</span><div class="gs-avs" id="gAv"></div><button class="gs-all" id="gAll"><i>✓</i>الكل</button></div><div class="gifts" id="gGrid">' + GIFTS.map((g, i) => '<div class="gi' + (i === 0 ? ' on' : '') + '" data-i="' + i + '">' + (g.fx ? '<span class="fx">🎬</span>' : '') + '<img src="' + gArt(g) + '" alt=""><span class="n">' + g.n + '</span><span class="p">◆ ' + g.p + '</span></div>').join('') + '</div><div class="gs-bar"><div class="gs-bal"><span class="d">◆ ' + fmtK(ME.diamonds || 0) + '</span></div><div class="gs-send"><select id="gQ"><option>1</option><option>5</option><option>10</option><option>66</option><option>99</option></select><button id="gS">إرسال</button></div></div>');
+  let gi = 0, cur = 'd';
+  const grid = () => (cur === 'd' ? GIFTS : SGIFTS).map((g, i) => '<div class="gi' + (i === gi ? ' on' : '') + '" data-i="' + i + '">' + (g.fx ? '<span class="fx">🎬</span>' : '') + '<img src="' + gArt(g) + '" alt=""><span class="n">' + g.n + '</span><span class="p"' + (cur === 's' ? ' style="color:#C9D1DC"' : '') + '>' + (cur === 'd' ? '◆ ' : '🪙 ') + g.p + '</span></div>').join('');
+  const m = modal('<div class="gs-to"><span>إلى</span><div class="gs-avs" id="gAv"></div><button class="gs-all" id="gAll"><i>✓</i>الكل</button></div><div class="cats" id="gTabs" style="padding:0"><button class="on" data-c="d">💎 هدايا الماس</button><button data-c="s">🪙 هدايا فضية</button></div><div class="gifts" id="gGrid">' + grid() + '</div><div class="gs-bar"><div class="gs-bal" id="gBal"></div><div class="gs-send"><select id="gQ"><option>1</option><option>5</option><option>10</option><option>66</option><option>99</option></select><button id="gS">إرسال</button></div></div>');
+  const bal = () => { m.querySelector('#gBal').innerHTML = cur === 'd' ? '<span class="d">◆ ' + fmtK(ME.diamonds || 0) + '</span><span style="color:var(--or);cursor:pointer" onclick="closeTopModal();openRecharge()">شحن ‹</span>' : '<span style="color:#C9D1DC">🪙 ' + fmtK(ME.silver || 0) + '</span>'; };
+  bal();
+  m.querySelector('#gTabs').onclick = e => { const c = e.target.dataset.c; if (!c) return; cur = c; gi = 0; [...e.currentTarget.children].forEach(x => x.classList.toggle('on', x.dataset.c === c)); m.querySelector('#gGrid').innerHTML = grid(); bal(); };
   const drawAv = () => { m.querySelector('#gAv').innerHTML = seated.map(s => '<div class="av' + (sel.has(s.uid) ? ' on' : '') + '" data-u="' + esc(s.uid) + '" style="background:' + esc(s.color) + '">' + esc(s.name.charAt(0)) + '</div>').join(''); m.querySelector('#gAll').classList.toggle('on', sel.size === seated.length); };
   drawAv();
   m.querySelector('#gAv').onclick = e => { const u = e.target.dataset.u; if (!u) return; if (sel.has(u)) { if (sel.size > 1) sel.delete(u); } else sel.add(u); drawAv(); };
   m.querySelector('#gAll').onclick = () => { if (sel.size === seated.length) { const f = [...sel][0]; sel.clear(); sel.add(f); } else seated.forEach(s => sel.add(s.uid)); drawAv(); };
   m.querySelector('#gGrid').onclick = e => { const el = e.target.closest('.gi'); if (!el) return; gi = +el.dataset.i; m.querySelectorAll('.gi').forEach(x => x.classList.toggle('on', x === el)); };
   m.querySelector('#gS').onclick = async () => {
-    const g = GIFTS[gi], qty = +m.querySelector('#gQ').value, targets = seated.filter(s => sel.has(s.uid));
+    const g = (cur === 'd' ? GIFTS : SGIFTS)[gi], qty = +m.querySelector('#gQ').value, targets = seated.filter(s => sel.has(s.uid));
     m.close(); sendGift(g, qty, targets);
   };
 }
 async function sendGift(g, qty, targets) {
-  const each = g.p * qty, total = each * targets.length, myRef = db.collection('users').doc(ME.uid), ref = roomRef();
+  const sv = !!g.s, field = sv ? 'silver' : 'diamonds';
+  const each = g.p * qty, total = each * targets.length, heart = sv ? Math.ceil(each / 10) : each;
+  const myRef = db.collection('users').doc(ME.uid), ref = roomRef();
   try {
     await db.runTransaction(async tx => {
-      const s = await tx.get(myRef); const d = (s.data() || {}).diamonds || 0;
-      if (d < total) throw new Error('nodia');
-      tx.update(myRef, { diamonds: d - total, xp: FV.increment(total) });
+      const s = await tx.get(myRef); const d = (s.data() || {})[field] || 0;
+      if (d < total) throw new Error('nobal');
+      const mine = { [field]: d - total }; if (!sv) mine.xp = FV.increment(total);
+      tx.update(myRef, mine);
       const hu = { lastActive: FV.serverTimestamp() };
-      targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(each) }); hu['hearts.' + t.uid] = FV.increment(each); });
+      targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(heart) }); hu['hearts.' + t.uid] = FV.increment(heart); });
       tx.update(ref, hu);
     });
-    await ref.collection('messages').add({ type: 'gift', uid: ME.uid, name: ME.name, color: ME.color, gift: g.k, qty, val: each, to: targets.map(t => ({ uid: t.uid, name: t.name })), ts: FV.serverTimestamp() });
+    await ref.collection('messages').add({ type: 'gift', uid: ME.uid, name: ME.name, color: ME.color, gift: g.k, qty, val: heart, to: targets.map(t => ({ uid: t.uid, name: t.name })), ts: FV.serverTimestamp() });
   } catch (e) {
-    if (e.message === 'nodia') { toast('ماساتك ما تكفي (' + total + ' ◆)'); openRecharge(); } else toast(errMsg(e));
+    if (e.message === 'nobal') { if (sv) toast('عملاتك الفضية ما تكفي، خذ هدية اليوم 🎁'); else { toast('ماساتك ما تكفي (' + total + ' ◆)'); openRecharge(); } }
+    else toast(errMsg(e));
   }
 }
 function playGift(g, m) {

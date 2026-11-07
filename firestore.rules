@@ -10,12 +10,14 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if signed();
       allow create: if signed() && request.auth.uid == uid
-        && !('admin' in request.resource.data) && request.resource.data.diamonds <= 100;
+        && !('admin' in request.resource.data) && request.resource.data.get('diamonds', 0) <= 0
+        && request.resource.data.get('silver', 0) <= 100;
       allow update: if isAdmin()
         || (signed() && request.auth.uid == uid
             && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['admin', 'charm', 'followers'])
-            && (request.resource.data.diamonds <= resource.data.diamonds
-                || (request.resource.data.diamonds <= resource.data.diamonds + 10
+            && request.resource.data.get('diamonds', 0) <= resource.data.get('diamonds', 0)
+            && (request.resource.data.get('silver', 0) <= resource.data.get('silver', 0)
+                || (request.resource.data.get('silver', 0) <= resource.data.get('silver', 0) + 100
                     && request.resource.data.lastCheckin != resource.data.lastCheckin)))
         || (signed() && request.auth.uid != uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['charm', 'followers']));

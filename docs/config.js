@@ -27,6 +27,7 @@ window.HAJINA_CONFIG = {
       { d: 10000, p: "95,000 دينار" }
     ]
   },
-  welcomeDiamonds: 100,
-  dailyDiamonds: 10
+  // العملات الفضية المجانية (ما تنشحن، بس هدايا فضية)
+  welcomeSilver: 100,
+  dailySilver: 100
 };
