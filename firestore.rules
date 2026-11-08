@@ -67,6 +67,11 @@ service cloud.firestore {
       allow read, delete: if isAdmin();
     }
     match /recharges/{x} { allow read, create: if isAdmin(); }
+    match /specialIds/{sid} {
+      allow read: if signed();
+      allow create: if signed() && request.resource.data.uid == request.auth.uid;
+      allow delete: if signed() && (resource.data.uid == request.auth.uid || isAdmin());
+    }
     match /ranks/{board}/u/{id} {
       allow read: if signed();
       allow create: if signed() && request.resource.data.v is number && request.resource.data.v <= 10000000;
