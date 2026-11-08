@@ -71,3 +71,20 @@ body:has(#home:not([hidden])) .nav{background:rgba(255,255,255,.96);border-top:1
 body:has(#home:not([hidden])) .nav button{color:#9A928A}
 body:has(#home:not([hidden])) .nav button.on{color:#F28C38}
 .h3-th .rc2-art{position:static!important;z-index:1!important;width:60%!important;height:auto!important;opacity:1!important;transform:none!important;inset:auto!important}
+/* رسومات أقوى */
+.h3-rich{min-height:108px;padding:10px 16px}
+.h3-rich .cup{width:112px;margin:-14px -6px -18px 0}
+.h3-mini{min-height:76px;padding:12px 14px}
+.h3-mini img{width:82px;margin:-18px -12px -22px -8px;filter:none}
+.h3-my{min-height:96px}
+.h3-my img{width:108px;margin:-18px -8px -22px 0}
+.h3-mini::after,.h3-rich::after,.h3-my::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.12) 0 2px,transparent 2px 12px);pointer-events:none}
+/* رسومات أقوى */
+.h3-rich{min-height:108px;padding:10px 16px}
+.h3-rich .cup{width:112px;margin:-14px -6px -18px 0}
+.h3-mini{min-height:76px;padding:12px 14px}
+.h3-mini img{width:82px;margin:-18px -12px -22px -8px;filter:none}
+.h3-my{min-height:96px}
+.h3-my img{width:108px;margin:-18px -8px -22px 0}
+.h3-mini::after,.h3-rich::after,.h3-my::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.12) 0 2px,transparent 2px 12px);pointer-events:none}
+.h3-rich>b{white-space:nowrap;font-size:20px}

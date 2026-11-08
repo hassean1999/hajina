@@ -34,7 +34,7 @@ function h3Render() {
   let h = '';
   if (H3.tab === 'mine') {
     const my = roomsData.find(x => x.ownerUid === ME.uid && !x.closed);
-    h += '<div class="h3-my" data-act="mine"><div><b>غرفتي</b><small>' + (my ? esc(my.title) + (isLive(my) ? ' · 👤 ' + toAr(Math.max(1, my.online || 0)) : '') : 'افتح غرفتك واجمع أصدقائك') + '</small></div><img src="ui/house.webp" alt=""></div>';
+    h += '<div class="h3-my" data-act="mine"><div><b>غرفتي</b><small>' + (my ? esc(my.title) + (isLive(my) ? ' · 👤 ' + toAr(Math.max(1, my.online || 0)) : '') : 'افتح غرفتك واجمع أصدقائك') + '</small></div><img src="ui3/myroom.webp" alt=""></div>';
     h += '<div class="h3-pills"><button data-sub="follow"' + (H3.sub === 'follow' ? ' class="on"' : '') + '>متابعاتي</button><button data-sub="recent"' + (H3.sub === 'recent' ? ' class="on"' : '') + '>شاهدت مؤخراً</button></div>';
     if (H3.sub === 'follow') {
       const ppl = [];
@@ -49,8 +49,8 @@ function h3Render() {
     const list = live.slice().sort((a, b) => ((b.city === ME.city) * 50 + heat(b) + (FOLLOW.has(b.ownerUid) ? 30 : 0)) - ((a.city === ME.city) * 50 + heat(a) + (FOLLOW.has(a.ownerUid) ? 30 : 0)));
     h += '<div class="h3-sec">غرف تناسبك</div>' + (list.length ? '<div class="h3-grid">' + list.map(h3Card).join('') + '</div>' : h3Empty('studio', 'ماكو غرف مفتوحة هسه', 'افتح غرفتك وكون أول واحد', '<button class="h3-btn" data-act="create">+ افتح غرفة</button>'));
   } else {
-    h += '<div class="h3-rich" data-act="rich"><img class="cup" src="ui/trophy.webp" alt=""><b>قائمة الثراء</b><div class="h3-pod" id="h3Pod"></div></div>' +
-      '<div class="h3-two"><div class="h3-mini ev" data-act="ev"><b>الأنشطة</b><img src="ui/party.webp" alt=""></div><div class="h3-mini fam" data-act="fam"><b>ساحة العائلات</b><img src="ui/shield.webp" alt=""></div><div class="h3-mini wh" data-act="wheel"><b>عجلة الحظ</b><img src="ui/wheel.webp" alt=""></div><div class="h3-mini vp" data-act="vip"><b>VIP</b><img src="ui/crown.webp" alt=""></div></div>';
+    h += '<div class="h3-rich" data-act="rich"><img class="cup" src="ui3/rich.webp" alt=""><b>قائمة الثراء</b><div class="h3-pod" id="h3Pod"></div></div>' +
+      '<div class="h3-two"><div class="h3-mini ev" data-act="ev"><b>الأنشطة</b><img src="ui3/events.webp" alt=""></div><div class="h3-mini fam" data-act="fam"><b>ساحة العائلات</b><img src="ui3/fam.webp" alt=""></div><div class="h3-mini wh" data-act="wheel"><b>عجلة الحظ</b><img src="ui3/wheel.webp" alt=""></div><div class="h3-mini vp" data-act="vip"><b>VIP</b><img src="ui3/vip.webp" alt=""></div></div>';
     const favs = [...FAVS].map(roomById).filter(r => r && !r.closed).sort((a, b) => isLive(b) - isLive(a));
     if (favs.length) h += '<div class="h3-sec">المفضلة</div>' + favs.map(h3Row).join('');
     h += '<div class="h3-sec">غرف الترند</div>' + (byHeat.length ? byHeat.map(h3Row).join('') : h3Empty('studio', 'ماكو غرف مفتوحة هسه', 'افتح غرفتك وجمّع الناس', '<button class="h3-btn" data-act="create">+ افتح غرفة</button>'));
