@@ -11,7 +11,7 @@ DEFS='''
 <linearGradient id="ice" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".35" stop-color="#9FE6FF"/><stop offset=".6" stop-color="#2E8FD6"/><stop offset=".8" stop-color="#C8F2FF"/><stop offset="1" stop-color="#1A4E9A"/></linearGradient>
 <linearGradient id="purp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F3D9FF"/><stop offset=".25" stop-color="#B46CF0"/><stop offset=".5" stop-color="#4A157A"/><stop offset=".72" stop-color="#D9A6FF"/><stop offset="1" stop-color="#2A0848"/></linearGradient>
 <linearGradient id="feather" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".6" stop-color="#F1F4FA"/><stop offset="1" stop-color="#B9C3D6"/></linearGradient>
-<linearGradient id="featherG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFF8DC"/><stop offset=".6" stop-color="#FFE38A"/><stop offset="1" stop-color="#C08A1E"/></linearGradient>
+<linearGradient id="featherG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8A5A08"/><stop offset=".35" stop-color="#E0A830"/><stop offset=".75" stop-color="#FFE9A0"/><stop offset="1" stop-color="#FFFBEA"/></linearGradient><linearGradient id="featherW" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#A8B4C8"/><stop offset=".4" stop-color="#E8EEF6"/><stop offset="1" stop-color="#FFFFFF"/></linearGradient>
 <radialGradient id="flame" cx=".5" cy=".85" r=".9"><stop offset="0" stop-color="#FFFBD0"/><stop offset=".25" stop-color="#FFD23A"/><stop offset=".6" stop-color="#FF6A00"/><stop offset="1" stop-color="#B3120A"/></radialGradient>
 <radialGradient id="flameB" cx=".5" cy=".85" r=".9"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".3" stop-color="#9FF0FF"/><stop offset=".65" stop-color="#2C7BFF"/><stop offset="1" stop-color="#3A0FA8"/></radialGradient>
 <radialGradient id="rose" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#7A0020"/><stop offset=".5" stop-color="#D81B50"/><stop offset="1" stop-color="#FF7A9C"/></radialGradient>
@@ -187,6 +187,57 @@ def sultan(cx,cy,w):
     o+=moon(cx+w*.08,cy-h*1.18,w*.13)
     return '<g filter="url(#sh)">'+o+gem(cx,cy-h*.02,w*.08,'ruby')+gem(cx-w*.3,cy-h*.02,w*.055,'emer',6)+gem(cx+w*.3,cy-h*.02,w*.055,'emer',6)+gem(cx,cy-h*.45,w*.1,'turq')+'</g>'
 
+import base64
+FLD='/tmp/claude-0/-home-claude/a9c82a8f-3afa-56b7-acc5-8049d725e5bf/scratchpad/fl/assets/'
+def fimg(name,cx,cy,w,extra=''):
+    import glob
+    f=glob.glob(FLD+name+'/3D/*.png')[0]; d=base64.b64encode(open(f,'rb').read()).decode()
+    return '<image href="data:image/png;base64,%s" x="%.1f" y="%.1f" width="%.1f" height="%.1f" %s/>'%(d,cx-w/2,cy-w/2,w,w,extra)
+def rays(n,r1,r2,col='#FFE38A',op=.55):
+    o='<radialGradient id="rayg%s" cx=".5" cy=".5" r=".5"><stop offset=".45" stop-color="%s" stop-opacity="%.2f"/><stop offset="1" stop-color="%s" stop-opacity="0"/></radialGradient>'%(col[1:],col,op,col)
+    o+='<circle cx="200" cy="200" r="%.1f" fill="url(#rayg%s)"/>'%(r2,col[1:])
+    for i in range(n):
+        a=i*360/n; w=4 if i%2 else 7; L=r2 if i%2==0 else r2*.82
+        x1,y1=P(a-w*.25,r1); x2,y2=P(a,L); x3,y3=P(a+w*.25,r1)
+        o+='<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="url(#rayg%s)"/>'%(x1,y1,x2,y2,x3,y3,col[1:])
+    return o
+def wing2(side,g='featherG',edge='#6A4000',sc=1.0,y=200):
+    o=[]; bx=200+side*118; by=y
+    rows=[(15,205,24,'1'),(13,155,22,'1'),(11,105,20,'1'),(9,62,18,'1')]
+    for ri,(n,L,wd,op) in enumerate(rows):
+        for i in range(n):
+            t=i/(n-1); ang=-100+t*125
+            Li=L*(1-.55*t**1.3)*(1 if ri==0 else 1)
+            tr='translate(%.1f %.1f) scale(%d 1) scale(%.2f) rotate(%.1f)'%(bx,by,side,sc,ang)
+            path='M0,-%.1f C %.1f,-%.1f %.1f,-%.1f %.1f,0 C %.1f,%.1f %.1f,%.1f 0,%.1f Z'%(wd*.25,Li*.45,wd*.62,Li*.9,wd*.5,Li,Li*.9,wd*.42,Li*.45,wd*.5,wd*.2)
+            o.append('<path d="%s" fill="url(#%s)" stroke="%s" stroke-width="1.1" transform="%s" opacity="%s"/>'%(path,g,edge,tr,op))
+            o.append('<path d="M4,0 Q%.1f,-1 %.1f,0" stroke="%s" stroke-width="1" fill="none" opacity=".55" transform="%s"/>'%(Li*.5,Li*.92,edge,tr))
+    return '<g filter="url(#sh)">'+''.join(reversed(o))+'</g>'
+def bigscroll(a,r,sc=1,g='gold'):
+    o=''
+    for f in (1,-1):
+        x,y=P(a,r)
+        d='M0,0 C %d,-10 %d,-40 %d,-46 C %d,-52 %d,-36 %d,-30 C %d,-26 %d,-34 %d,-38'%(f*14,f*40,f*58,f*76,f*82,f*70,f*62,f*60,f*66)
+        o+='<path d="%s" fill="none" stroke="#4A2A00" stroke-width="9" stroke-linecap="round" transform="translate(%.1f %.1f) rotate(%.1f) scale(%.2f)"/>'%(d,x,y,a,sc)
+        o+='<path d="%s" fill="none" stroke="url(#%s)" stroke-width="6" stroke-linecap="round" transform="translate(%.1f %.1f) rotate(%.1f) scale(%.2f)"/>'%(d,g,x,y,a,sc)
+        o+='<circle cx="%d" cy="-38" r="5" fill="url(#goldR)" stroke="#4A2A00" transform="translate(%.1f %.1f) rotate(%.1f) scale(%.2f)"/>'%(f*66,x,y,a,sc)
+    return '<g filter="url(#sh)">'+o+'</g>'
+def pearldrape(a0,a1,r,sag,n=11,gk=None):
+    x0,y0=P(a0,r); x1,y1=P(a1,r); mx,my=(x0+x1)/2,(y0+y1)/2+sag
+    o=''
+    for i in range(n):
+        t=i/(n-1); x=(1-t)**2*x0+2*(1-t)*t*mx+t*t*x1; y=(1-t)**2*y0+2*(1-t)*t*my+t*t*y1
+        o+='<circle cx="%.1f" cy="%.1f" r="4.6" fill="url(#pearl)" stroke="#7A6A80" stroke-width=".5"/>'%(x,y)
+    if gk:
+        x=(x0+2*mx+x1)/4; y=(y0+2*my+y1)/4; o+='<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="url(#gold)" stroke-width="2"/>'%(x,y,x,y+14)+gem(x,y+22,9,gk,6)
+    return '<g filter="url(#sh)">'+o+'</g>'
+def ring3d(r1,r2,g='gold',pat=True):
+    o=ring(r1,r2,g)
+    rm=(r1+r2)/2
+    o+='<circle cx="200" cy="200" r="%.1f" fill="none" stroke="#3A2000" stroke-width="2.5" opacity=".55" stroke-dasharray="2 7"/>'%rm if pat else ''
+    o+='<circle cx="200" cy="200" r="%.1f" fill="none" stroke="#FFFFFF" stroke-width="2" opacity=".55" stroke-dasharray="60 400" transform="rotate(-120 200 200)"/>'%(r2-3)
+    return o
+
 F={}
 R2=lambda a,b,g='gold',e='#FFF6C4',d='#4A2A00': ring(a,b,g,e,d)
 F['lv_bronze']=ring(134,156,'bronze','#FFE2C4','#3A1A04')+notches(145,56,'#3A1A04')+beads(160,36,3.5,'url(#bronze)')+gem(200,40,20,'topaz')+gem(200,360,13,'topaz',6)
@@ -213,6 +264,15 @@ F['h_reaper']=flames(30,148,'flameP',1.8)+chain(160,40)+ring(132,152,'iron','#C8
 F['r_emperor']='<path d="M128,70 Q130,-20 200,-24 Q270,-20 272,70Z" fill="url(#velvet)" stroke="url(#gold)" stroke-width="5" filter="url(#sh)"/>'+leafarc(206,292,182,10,'url(#gold)',22)+leafarc(154,68,182,10,'url(#gold)',22)+ring(126,150,'gold')+ring(150,160,'velvet','#FF9A9A','#200004')+ring(160,166,'gold')+beads(138,52,3,'url(#pearl)')+crown(200,76,180,'ruby')+gem(200,370,24,'ruby')+''.join(gem(*P(a,155),11,k) for a,k in ((90,'emer'),(270,'emer'),(135,'sapph'),(225,'sapph')))
 F['r_sultan']=''.join(star8(*P(i*30+15,176),18) for i in range(12))+''.join(gem(*P(i*30+15,176),8,'turq',6) for i in range(12))+ring(130,154,'gold')+ring(154,162,'turq','#B8FFF4','#022A26')+beads(142,48,3,'url(#goldR)')+sultan(200,82,150)+gem(200,366,20,'emer')
 F['r_diamond']=shards(36,156,30)+ring(128,150,'plat','#FFFFFF','#2A3A4A')+ring(150,158,'silver','#FFFFFF','#2A3A4A')+''.join(gem(*P(i*15,139),5.5,'dia',6) for i in range(24))+crown(200,70,170,'dia').replace('url(#gold)','url(#plat)').replace('url(#gold2)','url(#silver)')+gem(200,368,24,'dia')+''.join(gem(*P(a,154),12,'dia') for a in (90,270))
+
+F['r_emperor']=rays(36,140,250)+wing2(-1)+wing2(1)+ring3d(124,146)+ring(146,156,'velvet','#FF9A9A','#200004')+ring3d(156,166,'gold2',False)+beads(135,52,3.2,'url(#pearl)')+pearldrape(140,220,166,30,13,'ruby')+crown(200,58,172,'ruby')+''.join(fimg('Gem stone',*P(a,161),34) for a in (90,270))+gem(200,384,26,'ruby')
+F['r_diamond']=rays(36,140,250,'#BFEFFF',.6)+wing2(-1,'featherW','#6A7890')+wing2(1,'featherW','#6A7890')+shards(36,158,30)+ring3d(126,148,'plat')+ring3d(148,158,'silver',False)+''.join(gem(*P(i*15,137),5.5,'dia',6) for i in range(24))+pearldrape(140,220,160,28,13,'dia')+crown(200,58,170,'dia').replace('url(#gold)','url(#plat)').replace('url(#gold2)','url(#silver)')+gem(200,380,26,'dia')+''.join(fimg('Gem stone',*P(a,153),32) for a in (90,270))
+F['r_sultan']=rays(32,140,240,'#7FFFE8',.5)+wing2(-1)+wing2(1)+''.join(star8(*P(i*30+15,176),18) for i in range(12) if i not in (5,6))+ring3d(128,152)+ring(152,162,'turq','#B8FFF4','#022A26')+beads(140,48,3,'url(#goldR)')+pearldrape(140,220,165,28,13,'emer')+sultan(200,76,150)+gem(200,380,24,'turq')
+F['r_queen']=rays(36,140,240,'#FFB6D0',.55)+wing2(-1,'featherW','#A07090')+wing2(1,'featherW','#A07090')+ring3d(126,150,'rosegold')+beads(138,48,3.4,'url(#pearl)')+pearldrape(130,230,165,36,17,'ruby')+crown(200,58,160,'ruby').replace('url(#gold)','url(#rosegold)')+gem(200,382,24,'ruby')+''.join(heart(*P(a,160),1.8) for a in (90,270))
+F['v_king']=rays(40,140,255,'#FFD27A',.6)+flames(34,152,'flame',1.6)+wing2(-1)+wing2(1)+ring3d(126,150)+ring3d(150,160,'gold2',False)+beads(138,52,3)+crown(200,58,172,'ruby')+gem(200,382,26,'dia')+''.join(fimg('Gem stone',*P(a,155),30) for a in (60,300,120,240))
+F['v_gwings']=rays(30,140,240,'#FFE38A',.45)+wing2(-1)+wing2(1)+ring3d(128,154)+beads(141,44,3.4)+crown(200,60,156,'emer')+gem(200,378,20,'ruby')+''.join(gem(*P(a,141),10,'sapph',6) for a in (60,300))
+F['v_wings']=rays(30,140,240,'#FFFFFF',.4)+wing2(-1,'featherW','#6A7890')+wing2(1,'featherW','#6A7890')+ring3d(128,152)+beads(140,44,3,'#FFFFFF')+'<ellipse cx="200" cy="20" rx="70" ry="16" fill="none" stroke="url(#gold)" stroke-width="10" filter="url(#sh)"/>'+gem(200,376,20,'sapph')
+F['v_crown']=rays(36,140,245)+leafarc(206,292,182,10,'url(#gold)',22)+leafarc(154,68,182,10,'url(#gold)',22)+ring3d(126,150)+ring3d(150,160,'gold2',False)+beads(138,52,3,'url(#pearl)')+pearldrape(140,220,164,28,13,'emer')+crown(200,58,168,'sapph')+gem(200,380,24,'ruby')+''.join(fimg('Gem stone',*P(a,155),28) for a in (90,270))
 
 for k,v in F.items():
     sv='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 -60 520 520" width="520" height="520"><defs>'+DEFS+'<mask id="hole"><rect x="-60" y="-60" width="520" height="520" fill="#fff"/><circle cx="200" cy="200" r="131" fill="#000"/></mask></defs><g mask="url(#hole)">'+v+'</g></svg>'

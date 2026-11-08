@@ -92,3 +92,4 @@
 .fx2.pulse.purp .fx2-f{animation-name:fxPulseP}
 @keyframes fxPulseP{from{transform:translate(-50%,-50%) scale(1);filter:drop-shadow(0 0 4px rgba(190,80,255,.5))}to{transform:translate(-50%,-50%) scale(1.045);filter:drop-shadow(0 0 16px rgba(200,90,255,.95))}}
 .fx2.blood{--au:rgba(255,30,60,.85)}
+.fx2.rose{--au:rgba(255,150,190,.85)}

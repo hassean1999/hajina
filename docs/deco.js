@@ -11,6 +11,10 @@ const FRAMES = [
   { id: 'r_emperor', n: 'الإمبراطور', k: 'vip', r: 3, a: 1, t: 'r' },
   { id: 'r_diamond', n: 'تاج الألماس', k: 'vip', r: 3, a: 1, t: 'r' },
   { id: 'r_sultan', n: 'السلطان', k: 'vip', r: 2, a: 1, t: 'r' },
+  { id: 'r_queen', n: 'الملكة', k: 'vip', r: 2, a: 1, t: 'r' },
+  { id: 'v_king', n: 'ملك الرومات', k: 'vip', r: 3, a: 1, t: 'r' },
+  { id: 'v_crown', n: 'التاج الملكي', k: 'vip', r: 3, a: 1, t: 'r' },
+  { id: 'v_gwings', n: 'الأجنحة الذهبية', k: 'vip', r: 3, a: 1, t: 'r' },
   { id: 'lv_bronze', n: 'البرونز', k: 'lv', r: 3 },
   { id: 'lv_silver', n: 'الفضة الملكية', k: 'lv', r: 8 },
   { id: 'lv_gold', n: 'غصن الذهب', k: 'lv', r: 15 },
@@ -23,12 +27,9 @@ const FRAMES = [
   { id: 'v_fire', n: 'العنقاء', k: 'vip', r: 1, a: 1 },
   { id: 'v_amet', n: 'الجمشت', k: 'vip', r: 1, a: 1 },
   { id: 'v_bolt', n: 'اللهب الأزرق', k: 'vip', r: 2, a: 1 },
-  { id: 'v_wings', n: 'الملاك', k: 'vip', r: 2, a: 1 },
-  { id: 'v_crown', n: 'التاج الملكي', k: 'vip', r: 3, a: 1 },
-  { id: 'v_gwings', n: 'الأجنحة الذهبية', k: 'vip', r: 3, a: 1 },
-  { id: 'v_king', n: 'ملك الرومات', k: 'vip', r: 3, a: 1 }
+  { id: 'v_wings', n: 'الملاك', k: 'vip', r: 2, a: 1 }
 ];
-const FX_CLS = { h_demon: 'pulse fire', h_skull: 'pulse toxic', h_bat: 'aura blood', h_reaper: 'pulse purp', h_web: 'aura amet', r_emperor: 'aura', r_diamond: 'aura ice', r_sultan: 'aura emer', v_fire: 'pulse fire', v_bolt: 'pulse bolt', v_king: 'pulse fire', v_wings: 'breathe', v_gwings: 'breathe', v_crown: 'aura', v_amet: 'aura amet', lv_moon: 'aura amet', st_week: 'aura emer', sv_ice: 'aura ice' };
+const FX_CLS = { h_demon: 'pulse fire', h_skull: 'pulse toxic', h_bat: 'aura blood', h_reaper: 'pulse purp', h_web: 'aura amet', r_emperor: 'aura', r_diamond: 'aura ice', r_sultan: 'aura emer', r_queen: 'aura rose', v_fire: 'pulse fire', v_bolt: 'pulse bolt', v_king: 'pulse fire', v_wings: 'breathe', v_gwings: 'breathe', v_crown: 'aura', v_amet: 'aura amet', lv_moon: 'aura amet', st_week: 'aura emer', sv_ice: 'aura ice' };
 const COVERS = [
   { id: 'c_def', n: 'الأساسي', k: 'free', r: 0 },
   { id: 'c_sunset', n: 'الغروب', k: 'lv', r: 5 },
