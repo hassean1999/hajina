@@ -17,10 +17,10 @@ window.startNotifs = function () {
     if (prevTop && NOTIFS[0] && NOTIFS[0].id !== prevTop && !NOTIFS[0].read) { sfx(880, .12, 'sine', .06); toast('🔔 ' + NOTIFS[0].from.name + ' ' + NOTIFS[0].text); }
   }, () => {});
 };
-const NT_IC = { follow: '👤', gift: '🎁', like: '❤️', comment: '💬', family: '👨‍👩‍👧', admin: '🛡️' };
+const NT_IC = { follow: '👤', gift: '🎁', like: '❤️', comment: '💬', family: '👨‍👩‍👧', admin: '🛡️', room: '🎙️' };
 window.openNotifs = function () {
   const m = modal('<h3>🔔 الإشعارات</h3>' + (NOTIFS.length ? NOTIFS.map(n => '<div class="ci nt' + (n.read ? '' : ' un') + '" data-u="' + esc(n.from.uid) + '" data-p="' + esc(n.post || '') + '">' + avHtml(n.from, 42) + '<div class="ci-m"><div class="ci-l" style="color:var(--fg);white-space:normal"><b>' + nameHtml(n.from, true) + '</b> ' + esc(n.text) + '</div><div class="ci-t">' + ago(n.ts) + '</div></div><span style="font-size:20px">' + (NT_IC[n.t] || '🔔') + '</span></div>').join('') : '<div class="empty"><div class="e">🔔</div><b>ماكو إشعارات</b><span>من أحد يتابعك أو يهديك تلكاها هنا</span></div>'));
-  m.querySelectorAll('[data-u]').forEach(el => el.onclick = () => { m.close(); el.dataset.p ? openPost(el.dataset.p) : userCard(el.dataset.u); });
+  m.querySelectorAll('[data-u]').forEach(el => el.onclick = () => { m.close(); el.dataset.r ? enterRoom(el.dataset.r) : el.dataset.p ? openPost(el.dataset.p) : userCard(el.dataset.u); });
   const un = NOTIFS.filter(n => !n.read); if (un.length) { const b = db.batch(); un.slice(0, 40).forEach(n => b.update(db.collection('users').doc(ME.uid).collection('notifs').doc(n.id), { read: true })); b.commit().catch(() => {}); }
 };
 
