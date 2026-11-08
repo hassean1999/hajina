@@ -666,6 +666,7 @@ async function sendGift(g, qty, targets) {
       tx.update(myRef, mine);
       const hu = { lastActive: FV.serverTimestamp() };
       targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(heart), ['gw.' + g.k]: FV.increment(qty) }); hu['hearts.' + t.uid] = FV.increment(heart); const pu = window.pkGiftUpdate && pkGiftUpdate(t.uid, heart); if (pu) hu[pu[0]] = FV.increment(pu[1]); });
+      if (window.tpkGiftUpdate) tpkGiftUpdate(targets, heart, hu);
       const sk = 'sup.' + ME.uid + '.'; hu[sk + 'v'] = FV.increment(heart * targets.length); hu[sk + 'n'] = ME.name; hu[sk + 'c'] = ME.color || ''; hu[sk + 'vip'] = vipOf(ME.recharged || 0); hu[sk + 'pv'] = ME.pv || 0;
       tx.update(ref, hu);
     });
