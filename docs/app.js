@@ -662,7 +662,7 @@ async function sendGift(g, qty, targets) {
     await db.runTransaction(async tx => {
       const s = await tx.get(myRef); const d = (s.data() || {})[field] || 0;
       if (d < total) throw new Error('nobal');
-      const mine = { [field]: d - total }; if (!sv) mine.xp = FV.increment(total);
+      const mine = { [field]: d - total }; if (!sv) { mine.xp = FV.increment(total); mine.sent = FV.increment(total); }
       tx.update(myRef, mine);
       const hu = { lastActive: FV.serverTimestamp() };
       targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(heart), ['gw.' + g.k]: FV.increment(qty) }); hu['hearts.' + t.uid] = FV.increment(heart); const pu = window.pkGiftUpdate && pkGiftUpdate(t.uid, heart); if (pu) hu[pu[0]] = FV.increment(pu[1]); });
