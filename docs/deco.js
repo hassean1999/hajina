@@ -59,7 +59,7 @@ function frOf(u) { // الإطار اللي يبين
 function frSparks(s) { if (s < 40) return ''; return '<b class="fxs" style="left:14%;top:18%"></b><b class="fxs" style="left:80%;top:30%;animation-delay:.7s"></b><b class="fxs" style="left:70%;top:84%;animation-delay:1.3s"></b><b class="fxs" style="left:22%;top:78%;animation-delay:1.9s"></b>'; }
 window.avHtml = function (u, size) {
   const s = size || 44, st = 'width:' + s + 'px;height:' + s + 'px;font-size:' + Math.round(s * .4) + 'px;', inner = avInner(u), f = frOf(u);
-  if (f) return '<div class="av fx2 ' + (FX_CLS[f.id] || '') + '" style="' + st + '"><i data-av="' + esc(u.uid || '') + '" style="background:' + esc(u.color || '#FF8A1F') + '">' + inner + '</i><span class="fx2-f" style="--fi:url(frames/' + f.id + '.webp)">' + (f.a ? frSparks(s) : '') + '</span></div>';
+  if (f) return '<div class="av fx2 ' + (FX_CLS[f.id] || '') + '" style="' + st + '"><i data-av="' + esc(u.uid || '') + '" style="background:' + esc(u.color || '#FF8A1F') + '">' + inner + '</i><span class="fx2-f" style="--fi:url(frames/' + f.id + '.webp?v=2)">' + (f.a ? frSparks(s) : '') + '</span></div>';
   return '<div class="av" data-av="' + esc(u.uid || '') + '" style="' + st + 'background:' + esc(u.color || '#FF8A1F') + '">' + inner + '</div>';
 };
 const _meLite = window.meLite;

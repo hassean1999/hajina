@@ -29,7 +29,7 @@ DEFS='''
 <radialGradient id="velvet" cx=".5" cy=".5" r=".6"><stop offset=".6" stop-color="#9A0A1E"/><stop offset="1" stop-color="#3A0008"/></radialGradient>
 <linearGradient id="plat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".3" stop-color="#DDE8F2"/><stop offset=".5" stop-color="#8FA3B8"/><stop offset=".7" stop-color="#F4FAFF"/><stop offset="1" stop-color="#5E7086"/></linearGradient>
 <linearGradient id="turq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B8FFF4"/><stop offset=".4" stop-color="#1AC8B4"/><stop offset="1" stop-color="#05524A"/></linearGradient>
-<filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2.2" flood-color="#000" flood-opacity=".55"/></filter>
+<filter id="bev" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="2.2" result="b"/><feSpecularLighting in="b" surfaceScale="5" specularConstant="1.25" specularExponent="18" lighting-color="#FFFFFF" result="s"><feDistantLight azimuth="235" elevation="48"/></feSpecularLighting><feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/><feDiffuseLighting in="b" surfaceScale="5" diffuseConstant="1" lighting-color="#FFFFFF" result="d"><feDistantLight azimuth="235" elevation="55"/></feDiffuseLighting><feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="1.15" k2="0" k3="0" k4="0" result="lit"/><feComposite in="lit" in2="s2" operator="arithmetic" k1="0" k2="1" k3=".85" k4="0" result="o"/><feComposite in="o" in2="SourceAlpha" operator="in"/></filter><filter id="bev2" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="b"/><feSpecularLighting in="b" surfaceScale="6" specularConstant=".75" specularExponent="28" lighting-color="#FFFFFF" result="s"><feDistantLight azimuth="235" elevation="42"/></feSpecularLighting><feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/><feDiffuseLighting in="b" surfaceScale="6" diffuseConstant="1" lighting-color="#FFFFFF" result="d"><feDistantLight azimuth="235" elevation="60"/></feDiffuseLighting><feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="1.15" k2="0" k3="0" k4="0" result="lit"/><feComposite in="lit" in2="s2" operator="arithmetic" k1="0" k2="1" k3=".8" k4="0" result="o"/><feComposite in="o" in2="SourceAlpha" operator="in"/></filter><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="2.2" flood-color="#000" flood-opacity=".55"/></filter>
 <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
 '''
 GEMS={'blood':('#2A0003','#C8001A','#FF7070'),'toxic':('#03300A','#2AD43A','#C8FFB0'),'turq':('#05524A','#1AC8B4','#B8FFF4'),'ruby':('#5A0010','#D6163E','#FF8AA0'),'sapph':('#081A5A','#1E5BEA','#8EC5FF'),'emer':('#033A1A','#0FA34E','#8BF5B4'),'amet':('#2A0848','#9A3BE0','#E2B4FF'),'dia':('#5E7C9A','#D6F1FF','#FFFFFF'),'topaz':('#6A3A00','#FFAA1A','#FFE7A0')}
@@ -200,7 +200,7 @@ def rays(n,r1,r2,col='#FFE38A',op=.55):
         a=i*360/n; w=4 if i%2 else 7; L=r2 if i%2==0 else r2*.82
         x1,y1=P(a-w*.25,r1); x2,y2=P(a,L); x3,y3=P(a+w*.25,r1)
         o+='<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="url(#rayg%s)"/>'%(x1,y1,x2,y2,x3,y3,col[1:])
-    return o
+    return o+'<!--R-->'
 def wing2(side,g='featherG',edge='#6A4000',sc=1.0,y=200):
     o=[]; bx=200+side*118; by=y
     rows=[(15,205,24,'1'),(13,155,22,'1'),(11,105,20,'1'),(9,62,18,'1')]
@@ -238,6 +238,21 @@ def ring3d(r1,r2,g='gold',pat=True):
     o+='<circle cx="200" cy="200" r="%.1f" fill="none" stroke="#FFFFFF" stroke-width="2" opacity=".55" stroke-dasharray="60 400" transform="rotate(-120 200 200)"/>'%(r2-3)
     return o
 
+GOLDF='style="filter:sepia(1) saturate(4) hue-rotate(-12deg) brightness(1.05) contrast(1.1)"'
+WHITEF='style="filter:grayscale(1) brightness(1.55) contrast(1.15)"'
+def fimgR(name,cx,cy,w,rot=0,flip=False,extra=''):
+    t='translate(%.1f %.1f) rotate(%.1f) scale(%d 1)'%(cx,cy,rot,-1 if flip else 1)
+    return '<g transform="%s">'%t+fimg(name,0,0,w,extra)+'</g>'
+def ringX(g1,g2,edge='#FFF6C4',dark='#3A2000',studs='ruby'):
+    o='<g filter="url(#bev2)">'
+    o+='<circle cx="200" cy="200" r="148" fill="none" stroke="url(#%s)" stroke-width="26"/>'%g1
+    o+='<circle cx="200" cy="200" r="164" fill="none" stroke="url(#gold)" stroke-width="7"/>'
+    o+='<circle cx="200" cy="200" r="134" fill="none" stroke="url(#%s)" stroke-width="7"/>'%g2
+    o+='</g>'
+    o+='<circle cx="200" cy="200" r="161" fill="none" stroke="%s" stroke-width="1.2" opacity=".8"/>'%edge
+    o+=''.join(gem(*P(a,148),6.5,studs,6) for a in range(15,360,30))
+    return o
+
 F={}
 R2=lambda a,b,g='gold',e='#FFF6C4',d='#4A2A00': ring(a,b,g,e,d)
 F['lv_bronze']=ring(134,156,'bronze','#FFE2C4','#3A1A04')+notches(145,56,'#3A1A04')+beads(160,36,3.5,'url(#bronze)')+gem(200,40,20,'topaz')+gem(200,360,13,'topaz',6)
@@ -265,18 +280,22 @@ F['r_emperor']='<path d="M128,70 Q130,-20 200,-24 Q270,-20 272,70Z" fill="url(#v
 F['r_sultan']=''.join(star8(*P(i*30+15,176),18) for i in range(12))+''.join(gem(*P(i*30+15,176),8,'turq',6) for i in range(12))+ring(130,154,'gold')+ring(154,162,'turq','#B8FFF4','#022A26')+beads(142,48,3,'url(#goldR)')+sultan(200,82,150)+gem(200,366,20,'emer')
 F['r_diamond']=shards(36,156,30)+ring(128,150,'plat','#FFFFFF','#2A3A4A')+ring(150,158,'silver','#FFFFFF','#2A3A4A')+''.join(gem(*P(i*15,139),5.5,'dia',6) for i in range(24))+crown(200,70,170,'dia').replace('url(#gold)','url(#plat)').replace('url(#gold2)','url(#silver)')+gem(200,368,24,'dia')+''.join(gem(*P(a,154),12,'dia') for a in (90,270))
 
-F['r_emperor']=rays(36,140,250)+wing2(-1)+wing2(1)+ring3d(124,146)+ring(146,156,'velvet','#FF9A9A','#200004')+ring3d(156,166,'gold2',False)+beads(135,52,3.2,'url(#pearl)')+pearldrape(140,220,166,30,13,'ruby')+crown(200,58,172,'ruby')+''.join(fimg('Gem stone',*P(a,161),34) for a in (90,270))+gem(200,384,26,'ruby')
-F['r_diamond']=rays(36,140,250,'#BFEFFF',.6)+wing2(-1,'featherW','#6A7890')+wing2(1,'featherW','#6A7890')+shards(36,158,30)+ring3d(126,148,'plat')+ring3d(148,158,'silver',False)+''.join(gem(*P(i*15,137),5.5,'dia',6) for i in range(24))+pearldrape(140,220,160,28,13,'dia')+crown(200,58,170,'dia').replace('url(#gold)','url(#plat)').replace('url(#gold2)','url(#silver)')+gem(200,380,26,'dia')+''.join(fimg('Gem stone',*P(a,153),32) for a in (90,270))
-F['r_sultan']=rays(32,140,240,'#7FFFE8',.5)+wing2(-1)+wing2(1)+''.join(star8(*P(i*30+15,176),18) for i in range(12) if i not in (5,6))+ring3d(128,152)+ring(152,162,'turq','#B8FFF4','#022A26')+beads(140,48,3,'url(#goldR)')+pearldrape(140,220,165,28,13,'emer')+sultan(200,76,150)+gem(200,380,24,'turq')
-F['r_queen']=rays(36,140,240,'#FFB6D0',.55)+wing2(-1,'featherW','#A07090')+wing2(1,'featherW','#A07090')+ring3d(126,150,'rosegold')+beads(138,48,3.4,'url(#pearl)')+pearldrape(130,230,165,36,17,'ruby')+crown(200,58,160,'ruby').replace('url(#gold)','url(#rosegold)')+gem(200,382,24,'ruby')+''.join(heart(*P(a,160),1.8) for a in (90,270))
-F['v_king']=rays(40,140,255,'#FFD27A',.6)+flames(34,152,'flame',1.6)+wing2(-1)+wing2(1)+ring3d(126,150)+ring3d(150,160,'gold2',False)+beads(138,52,3)+crown(200,58,172,'ruby')+gem(200,382,26,'dia')+''.join(fimg('Gem stone',*P(a,155),30) for a in (60,300,120,240))
-F['v_gwings']=rays(30,140,240,'#FFE38A',.45)+wing2(-1)+wing2(1)+ring3d(128,154)+beads(141,44,3.4)+crown(200,60,156,'emer')+gem(200,378,20,'ruby')+''.join(gem(*P(a,141),10,'sapph',6) for a in (60,300))
-F['v_wings']=rays(30,140,240,'#FFFFFF',.4)+wing2(-1,'featherW','#6A7890')+wing2(1,'featherW','#6A7890')+ring3d(128,152)+beads(140,44,3,'#FFFFFF')+'<ellipse cx="200" cy="20" rx="70" ry="16" fill="none" stroke="url(#gold)" stroke-width="10" filter="url(#sh)"/>'+gem(200,376,20,'sapph')
-F['v_crown']=rays(36,140,245)+leafarc(206,292,182,10,'url(#gold)',22)+leafarc(154,68,182,10,'url(#gold)',22)+ring3d(126,150)+ring3d(150,160,'gold2',False)+beads(138,52,3,'url(#pearl)')+pearldrape(140,220,164,28,13,'emer')+crown(200,58,168,'sapph')+gem(200,380,24,'ruby')+''.join(fimg('Gem stone',*P(a,155),28) for a in (90,270))
+F['r_emperor']=rays(36,140,250)+wing2(-1)+wing2(1)+ringX('blood','gold',studs='dia')+pearldrape(140,220,170,30,13,'ruby')+crown(200,58,176,'ruby')+fimgR('Gem stone',200,378,62,0,False,'style="filter:hue-rotate(160deg) saturate(1.6)"')+fimgR('Gem stone',36,200,44)+fimgR('Gem stone',364,200,44)
+F['r_diamond']=rays(36,140,250,'#BFEFFF',.6)+wing2(-1,'featherW','#6A7890')+wing2(1,'featherW','#6A7890')+shards(36,166,26)+ringX('plat','silver',studs='dia')+pearldrape(140,220,168,28,13,'dia')+crown(200,58,170,'dia').replace('url(#gold)','url(#plat)').replace('url(#gold2)','url(#silver)')+fimgR('Gem stone',200,378,62)
+F['r_sultan']=rays(32,140,240,'#7FFFE8',.5)+wing2(-1)+wing2(1)+''.join(star8(*P(i*30+15,182),16) for i in range(12) if i not in (5,6,11,0))+ringX('turq','gold',studs='ruby')+pearldrape(140,220,168,28,13,'emer')+sultan(200,76,150)+fimgR('Gem stone',200,378,58,0,False,'style="filter:hue-rotate(-40deg) saturate(1.3)"')
+F['r_queen']=rays(36,140,240,'#FFB6D0',.55)+wing2(-1,'featherW','#A07090')+wing2(1,'featherW','#A07090')+ringX('rosegold','purp',studs='ruby')+pearldrape(130,230,168,36,17,'ruby')+crown(200,58,160,'ruby').replace('url(#gold)','url(#rosegold)')+fimgR('Sparkling heart',200,378,62)
+F['v_king']=rays(40,140,255,'#FFD27A',.6)+flames(34,156,'flame',1.6)+wing2(-1)+wing2(1)+ringX('gold','blood',studs='dia')+crown(200,58,172,'ruby')+fimgR('Gem stone',200,378,66)+''.join(fimgR('Gem stone',*P(a,160),30) for a in (60,300))
+F['v_gwings']=rays(30,140,240,'#FFE38A',.45)+wing2(-1)+wing2(1)+ringX('gold','royal',studs='emer')+crown(200,60,156,'emer')+fimgR('Gem stone',200,376,52,0,False,'style="filter:hue-rotate(160deg) saturate(1.6)"')
+F['v_wings']=rays(30,140,240,'#FFFFFF',.4)+wing2(-1,'featherW','#6A7890')+wing2(1,'featherW','#6A7890')+ringX('silver','gold',studs='sapph')+'<ellipse cx="200" cy="20" rx="70" ry="16" fill="none" stroke="url(#gold)" stroke-width="10" filter="url(#sh)"/>'+fimgR('Gem stone',200,376,52)
+F['v_crown']=rays(36,140,245)+leafarc(206,292,184,10,'url(#gold)',22)+leafarc(154,68,184,10,'url(#gold)',22)+ringX('gold','emerald' if False else 'turq',studs='ruby')+pearldrape(140,220,168,28,13,'emer')+crown(200,58,168,'sapph')+fimgR('Gem stone',200,378,58,0,False,'style="filter:hue-rotate(160deg) saturate(1.6)"')
 
 F['rk_rich']=rays(40,140,255,'#FFD27A',.7)+wing2(-1)+wing2(1)+ring3d(126,150)+ring3d(150,160,'gold2',False)+beads(138,52,3,'url(#goldR)')+gem(200,30,30,'topaz')+''.join(gem(*P(a,155),11,'topaz',6) for a in (60,300))+gem(200,370,22,'ruby')+''.join(star8(*P(a,170),12) for a in (130,230))
 F['rk_star']=rays(36,140,250,'#F0A0FF',.6)+wing2(-1,'featherP','#4A0A6A')+wing2(1,'featherP','#4A0A6A')+ring3d(128,150,'purp')+ring(150,158,'rosegold','#FFE4E1','#4A1414')+beads(139,48,3,'url(#pearl)')+crown(200,58,150,'amet').replace('url(#gold)','url(#rosegold)')+gem(200,368,20,'amet')+''.join(heart(*P(a,156),1.6) for a in (90,270))
 F['rk_pk']=rays(36,140,250,'#9AB0FF',.6)+'<g transform="translate(0 70)">'+wing2(-1,'featherW','#6A7890',.75,250)+wing2(1,'featherW','#6A7890',.75,250)+'</g>'+ring3d(124,146)+ring(146,158,'royal','#C8D8FF','#0A0430')+ring3d(158,164,'gold2',False)+beads(135,52,3,'url(#pearl)')+crown(200,60,170,'sapph')+gem(200,372,24,'sapph')+''.join(gem(*P(a,152),12,k) for a,k in ((90,'amet'),(270,'amet'),(135,'ruby'),(225,'ruby')))
+
+F['rk_star']=rays(36,140,250,'#F0A0FF',.65)+wing2(-1,'featherP','#4A0A6A')+wing2(1,'featherP','#4A0A6A')+ringX('purp','rosegold',studs='amet')+crown(200,58,150,'amet').replace('url(#gold)','url(#rosegold)')+fimgR('Gem stone',200,372,64,0,False,'style="filter:hue-rotate(60deg) saturate(1.3)"')+fimgR('Sparkles',330,62,50)
+F['rk_rich']=rays(40,140,255,'#FFD27A',.7)+wing2(-1)+wing2(1)+ringX('gold','royal',studs='sapph')+fimgR('Gem stone',200,28,96)+fimgR('Gem stone',200,374,60,0,False,'style="filter:hue-rotate(160deg) saturate(1.6)"')+fimgR('Sparkles',318,46,48)
+F['rk_pk']=rays(36,140,250,'#9AB0FF',.65)+'<g transform="translate(0 70)">'+wing2(-1,'featherW','#6A7890',.75,250)+wing2(1,'featherW','#6A7890',.75,250)+'</g>'+ringX('royal','gold',studs='ruby')+crown(200,60,172,'sapph')+fimgR('Gem stone',200,376,70)+fimgR('Gem stone',38,200,44)+fimgR('Gem stone',362,200,44)
 
 for k,v in F.items():
     sv='<svg xmlns="http://www.w3.org/2000/svg" viewBox="-60 -60 520 520" width="520" height="520"><defs>'+DEFS+'<mask id="hole"><rect x="-60" y="-60" width="520" height="520" fill="#fff"/><circle cx="200" cy="200" r="131" fill="#000"/></mask></defs><g mask="url(#hole)">'+v+'</g></svg>'
