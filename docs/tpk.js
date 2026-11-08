@@ -29,6 +29,7 @@ window.openTeamPK = function () {
 window.tpkGiftUpdate = function (targets, heart, hu) {
   const t = tpLive(); if (!t || Date.now() > t.end) return;
   let a = 0, b = 0; targets.forEach(x => { const tm = tpTeamOfUid(x.uid); if (tm === 'a') a += heart; else if (tm === 'b') b += heart; });
+  targets.forEach(x => { if (tpTeamOfUid(x.uid)) hu['tpk.rcv.' + x.uid] = FV.increment(heart * targets.filter(y => y.uid === x.uid).length); });
   if (!a && !b) return;
   if (a) hu['tpk.sa'] = FV.increment(a); if (b) hu['tpk.sb'] = FV.increment(b);
   const k = 'tpk.sup.' + ME.uid + '.';

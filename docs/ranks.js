@@ -10,7 +10,7 @@ function rkPeriod(per, off) { // يرجع {key, end}
   const s = Date.UTC(y, mo - (off || 0), 1), t = new Date(s); return { key: 'm' + t.getUTCFullYear() + pad2(t.getUTCMonth() + 1), end: Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1) - BT };
 }
 const rkRef = (type, key) => db.collection('ranks').doc(type + '_' + key).collection('u');
-function rkLite(u) { const o = { name: u.name || '', color: u.color || '', pv: u.pv || 0, vip: u.vip || 0 }; if (u.fr) o.fr = u.fr; if (u.lv) o.lv = u.lv; return o; }
+function rkLite(u) { const o = { name: u.name || '', color: u.color || '', pv: u.pv || 0, vip: u.vip || 0 }; if (u.fr) o.fr = u.fr; if (u.lv) o.lv = u.lv; if (u.pl) o.pl = u.pl; if (u.sup) o.sup = u.sup; return o; }
 function rkAdd(type, id, info, v) {
   if (!v) return;
   ['d', 'w', 'm'].forEach(p => rkRef(type, rkPeriod(p).key).doc(id).set(Object.assign(rkLite(info), { v: FV.increment(v), ts: Date.now() }), { merge: true }).catch(() => {}));
@@ -20,11 +20,12 @@ window.rankGift = function (diam, heart, targets) {
   if (diam) rkAdd('rich', ME.uid, me, diam);
   targets.forEach(t => { if (t.uid === ME.uid) return; const s = (R.data && (R.data.seats || []).find(x => x && x.uid === t.uid)) || (R.members || {})[t.uid] || t; rkAdd('fame', t.uid, Object.assign({ uid: t.uid }, s), heart); });
 };
-function rkPK(pts) { if (!R.id || !pts) return; rkAdd('pk', R.id, { name: R.data.title || 'روم', color: R.data.ownerColor || '#FF8A1F', pv: 0 }, pts); }
+const rkU = u => { const o = { uid: u.uid, name: u.name || '', color: u.color || '', pv: u.pv || 0, v: u.v || 0 }; if (u.fr) o.fr = u.fr; return o; };
+function rkPK(pts, pl, sup) { if (!R.id || !pts) return; rkAdd('pk', R.id, { name: R.data.title || 'روم', color: R.data.ownerColor || '#FF8A1F', pv: 0, pl: (pl || []).slice(0, 4).map(rkU), sup: (sup || []).slice(0, 3).map(rkU) }, pts); }
 const _pkFinR = window.pkFinish;
-if (_pkFinR) window.pkFinish = async function () { const p = R.data && R.data.pk; const r = await _pkFinR.apply(this, arguments); if (p && !p.done) rkPK(Math.max(p.sa || 0, p.sb || 0)); return r; };
+if (_pkFinR) window.pkFinish = async function () { const p = R.data && R.data.pk; const r = await _pkFinR.apply(this, arguments); if (p && !p.done) rkPK((p.sa || 0) + (p.sb || 0), [Object.assign({}, p.a, { v: p.sa || 0 }), Object.assign({}, p.b, { v: p.sb || 0 })].sort((x, y) => y.v - x.v), []); return r; };
 const _tpFinR = window.tpFinish;
-if (_tpFinR) window.tpFinish = async function () { const t = R.data && R.data.tpk; const r = await _tpFinR.apply(this, arguments); if (t && !t.done) rkPK((t.sa || 0) + (t.sb || 0)); return r; };
+if (_tpFinR) window.tpFinish = async function () { const t = R.data && R.data.tpk; const r = await _tpFinR.apply(this, arguments); if (t && !t.done) { const seats = R.data.seats || [], rc = t.rcv || {}; const pl = [1, 2, 3, 4, 5, 6, 7, 8].map(i => seats[i]).filter(Boolean).map(s => Object.assign({}, s, { v: rc[s.uid] || 0 })).sort((x, y) => y.v - x.v); rkPK((t.sa || 0) + (t.sb || 0), pl, tpSups(t)); } return r; };
 
 const RK_T = { rich: { n: 'الأغنياء', u: 'قيمة المساهمة', fr: 'rk_rich' }, fame: { n: 'المشاهير', u: 'الكاريزما', fr: 'rk_star' }, pk: { n: 'مجد PK', u: 'نقاط PK', fr: 'rk_pk' } };
 const RK_P = { d: ['القائمة اليومية', 1, '24 ساعة'], w: ['القائمة الأسبوعية', 7, '7 أيام'], m: ['القائمة الشهرية', 30, '30 يوم'] };
@@ -41,6 +42,7 @@ window.openRich = window.openRank = function (type) {
   const draw = async () => {
     clearInterval(timer);
     m.querySelectorAll('.rk-tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === RKS.type));
+    m.querySelector('.rk').className = 'rk th-' + RKS.type;
     m.querySelectorAll('.rk-per button').forEach(b => b.classList.toggle('on', b.dataset.p === RKS.per));
     const body = m.querySelector('#rkBody'), T = RK_T[RKS.type], per = rkPeriod(RKS.per, RKS.off);
     body.innerHTML = '<div class="empty" style="padding:60px 0">⏳ لحظة...</div>';
@@ -54,6 +56,20 @@ window.openRich = window.openRank = function (type) {
     const cr = i => i === 1 ? '<span class="rk-cr s"><img src="fx/crown.webp" alt=""><i>2</i></span>' : i === 2 ? '<span class="rk-cr b"><img src="fx/crown.webp" alt=""><i>3</i></span>' : '<span class="rk-no">' + toAr(i + 1) + '</span>';
     const rows = list.slice(1).map((u, k) => { const i = k + 1; return '<div class="rk-r' + (i === 1 ? ' r2' : i === 2 ? ' r3' : '') + (u.uid === ME.uid ? ' me' : '') + '" data-u="' + esc(u.uid) + '">' + cr(i) + av(u, 50) + '<div class="rk-ri"><b>' + esc(u.name) + '</b><div class="rk-bs">' + lvB(u) + '</div></div><div class="rk-rv"><b>' + fmtK(u.v) + '</b><small>' + T.u + '</small></div></div>'; }).join('');
     const myId = isRoom ? (R.id || '') : ME.uid, myI = list.findIndex(x => x.uid === myId);
+    if (isRoom) {
+      const tops = ['gold', 'silver', 'bronze'];
+      const card = (r, i) => '<div class="pkc c' + Math.min(i, 3) + '"><div class="pkc-hd"><div class="pkc-v"><b>' + (r.v || 0).toLocaleString('en') + ' <i class="pkb">PK</i></b><button data-u="' + esc(r.uid) + '">🎙️ ادخل الروم</button></div><div class="pkc-rk ' + (tops[i] || '') + '">' + (i < 3 ? '<img src="fx/crown.webp" alt=""><b>TOP ' + (i + 1) + '</b>' : '<b class="n">' + toAr(i + 1) + '</b>') + '</div></div>' +
+        '<div class="pkc-room" data-u="' + esc(r.uid) + '">' + av(r, 40) + '<b>' + esc(r.name) + '</b></div>' +
+        ((r.pl || []).length ? '<div class="pkc-pl">' + r.pl.map(u => '<div data-pu="' + esc(u.uid) + '">' + avHtml(u, 54) + '<b>' + esc(u.name) + '</b><small>' + (u.v || 0).toLocaleString('en') + ' <i class="pkb">PK</i></small></div>').join('') + '</div>' : '') +
+        ((r.sup || []).length ? '<div class="pkc-st">مساهمة الفائزين</div><div class="pkc-sup">' + r.sup.map((u, k) => '<div data-pu="' + esc(u.uid) + '"><span class="pkc-sa">' + avHtml(u, 40) + (k ? '' : '<em>MVP</em>') + '</span><div><b>' + esc(u.name) + '</b><small>' + (u.v || 0).toLocaleString('en') + '</small></div></div>').join('') + '</div>' : '') + '</div>';
+      body.innerHTML = '<div class="pk-top"><div class="pk-cd">' + (RKS.off ? '📜 القائمة النهائية' : 'مدة تصدر القائمة: <b id="rkCd"></b>') + '</div><button id="rkY">' + (RKS.off ? '⬅️ الحالية' : '🏆 السابقة') + '</button></div><div class="pk-list">' +
+        (list.length ? list.map(card).join('') : '<div class="pkc c0" style="text-align:center;padding:40px 16px"><img src="fx/crown.webp" alt="" style="width:70px"><b style="display:block;font-size:17px;margin-top:8px">بعد ماكو رومات بمجد PK</b><small style="color:#8A7A9A">سوّوا تحدي PK أو PK الفرق برومكم، ونقاطه تنحسب هنا</small></div>') + '</div>';
+      body.querySelector('#rkY').onclick = () => { RKS.off = RKS.off ? 0 : 1; draw(); };
+      body.querySelectorAll('[data-u]').forEach(el => el.onclick = () => { m.close(); enterRoom(el.dataset.u); });
+      body.querySelectorAll('[data-pu]').forEach(el => el.onclick = e => { e.stopPropagation(); userCard(el.dataset.pu); });
+      if (!RKS.off) { const cd = () => { const el = body.querySelector('#rkCd'); if (!el) return clearInterval(timer); const l = Math.max(0, per.end - Date.now()), h = Math.floor(l / 36e5); el.textContent = (h >= 24 ? toAr(Math.floor(h / 24)) + ' يوم ' : '') + pad2(h % 24) + ':' + pad2(Math.floor(l / 6e4) % 60) + ':' + pad2(Math.floor(l / 1e3) % 60); }; cd(); timer = setInterval(cd, 1000); }
+      return;
+    }
     body.innerHTML = '<div class="rk-top">' + (RKS.off ? '<div class="rk-yest">📜 ' + (RKS.per === 'd' ? 'قائمة الأمس' : RKS.per === 'w' ? 'الأسبوع الفائت' : 'الشهر الفائت') + '</div>' : '') + hero + '</div>' +
       '<div class="rk-panel"><div class="rk-ph"><span>' + (RKS.off ? 'القائمة النهائية' : 'باقي على نهاية القائمة: <b id="rkCd"></b>') + '</span><button id="rkY">' + (RKS.off ? '⬅️ الحالية' : '🏆 ' + (RKS.per === 'd' ? 'قائمة الأمس' : 'القائمة السابقة')) + '</button></div>' +
       (rows || '<div class="empty"><span>' + (list.length ? '' : 'بعد ماكو أحد بهذي القائمة') + '</span></div>') + '</div>' +
