@@ -654,15 +654,15 @@ function openGifts(preUid) {
     m.close(); sendGift(g, qty, targets);
   };
 }
-async function sendGift(g, qty, targets) {
-  const sv = !!g.s, field = sv ? 'silver' : 'diamonds';
+async function sendGift(g, qty, targets, fromBag) {
+  const sv = !!g.s && !fromBag, field = sv ? 'silver' : 'diamonds';
   const each = g.p * qty, total = each * targets.length, heart = sv ? Math.ceil(each / 10) : each;
   const myRef = db.collection('users').doc(ME.uid), ref = roomRef();
   try {
     await db.runTransaction(async tx => {
-      const s = await tx.get(myRef); const d = (s.data() || {})[field] || 0;
-      if (d < total) throw new Error('nobal');
-      const mine = { [field]: d - total }; if (!sv) { mine.xp = FV.increment(total); mine.sent = FV.increment(total); }
+      const s = await tx.get(myRef), sd = s.data() || {}, d = fromBag ? ((sd.bag || {})[g.k] || 0) : sd[field] || 0, need = fromBag ? qty * targets.length : total;
+      if (d < need) throw new Error(fromBag ? 'nobag' : 'nobal');
+      const mine = fromBag ? { ['bag.' + g.k]: d - need } : { [field]: d - total }; if (!sv && !fromBag) { mine.xp = FV.increment(total); mine.sent = FV.increment(total); }
       tx.update(myRef, mine);
       const hu = { lastActive: FV.serverTimestamp() };
       targets.forEach(t => { tx.update(db.collection('users').doc(t.uid), { charm: FV.increment(heart), ['gw.' + g.k]: FV.increment(qty) }); hu['hearts.' + t.uid] = FV.increment(heart); const pu = window.pkGiftUpdate && pkGiftUpdate(t.uid, heart); if (pu) hu[pu[0]] = FV.increment(pu[1]); });
@@ -672,11 +672,13 @@ async function sendGift(g, qty, targets) {
     });
     targets.forEach(t => { if (t.uid !== ME.uid) db.collection('users').doc(t.uid).collection('supporters').doc(ME.uid).set({ name: ME.name, color: ME.color || '', amt: FV.increment(heart), ts: FV.serverTimestamp() }, { merge: true }).catch(() => {}); });
     if (window.notify) targets.forEach(t => notify(t.uid, 'gift', 'أهداك ' + g.n + (qty > 1 ? ' x' + qty : '')));
-    if (window.rankGift) rankGift(sv ? 0 : total, heart, targets);
-    if (!sv && ME.family && ME.family.id) db.collection('families').doc(ME.family.id).update({ total: FV.increment(total), lastGift: Date.now() }).catch(() => {});
+    if (window.rankGift) rankGift(sv || fromBag ? 0 : total, heart, targets);
+    if (fromBag) { ME.bag = Object.assign({}, ME.bag, { [g.k]: ((ME.bag || {})[g.k] || 0) - qty * targets.length }); }
+    if (!sv && !fromBag && ME.family && ME.family.id) db.collection('families').doc(ME.family.id).update({ total: FV.increment(total), lastGift: Date.now() }).catch(() => {});
     await ref.collection('messages').add({ type: 'gift', ...meLite(), gift: g.k, qty, val: heart, to: targets.map(t => ({ uid: t.uid, name: t.name })), ts: FV.serverTimestamp() });
   } catch (e) {
-    if (e.message === 'nobal') { if (sv) toast('عملاتك الفضية ما تكفي، خذ هدية اليوم 🎁'); else { toast('ماساتك ما تكفي (' + total + ' ◆)'); openRecharge(); } }
+    if (e.message === 'nobag') toast('ماعندك كفاية من هاي الهدية بالحقيبة');
+    else if (e.message === 'nobal') { if (sv) toast('عملاتك الفضية ما تكفي، خذ هدية اليوم 🎁'); else { toast('ماساتك ما تكفي (' + total + ' ◆)'); openRecharge(); } }
     else toast(errMsg(e));
   }
 }
