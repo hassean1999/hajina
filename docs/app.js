@@ -442,7 +442,7 @@ async function enterRoom(id, skipPw) {
   if (Date.now() - lastJ > 15 * 60000) { try { localStorage.setItem('hj_join_' + id, Date.now()); } catch (e) {} roomRef().collection('messages').add(Object.assign({ type: 'join', ts: FV.serverTimestamp() }, meLite())).catch(() => {}); }
   R.hb = setInterval(roomHeartbeat, 25000); setTimeout(roomHeartbeat, 4000);
   await joinVoice(id);
-  if (isOwner() && R.data.seats && !R.data.seats[0]) takeSeat(0);
+  // ما يصعد تلقائي، تجيه دعوة بعد 5 ثواني (micinv.js)
 }
 function freshMembers() { const now = Date.now(); return Object.values(R.members).filter(m => !m.ts || ms(m.ts) > now - 90000); }
 function renderCount() { $('rmCnt').lastElementChild.textContent = toAr(Math.max(1, freshMembers().length)); }

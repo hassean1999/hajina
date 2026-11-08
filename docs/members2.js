@@ -41,7 +41,7 @@ window.openMembers = function () {
   m.querySelector('.mm-tabs').onclick = e => { const b = e.target.closest('button'); if (!b) return; m.querySelectorAll('.mm-tabs button').forEach(x => x.classList.toggle('on', x === b)); b.dataset.t === 'm' ? members() : invite(); };
   box.onclick = e => {
     const mic = e.target.closest('[data-mic]'), inv = e.target.closest('[data-inv]');
-    if (mic) { e.stopPropagation(); notify(mic.dataset.mic, 'room', 'يدعوك تصعد عالمايك بروم «' + (R.data.title || '') + '» 🎙️', { room: R.id }); mic.textContent = '✓ انرسلت'; mic.disabled = true; return; }
+    if (mic) { e.stopPropagation(); roomRef().collection('messages').add(Object.assign({ type: 'micinv', to: mic.dataset.mic, ts: FV.serverTimestamp() }, meLite())).catch(() => {}); mic.textContent = '✓ انرسلت'; mic.disabled = true; return; }
     if (inv) { e.stopPropagation(); notify(inv.dataset.inv, 'room', 'يدعوك لروم «' + (R.data.title || '') + '» 🎉', { room: R.id }); inv.textContent = '✓ انرسلت'; inv.disabled = true; return; }
     const r = e.target.closest('[data-u]'); if (r) { m.close(); userCard(r.dataset.u); }
   };
