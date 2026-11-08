@@ -3,6 +3,14 @@
 const DAY = 864e5;
 // k: النوع (lv مستوى، sv فضة، vip، st تسجيل دخول متتالي) — r: الشرط — d: الزخارف [صورة, x%, y%, حجم%, حركة, تأخير]
 const FRAMES = [
+  { id: 'h_demon', n: 'الشيطان', k: 'vip', r: 3, a: 1, t: 'h' },
+  { id: 'h_skull', n: 'نار الجماجم', k: 'vip', r: 2, a: 1, t: 'h' },
+  { id: 'h_bat', n: 'مصاص الدماء', k: 'vip', r: 2, a: 1, t: 'h' },
+  { id: 'h_reaper', n: 'حاصد الأرواح', k: 'vip', r: 1, a: 1, t: 'h' },
+  { id: 'h_web', n: 'بيت العنكبوت', k: 'sv', r: 800, a: 1, t: 'h' },
+  { id: 'r_emperor', n: 'الإمبراطور', k: 'vip', r: 3, a: 1, t: 'r' },
+  { id: 'r_diamond', n: 'تاج الألماس', k: 'vip', r: 3, a: 1, t: 'r' },
+  { id: 'r_sultan', n: 'السلطان', k: 'vip', r: 2, a: 1, t: 'r' },
   { id: 'lv_bronze', n: 'البرونز', k: 'lv', r: 3 },
   { id: 'lv_silver', n: 'الفضة الملكية', k: 'lv', r: 8 },
   { id: 'lv_gold', n: 'غصن الذهب', k: 'lv', r: 15 },
@@ -20,7 +28,7 @@ const FRAMES = [
   { id: 'v_gwings', n: 'الأجنحة الذهبية', k: 'vip', r: 3, a: 1 },
   { id: 'v_king', n: 'ملك الرومات', k: 'vip', r: 3, a: 1 }
 ];
-const FX_CLS = { v_fire: 'pulse fire', v_bolt: 'pulse bolt', v_king: 'pulse fire', v_wings: 'breathe', v_gwings: 'breathe', v_crown: 'aura', v_amet: 'aura amet', lv_moon: 'aura amet', st_week: 'aura emer', sv_ice: 'aura ice' };
+const FX_CLS = { h_demon: 'pulse fire', h_skull: 'pulse toxic', h_bat: 'aura blood', h_reaper: 'pulse purp', h_web: 'aura amet', r_emperor: 'aura', r_diamond: 'aura ice', r_sultan: 'aura emer', v_fire: 'pulse fire', v_bolt: 'pulse bolt', v_king: 'pulse fire', v_wings: 'breathe', v_gwings: 'breathe', v_crown: 'aura', v_amet: 'aura amet', lv_moon: 'aura amet', st_week: 'aura emer', sv_ice: 'aura ice' };
 const COVERS = [
   { id: 'c_def', n: 'الأساسي', k: 'free', r: 0 },
   { id: 'c_sunset', n: 'الغروب', k: 'lv', r: 5 },
@@ -103,8 +111,8 @@ window.openStore = function (tab, sec) {
   };
   const draw = () => {
     const isFr = tab === 'fr', list = isFr ? FRAMES : COVERS;
-    const secs = [['vip', '👑 خاص بالـ VIP'], ['sv', '<span>' + SC + ' بالعملات الفضية</span>'], ['st', '📅 الدخول اليومي'], ['lv', '⭐ حسب مستوى الحساب'], ['free', '🎁 مجاني']];
-    box.innerHTML = (isFr ? streak() : '') + secs.map(([k, t]) => { const its = list.filter(x => x.k === k); return its.length ? '<div class="s-h" id="sec-' + k + '">' + t + '</div><div class="st-g' + (isFr ? '' : ' cv') + '">' + its.map(x => card(x, isFr)).join('') + '</div>' : ''; }).join('') +
+    const secs = [['h', '💀 الإطارات المرعبة', 1], ['r', '👑 الإطارات الملكية', 1], ['vip', '👑 خاص بالـ VIP'], ['sv', '<span>' + SC + ' بالعملات الفضية</span>'], ['st', '📅 الدخول اليومي'], ['lv', '⭐ حسب مستوى الحساب'], ['free', '🎁 مجاني']];
+    box.innerHTML = (isFr ? streak() : '') + secs.map(([k, t, th]) => { const its = list.filter(x => th ? x.t === k : x.k === k && !x.t); return its.length ? '<div class="s-h" id="sec-' + k + '">' + t + '</div><div class="st-g' + (isFr ? '' : ' cv') + '">' + its.map(x => card(x, isFr)).join('') + '</div>' : ''; }).join('') +
       (isFr ? '<button class="btn btn-s" data-use="none" style="margin-top:12px">بدون إطار</button>' : '');
     if (sec) { const el = box.querySelector('#sec-' + sec); if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 50); sec = null; }
   };
