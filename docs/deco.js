@@ -3,26 +3,24 @@
 const DAY = 864e5;
 // k: النوع (lv مستوى، sv فضة، vip، st تسجيل دخول متتالي) — r: الشرط — d: الزخارف [صورة, x%, y%, حجم%, حركة, تأخير]
 const FRAMES = [
-  { id: 'lv_bronze', n: 'برونزي', k: 'lv', r: 3, d: [] },
-  { id: 'lv_silver', n: 'فضي لامع', k: 'lv', r: 6, d: [['sparkles', 78, 2, 26, 'tw', 0], ['sparkles', 2, 72, 20, 'tw', .8]] },
-  { id: 'lv_gold', n: 'ذهبي', k: 'lv', r: 10, d: [['gstar', 38, -12, 30, 'tw', 0], ['sparkles', 84, 70, 20, 'tw', .6]] },
-  { id: 'lv_clover', n: 'البرسيم', k: 'lv', r: 15, d: [['clover', 36, 76, 30, 'bob', 0], ['clover', 2, 8, 20, 'bob', .7]] },
-  { id: 'lv_moon', n: 'ليل القمر', k: 'lv', r: 20, a: 1, d: [['cmoon', 70, -8, 36, 'bob', 0], ['gstar', 0, 10, 18, 'tw', .3], ['gstar', 6, 74, 14, 'tw', 1.1], ['gstar', 84, 74, 16, 'tw', .7]] },
-  { id: 'st_week', n: 'المواظب', k: 'st', r: 7, a: 1, d: [['comet', 0, 0, 100, 'orb', 0]], orb: [['comet', 70, -6, 26]] },
-  { id: 'sv_rose', n: 'الورد', k: 'sv', r: 300, d: [['rose', -6, 62, 36, 'sw', 0], ['rose', 72, -6, 28, 'sw', .5], ['heart', 84, 66, 16, 'tw', .2]] },
-  { id: 'sv_sakura', n: 'زهر الكرز', k: 'sv', r: 300, a: 1, d: [], orb: [['sakura', 40, -10, 24], ['sakura', 90, 50, 20], ['sakura', 40, 92, 22], ['sakura', -10, 50, 18]] },
-  { id: 'sv_snow', n: 'الثلج', k: 'sv', r: 400, a: 1, d: [['snow', 34, 74, 30, 'spin', 0]], orb: [['snow', 40, -10, 20], ['snow', 92, 44, 16], ['snow', -8, 44, 18]] },
-  { id: 'sv_butterfly', n: 'الفراشة', k: 'sv', r: 500, a: 1, d: [['butterfly', 66, -10, 38, 'flap', 0], ['butterfly', -8, 62, 26, 'flap', .4], ['hibiscus', 74, 70, 24, 'sw', 0]] },
-  { id: 'sv_hearts', n: 'القلوب', k: 'sv', r: 500, a: 1, d: [], orb: [['heart', 40, -12, 24], ['heart', 92, 40, 18], ['heart', 40, 94, 20], ['heart', -10, 40, 16]] },
-  { id: 'sv_sun', n: 'الشمس', k: 'sv', r: 600, a: 1, d: [['sun', 30, -22, 44, 'spin', 0], ['sunflower', -4, 70, 26, 'sw', .3]] },
-  { id: 'sv_notes', n: 'الموسيقى', k: 'sv', r: 600, a: 1, d: [['notes', 74, 10, 26, 'up', 0], ['notes', 0, 30, 22, 'up', 1], ['notes', 60, 60, 20, 'up', 2]] },
-  { id: 'v_neon', n: 'نيون', k: 'vip', r: 1, a: 1, d: [] },
-  { id: 'v_fire', n: 'النار', k: 'vip', r: 1, a: 1, d: [['fire', 30, 70, 40, 'flk', 0], ['fire', -6, 56, 26, 'flk', .25], ['fire', 76, 56, 26, 'flk', .5]] },
-  { id: 'v_bolt', n: 'البرق', k: 'vip', r: 2, a: 1, d: [['bolt', 74, -8, 32, 'fl', 0], ['bolt', -6, 64, 26, 'fl', .45], ['bolt', 80, 68, 20, 'fl', .9]] },
-  { id: 'v_wings', n: 'الأجنحة', k: 'vip', r: 2, a: 1, d: [['wing', -40, -6, 64, 'wgl', 0], ['wing', 76, -6, 64, 'wgr', 0], ['gstar', 38, -18, 24, 'tw', 0]] },
-  { id: 'v_crown', n: 'الملكي', k: 'vip', r: 3, a: 1, d: [['crown', 24, -36, 52, 'bob', 0], ['gem', -8, 62, 24, 'tw', .3], ['gem', 84, 62, 24, 'tw', .9], ['sparkles', 82, 4, 20, 'tw', .5]] },
-  { id: 'v_dragon', n: 'التنين', k: 'vip', r: 3, a: 1, d: [['dragon', 52, -26, 56, 'bob', 0], ['fire', -8, 64, 30, 'flk', .2], ['gem', 80, 74, 20, 'tw', .6]] }
+  { id: 'lv_bronze', n: 'البرونز', k: 'lv', r: 3 },
+  { id: 'lv_silver', n: 'الفضة الملكية', k: 'lv', r: 8 },
+  { id: 'lv_gold', n: 'غصن الذهب', k: 'lv', r: 15 },
+  { id: 'lv_moon', n: 'هلال الليل', k: 'lv', r: 25, a: 1 },
+  { id: 'st_week', n: 'نجوم الزمرد', k: 'st', r: 7, a: 1 },
+  { id: 'sv_rose', n: 'الورد الجوري', k: 'sv', r: 300, a: 1 },
+  { id: 'sv_hearts', n: 'قلوب الياقوت', k: 'sv', r: 400, a: 1 },
+  { id: 'sv_pearl', n: 'اللؤلؤ', k: 'sv', r: 500, a: 1 },
+  { id: 'sv_ice', n: 'الكريستال', k: 'sv', r: 600, a: 1 },
+  { id: 'v_fire', n: 'العنقاء', k: 'vip', r: 1, a: 1 },
+  { id: 'v_amet', n: 'الجمشت', k: 'vip', r: 1, a: 1 },
+  { id: 'v_bolt', n: 'اللهب الأزرق', k: 'vip', r: 2, a: 1 },
+  { id: 'v_wings', n: 'الملاك', k: 'vip', r: 2, a: 1 },
+  { id: 'v_crown', n: 'التاج الملكي', k: 'vip', r: 3, a: 1 },
+  { id: 'v_gwings', n: 'الأجنحة الذهبية', k: 'vip', r: 3, a: 1 },
+  { id: 'v_king', n: 'ملك الرومات', k: 'vip', r: 3, a: 1 }
 ];
+const FX_CLS = { v_fire: 'pulse fire', v_bolt: 'pulse bolt', v_king: 'pulse fire', v_wings: 'breathe', v_gwings: 'breathe', v_crown: 'aura', v_amet: 'aura amet', lv_moon: 'aura amet', st_week: 'aura emer', sv_ice: 'aura ice' };
 const COVERS = [
   { id: 'c_def', n: 'الأساسي', k: 'free', r: 0 },
   { id: 'c_sunset', n: 'الغروب', k: 'lv', r: 5 },
@@ -47,16 +45,12 @@ function eligible(it, u) {
 function frOf(u) { // الإطار اللي يبين
   if (u.fr === 'none') return null;
   if (u.fr) { const f = frById(u.fr); if (f && (u.owned === undefined && u.recharged === undefined ? true : eligible(f, u))) return f; }
-  return (u.vip || 0) >= 2 && u.fr === undefined ? frById('v_neon') : null;
+  return (u.vip || 0) >= 2 && u.fr === undefined ? frById('v_bolt') : null;
 }
-function frDeco(f, s) {
-  if (s < 34) return '';
-  const im = x => '<img src="fx/' + x[0] + '.webp" alt="" class="' + (x[4] || '') + '" style="left:' + x[1] + '%;top:' + x[2] + '%;width:' + x[3] + '%' + (x[5] ? ';animation-delay:' + x[5] + 's' : '') + '">';
-  return '<span class="frd">' + f.d.filter(x => x[4] !== 'orb').map(im).join('') + (f.orb ? '<span class="frorb">' + f.orb.map(x => im([x[0], x[1], x[2], x[3]])).join('') + '</span>' : '') + '</span>';
-}
+function frSparks(s) { if (s < 40) return ''; return '<b class="fxs" style="left:14%;top:18%"></b><b class="fxs" style="left:80%;top:30%;animation-delay:.7s"></b><b class="fxs" style="left:70%;top:84%;animation-delay:1.3s"></b><b class="fxs" style="left:22%;top:78%;animation-delay:1.9s"></b>'; }
 window.avHtml = function (u, size) {
   const s = size || 44, st = 'width:' + s + 'px;height:' + s + 'px;font-size:' + Math.round(s * .4) + 'px;', inner = avInner(u), f = frOf(u);
-  if (f) return '<div class="av fr fr-' + f.id + '" style="' + st + 'padding:' + Math.max(2, Math.round(s * .07)) + 'px"><i data-av="' + esc(u.uid || '') + '" style="background:' + esc(u.color || '#FF8A1F') + '">' + inner + '</i>' + frDeco(f, s) + '</div>';
+  if (f) return '<div class="av fx2 ' + (FX_CLS[f.id] || '') + '" style="' + st + '"><i data-av="' + esc(u.uid || '') + '" style="background:' + esc(u.color || '#FF8A1F') + '">' + inner + '</i><span class="fx2-f" style="--fi:url(frames/' + f.id + '.webp)">' + (f.a ? frSparks(s) : '') + '</span></div>';
   return '<div class="av" data-av="' + esc(u.uid || '') + '" style="' + st + 'background:' + esc(u.color || '#FF8A1F') + '">' + inner + '</div>';
 };
 const _meLite = window.meLite;
@@ -97,9 +91,9 @@ window.openStore = function (tab, sec) {
   const streak = () => { const s = ME.streak || 0, got = ((ME.owned || {}).st_week || 0) > Date.now();
     return '<div class="st-streak"><div><b>📅 الدخول اليومي</b><small>' + (got ? '✅ إطار «المواظب» عندك' : 'ادخل ' + toAr(7) + ' أيام ورا بعض وخذ إطار «المواظب» مجاناً') + '</small></div><div class="st-days">' + Array.from({ length: 7 }, (_, i) => '<i class="' + (i < s % 8 || got ? 'on' : '') + '">' + toAr(i + 1) + '</i>').join('') + '</div></div>'; };
   const card = (it, isFr) => {
-    const u = me(), own = eligible(it, u), cur = isFr ? (ME.fr || (u.vip >= 2 ? 'v_neon' : '')) === it.id : (ME.cov || 'c_def') === it.id;
+    const u = me(), own = eligible(it, u), cur = isFr ? (ME.fr || (u.vip >= 2 ? 'v_bolt' : '')) === it.id : (ME.cov || 'c_def') === it.id;
     const exp = it.k === 'sv' || it.k === 'st' ? (ME.owned || {})[it.id] || 0 : 0;
-    const prev = isFr ? avHtml({ uid: ME.uid, name: ME.name, color: ME.color, pv: ME.pv, fr: it.id }, 62) : '<div class="st-cv cv-' + it.id + '"><div class="cv-lay">' + covInner(it) + '</div></div>';
+    const prev = isFr ? avHtml({ uid: ME.uid, name: ME.name, color: ME.color, pv: ME.pv, fr: it.id }, 58) : '<div class="st-cv cv-' + it.id + '"><div class="cv-lay">' + covInner(it) + '</div></div>';
     let btn;
     if (cur) btn = '<button class="st-b on" disabled>✓ مستخدم</button>';
     else if (own) btn = '<button class="st-b use" data-use="' + it.id + '">لبس</button>';
