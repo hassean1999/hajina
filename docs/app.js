@@ -754,6 +754,7 @@ async function userCard(uid) {
       '<div class="row2"><button class="btn ' + (following ? 'btn-s' : 'btn-p') + '" id="ucF">' + (following ? '✓ تتابعه' : '+ متابعة') + '</button><button class="btn btn-s" id="ucM">💬 رسالة</button></div>' +
       (R.id ? '<button class="btn btn-s" id="ucG">🎁 أهديه</button>' : '') +
       (window.modButtons ? modButtons(u, seated) : '') + '<div class="uc-mini"><button id="ucB">' + ((ME.blocked || []).includes(uid) ? '✅ فك الحظر' : '🚫 حظر') + '</button><button id="ucR">🚩 إبلاغ</button></div>'));
+  if (window.ucHook) ucHook(m, u);
   on2(m, '#ucB', () => { m.close(); toggleBlock(u); }); on2(m, '#ucR', () => { m.close(); reportUser(u); });
   if (window.bindModButtons) bindModButtons(m, u);
   const on = (id, f) => { const b = m.querySelector(id); if (b) b.onclick = f; };
@@ -840,19 +841,21 @@ function openVip() {
   const m = modal('<h3>👑 VIP</h3><div class="vip-cur">' + (v ? '<span class="vipb v' + v + '" style="font-size:16px;padding:4px 14px">VIP' + v + '</span>' : '<span style="color:var(--fg2)">بعدك مو VIP</span>') + '</div>' +
     '<div style="font-size:12.5px;color:var(--fg2);text-align:center">مجموع شحنك: ◆ ' + r.toLocaleString('en') + (next ? ' — باقي ◆ ' + (next - r).toLocaleString('en') + ' للمستوى الجاي' : ' — وصلت أعلى مستوى 🎉') + '</div><div class="xp"><i style="width:' + pct + '%"></i></div>' +
     VIP_INFO.map((x, i) => '<div class="vip-row' + (v > i ? ' on' : '') + '" data-l="' + i + '" style="cursor:pointer"><span class="e">' + x.e + '</span><div style="flex:1;min-width:0"><b>VIP' + (i + 1) + ' — ' + x.t + '</b><div>' + x.d + '</div><small>شحن ◆ ' + VIPT[i].toLocaleString('en') + '</small></div><span>' + (v > i ? '✅' : '🔒') + ' ‹</span></div>').join('') +
+    '<button class="btn btn-s" id="vSt">🖼️ إطارات وأغلفة VIP</button>' +
     (v >= 2 ? '<button class="btn btn-s" id="vAv">📷 غيّر صورتك (صورة أو GIF)</button>' : '') +
     (v >= 3 ? '<button class="btn btn-s" id="vFx">🎙️ مؤثر الصوت: ' + fxName(ME.vfx) + '</button>' : '') +
     '<button class="btn btn-p" id="vR">◆ اشحن ماسات</button>');
   const on = (id, f) => { const b = m.querySelector(id); if (b) b.onclick = f; };
+  on('#vSt', () => { m.close(); openStore('fr', 'vip'); });
   on('#vAv', () => { m.close(); setAvatar(); });
   on('#vFx', () => { m.close(); openFx(); });
   on('#vR', () => { m.close(); openRecharge(); });
   m.querySelectorAll('.vip-row').forEach(el => el.onclick = () => { m.close(); openVipLevel(+el.dataset.l); });
 }
 const VIP_DETAIL = [
-  ['اسمك يتلون بألوان قوس قزح متحركة', 'يبين بالكراسي، والدردشة، وملفك، والترتيب، وبطاقتك', 'شارة VIP1 زرقاء يم اسمك'],
-  ['كل مميزات VIP1', 'إطار ملون يدور حول صورتك بكل مكان', 'تكدر تحط صورتك الخاصة أو صورة GIF متحركة', 'اسمك يصير بلون ذهبي-وردي', 'شارة VIP2 برتقالية'],
-  ['كل مميزات VIP1 و VIP2', 'مؤثرات صوت للمايك: صدى، قاعة، راديو، روبوت', 'لما تدخل أي روم: شريط ذهبي باسمك يطلع للكل، وموسيقى وترحيب صوتي', 'صورة متحركة (GIF) لرومك تبين بالصفحة الرئيسية', 'اسمك بلون ذهبي لامع، وشارة VIP3 ذهبية']
+  ['اسمك يتلون بألوان قوس قزح متحركة', 'يبين بالكراسي، والدردشة، وملفك، والترتيب، وبطاقتك', 'شارة VIP1 زرقاء يم اسمك', 'إطارات «نيون» و«النار» المتحركة، وغلاف «الذهب»'],
+  ['كل مميزات VIP1', 'إطار ملون يدور حول صورتك بكل مكان', 'تكدر تحط صورتك الخاصة أو صورة GIF متحركة', 'اسمك يصير بلون ذهبي-وردي', 'شارة VIP2 برتقالية', 'إطارات «البرق» و«الأجنحة»، وأغلفة «ليل بغداد» و«المجرة»'],
+  ['كل مميزات VIP1 و VIP2', 'مؤثرات صوت للمايك: صدى، قاعة، راديو، روبوت', 'لما تدخل أي روم: شريط ذهبي باسمك يطلع للكل، وموسيقى وترحيب صوتي', 'صورة متحركة (GIF) لرومك تبين بالصفحة الرئيسية', 'اسمك بلون ذهبي لامع، وشارة VIP3 ذهبية', 'إطارات «الملكي» و«التنين»، وغلاف «القصر الملكي»']
 ];
 function openVipLevel(i) {
   const lv = i + 1, have = vipOf(ME.recharged || 0) >= lv, need = Math.max(0, VIPT[i] - (ME.recharged || 0));
