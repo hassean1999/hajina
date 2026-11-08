@@ -34,7 +34,7 @@ window.userCard = async function (uid) {
     '<span class="ux-b lv">⭐ ' + toAr(lvlOf(u.xp)) + '</span>',
     u.vip ? '<span class="ux-b vip v' + u.vip + '">👑 VIP' + u.vip + '</span>' : '',
     u.city ? '<span class="ux-b city">🇮🇶 ' + esc(u.city) + '</span>' : '',
-    u.family ? '<span class="ux-b fam">🏠 ' + esc(u.familyName || 'عائلة') + '</span>' : ''
+    u.family && u.family.name ? '<span class="ux-b fam">' + esc(u.family.emoji || '🏠') + ' ' + esc(u.family.name) + '</span>' : ''
   ].join('');
   const m = modal('<div class="ux-cov"></div><div class="ux-top">' +
     (inRoom && !self ? '<button class="ux-ic" id="uxAt" title="منشن">@</button>' : '<span></span>') +

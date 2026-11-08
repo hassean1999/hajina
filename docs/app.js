@@ -672,6 +672,7 @@ async function sendGift(g, qty, targets) {
     });
     targets.forEach(t => { if (t.uid !== ME.uid) db.collection('users').doc(t.uid).collection('supporters').doc(ME.uid).set({ name: ME.name, color: ME.color || '', amt: FV.increment(heart), ts: FV.serverTimestamp() }, { merge: true }).catch(() => {}); });
     if (window.notify) targets.forEach(t => notify(t.uid, 'gift', 'أهداك ' + g.n + (qty > 1 ? ' x' + qty : '')));
+    if (window.rankGift) rankGift(sv ? 0 : total, heart, targets);
     if (!sv && ME.family && ME.family.id) db.collection('families').doc(ME.family.id).update({ total: FV.increment(total) }).catch(() => {});
     await ref.collection('messages').add({ type: 'gift', ...meLite(), gift: g.k, qty, val: heart, to: targets.map(t => ({ uid: t.uid, name: t.name })), ts: FV.serverTimestamp() });
   } catch (e) {

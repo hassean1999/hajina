@@ -112,7 +112,7 @@ window.openStore = function (tab, sec) {
   };
   const draw = () => {
     const isFr = tab === 'fr', list = isFr ? FRAMES : COVERS;
-    const secs = [['h', '💀 الإطارات المرعبة', 1], ['r', '👑 الإطارات الملكية', 1], ['vip', '👑 خاص بالـ VIP'], ['sv', '<span>' + SC + ' بالعملات الفضية</span>'], ['st', '📅 الدخول اليومي'], ['lv', '⭐ حسب مستوى الحساب'], ['free', '🎁 مجاني']];
+    const secs = [['k', '🏆 مكافآت القوائم', 1], ['h', '💀 الإطارات المرعبة', 1], ['r', '👑 الإطارات الملكية', 1], ['vip', '👑 خاص بالـ VIP'], ['sv', '<span>' + SC + ' بالعملات الفضية</span>'], ['st', '📅 الدخول اليومي'], ['lv', '⭐ حسب مستوى الحساب'], ['free', '🎁 مجاني']];
     box.innerHTML = (isFr ? streak() : '') + secs.map(([k, t, th]) => { const its = list.filter(x => th ? x.t === k : x.k === k && !x.t); return its.length ? '<div class="s-h" id="sec-' + k + '">' + t + '</div><div class="st-g' + (isFr ? '' : ' cv') + '">' + its.map(x => card(x, isFr)).join('') + '</div>' : ''; }).join('') +
       (isFr ? '<button class="btn btn-s" data-use="none" style="margin-top:12px">بدون إطار</button>' : '');
     if (sec) { const el = box.querySelector('#sec-' + sec); if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 50); sec = null; }
@@ -123,7 +123,7 @@ window.openStore = function (tab, sec) {
     if (b.dataset.use) { const f = isFr ? 'fr' : 'cov'; try { await db.collection('users').doc(ME.uid).update({ [f]: b.dataset.use }); ME[f] = b.dataset.use; renderMe(); draw(); toast('✅ تم'); } catch (er) { toast(errMsg(er)); } }
     else if (b.dataset.buy) { const it = (isFr ? frById : covById)(b.dataset.buy); buyItem(it, isFr, draw, m); }
     else if (b.dataset.lock) { const it = (isFr ? frById : covById)(b.dataset.lock);
-      if (it.k === 'vip') { m.close(); openVipLevel(it.r - 1); } else if (it.k === 'lv') toast('اكعد بالرومات وتفاعل حتى يصعد مستواك لـ ' + toAr(it.r)); else toast('ادخل كل يوم، ' + toAr(7) + ' أيام ورا بعض'); }
+      if (it.k === 'vip') { m.close(); openVipLevel(it.r - 1); } else if (it.k === 'rk') { m.close(); openRich(it.r); } else if (it.k === 'lv') toast('اكعد بالرومات وتفاعل حتى يصعد مستواك لـ ' + toAr(it.r)); else toast('ادخل كل يوم، ' + toAr(7) + ' أيام ورا بعض'); }
   };
   draw();
 };

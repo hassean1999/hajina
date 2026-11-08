@@ -1,7 +1,7 @@
 /* حجينه — قائمة أعضاء الروم بالترتيب ودعوة الأصدقاء */
 'use strict';
 const _meLiteM = window.meLite;
-window.meLite = function () { const o = _meLiteM(); o.lv = lvlOf(ME.xp); if (ME.city) o.city = ME.city; if (ME.family) o.fam = ME.familyName || ''; return o; };
+window.meLite = function () { const o = _meLiteM(); o.lv = lvlOf(ME.xp); if (ME.city) o.city = ME.city; if (ME.family && ME.family.name) o.fam = ME.family.name; return o; };
 function memRank(u) {
   const d = R.data || {}, onMic = (d.seats || []).some(s => s && s.uid === u.uid);
   return (u.uid === d.ownerUid ? 1e9 : 0) + (onMic ? 1e8 : 0) + ((d.admins || []).includes(u.uid) ? 1e7 : 0) + (u.vip || 0) * 1e5 + (u.lv || 1) * 100;
