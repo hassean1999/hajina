@@ -14,12 +14,9 @@ service cloud.firestore {
         && request.resource.data.get('silver', 0) <= 100;
       allow update: if isAdmin()
         || (signed() && request.auth.uid == uid
-            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['admin', 'charm', 'followers', 'recharged', 'banned', 'withdrawn'])
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['admin', 'followers', 'recharged', 'banned', 'withdrawn'])
             && request.resource.data.get('pendingW', 0) >= resource.data.get('pendingW', 0)
-            && request.resource.data.get('diamonds', 0) <= resource.data.get('diamonds', 0)
-            && (request.resource.data.get('silver', 0) <= resource.data.get('silver', 0)
-                || (request.resource.data.get('silver', 0) <= resource.data.get('silver', 0) + 100
-                    && request.resource.data.lastCheckin != resource.data.lastCheckin)))
+            && request.resource.data.get('diamonds', 0) <= resource.data.get('diamonds', 0))
         || (signed() && request.auth.uid != uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['charm', 'followers', 'gw']));
       match /notifs/{n} {
