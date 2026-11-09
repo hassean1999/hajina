@@ -37,14 +37,18 @@ jobs:
           cp capacitor.config.json android/app/src/main/assets/
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses 2>/dev/null || true
-
-      - name: Install required SDK packages
         run: |
-          sdkmanager "platforms;android-34" "build-tools;34.0.0" 2>/dev/null || true
+          # Android SDK is pre-installed on ubuntu-latest at $ANDROID_HOME
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "SDK_ROOT=$ANDROID_SDK_ROOT"
+          # Accept licenses
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+          # Install required packages
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
+            "platform-tools" 2>/dev/null || true
+          echo "SDK setup complete"
 
       - name: Override google-services.json from secret (if set)
         run: |
