@@ -8,3 +8,4 @@ android/build/
 
 # Node
 node_modules/
+android/gradle/wrapper/gradle-wrapper.jar

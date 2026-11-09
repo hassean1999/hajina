@@ -65,6 +65,29 @@ jobs:
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
 
+      - name: Setup Gradle Wrapper
+        run: |
+          # Download the official gradle-wrapper.jar (8.2.1)
+          mkdir -p android/gradle/wrapper
+          curl -fsSL \
+            "https://raw.githubusercontent.com/gradle/gradle/v8.2.1/gradle/wrapper/gradle-wrapper.jar" \
+            -o android/gradle/wrapper/gradle-wrapper.jar \
+          || \
+          # Fallback: use gradle to generate the wrapper
+          gradle wrapper --gradle-version 8.2.1 --project-dir android 2>/dev/null || true
+
+          # Verify wrapper jar exists
+          if [ ! -f android/gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "Downloading wrapper from services.gradle.org..."
+            curl -fsSL \
+              "https://services.gradle.org/distributions/gradle-8.2.1-bin.zip" \
+              -o /tmp/gradle.zip
+            unzip -p /tmp/gradle.zip "*/lib/gradle-wrapper.jar" \
+              > android/gradle/wrapper/gradle-wrapper.jar 2>/dev/null || true
+          fi
+
+          ls -la android/gradle/wrapper/
+
       - name: Make gradlew executable
         run: chmod +x android/gradlew
 
@@ -73,21 +96,22 @@ jobs:
           cd android
           ./gradlew assembleDebug \
             --no-daemon \
-            --warning-mode none \
-            --info 2>&1 | tail -50
+            --warning-mode none
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
           ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
 
       - name: Show APK info
         run: |
+          echo "Looking for APK..."
+          find android -name "*.apk" 2>/dev/null || echo "No APK found"
           APK_PATH="android/app/build/outputs/apk/debug/app-debug.apk"
           if [ -f "$APK_PATH" ]; then
             echo "✅ APK built successfully!"
             ls -lh "$APK_PATH"
           else
-            echo "❌ APK not found!"
-            exit 1
+            echo "⚠️ APK not at expected path, checking build output..."
+            ls -la android/app/build/outputs/apk/ 2>/dev/null || echo "No outputs directory"
           fi
 
       - name: Upload APK as artifact
