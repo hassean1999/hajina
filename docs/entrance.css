@@ -1,0 +1,259 @@
+/* حجينه — مؤثرات الدخول للروم */
+
+/* ─── البانر الأساسي ─── */
+.ent-banner {
+  position: fixed;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 10px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #1a1040 0%, #2d1b6e 60%, #1a0a30 100%);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5), 0 0 0 1.5px rgba(162,89,255,0.3);
+  min-width: 200px;
+  max-width: 320px;
+  opacity: 0;
+  transition: transform 0.38s cubic-bezier(.34,1.56,.64,1), opacity 0.25s;
+  pointer-events: none;
+  user-select: none;
+}
+.ent-banner.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+.ent-banner.hide {
+  transform: translateX(-50%) translateY(80px);
+  opacity: 0;
+}
+
+/* ─── الصورة الرمزية ─── */
+.ent-av {
+  flex-shrink: 0;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(162,89,255,0.6);
+}
+.ent-av img, .ent-av .av-txt {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+/* ─── المعلومات ─── */
+.ent-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+.ent-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ent-eff {
+  font-size: 11px;
+  color: rgba(255,255,255,0.65);
+  white-space: nowrap;
+}
+
+/* ─── شارة VIP ─── */
+.ent-vip {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #FFD700, #FF8C00);
+  color: #000;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════
+   مؤثرات الدخول — أنواع
+   ════════════════════════════════ */
+
+/* الماس الملتلأ */
+.ent-banner.ent-diamond {
+  background: linear-gradient(135deg, #0d1b4b 0%, #1a2f7a 50%, #0a0d2e 100%);
+  box-shadow: 0 4px 24px rgba(0,100,255,0.4), 0 0 0 1.5px rgba(100,180,255,0.4),
+              0 0 30px rgba(100,180,255,0.15);
+  animation: ent-sparkle 1.5s ease-in-out infinite alternate;
+}
+.ent-banner.ent-diamond .ent-name { color: #90CAFF; }
+.ent-banner.ent-diamond .ent-eff  { color: #60A0FF; }
+@keyframes ent-sparkle {
+  from { box-shadow: 0 4px 24px rgba(0,100,255,0.4), 0 0 0 1.5px rgba(100,180,255,0.4); }
+  to   { box-shadow: 0 4px 32px rgba(0,150,255,0.7), 0 0 0 2px rgba(150,210,255,0.6), 0 0 50px rgba(100,180,255,0.3); }
+}
+
+/* الكريستال الجليدي */
+.ent-banner.ent-crystal {
+  background: linear-gradient(135deg, #0a2a3a 0%, #0d4055 50%, #071a28 100%);
+  box-shadow: 0 4px 24px rgba(0,200,255,0.3), 0 0 0 1.5px rgba(100,230,255,0.4),
+              inset 0 0 20px rgba(100,230,255,0.07);
+  animation: ent-frost 2s ease-in-out infinite alternate;
+}
+.ent-banner.ent-crystal .ent-name { color: #A0EFFF; }
+.ent-banner.ent-crystal .ent-eff  { color: #60DAFF; }
+@keyframes ent-frost {
+  from { box-shadow: 0 4px 24px rgba(0,200,255,0.3), 0 0 0 1.5px rgba(100,230,255,0.4); }
+  to   { box-shadow: 0 4px 32px rgba(0,230,255,0.6), 0 0 0 2px rgba(150,245,255,0.6), 0 0 40px rgba(100,230,255,0.25); }
+}
+
+/* تيار الضوء */
+.ent-banner.ent-lightning {
+  background: linear-gradient(135deg, #2a1a00 0%, #503000 50%, #1a0d00 100%);
+  box-shadow: 0 4px 24px rgba(255,180,0,0.4), 0 0 0 1.5px rgba(255,210,50,0.4);
+  animation: ent-bolt 0.8s ease-in-out infinite alternate;
+  position: relative;
+  overflow: hidden;
+}
+.ent-banner.ent-lightning::before {
+  content: '⚡';
+  position: absolute;
+  right: -5px; top: -10px;
+  font-size: 60px;
+  opacity: 0.08;
+  transform: rotate(-15deg);
+}
+.ent-banner.ent-lightning .ent-name { color: #FFD060; }
+.ent-banner.ent-lightning .ent-eff  { color: #FFA820; }
+@keyframes ent-bolt {
+  from { box-shadow: 0 4px 24px rgba(255,160,0,0.4), 0 0 0 1.5px rgba(255,200,0,0.4); }
+  to   { box-shadow: 0 4px 36px rgba(255,200,0,0.7), 0 0 0 2px rgba(255,230,80,0.6), 0 0 60px rgba(255,180,0,0.25); }
+}
+
+/* الحضرة */
+.ent-banner.ent-nature {
+  background: linear-gradient(135deg, #0a2a10 0%, #124020 50%, #061408 100%);
+  box-shadow: 0 4px 24px rgba(0,180,80,0.3), 0 0 0 1.5px rgba(60,220,100,0.4);
+  animation: ent-leaf 1.8s ease-in-out infinite alternate;
+}
+.ent-banner.ent-nature .ent-name { color: #90FFB0; }
+.ent-banner.ent-nature .ent-eff  { color: #60E880; }
+@keyframes ent-leaf {
+  from { box-shadow: 0 4px 24px rgba(0,180,80,0.3), 0 0 0 1.5px rgba(60,220,100,0.4); }
+  to   { box-shadow: 0 4px 32px rgba(0,220,100,0.6), 0 0 0 2px rgba(80,255,120,0.5), 0 0 40px rgba(0,200,80,0.2); }
+}
+
+/* الملكي (VIP) */
+.ent-banner.ent-royal {
+  background: linear-gradient(135deg, #2a1600 0%, #5a3000 50%, #1a0d00 100%);
+  box-shadow: 0 4px 24px rgba(255,160,0,0.5), 0 0 0 1.5px rgba(255,215,0,0.5),
+              inset 0 1px 0 rgba(255,215,0,0.1);
+  animation: ent-gold 1.4s ease-in-out infinite alternate;
+  position: relative;
+  overflow: hidden;
+}
+.ent-banner.ent-royal::after {
+  content: '👑';
+  position: absolute;
+  right: -8px; top: -12px;
+  font-size: 52px;
+  opacity: 0.1;
+  transform: rotate(10deg);
+}
+.ent-banner.ent-royal .ent-name { color: #FFD700; }
+.ent-banner.ent-royal .ent-eff  { color: #FFA500; }
+@keyframes ent-gold {
+  from { box-shadow: 0 4px 24px rgba(255,150,0,0.5), 0 0 0 1.5px rgba(255,215,0,0.5); }
+  to   { box-shadow: 0 4px 36px rgba(255,200,0,0.75), 0 0 0 2px rgba(255,235,80,0.65), 0 0 55px rgba(255,180,0,0.3); }
+}
+
+/* النار */
+.ent-banner.ent-fire {
+  background: linear-gradient(135deg, #300000 0%, #600010 50%, #1a0000 100%);
+  box-shadow: 0 4px 24px rgba(255,60,0,0.5), 0 0 0 1.5px rgba(255,100,0,0.5);
+  animation: ent-blaze 0.6s ease-in-out infinite alternate;
+  position: relative;
+  overflow: hidden;
+}
+.ent-banner.ent-fire::before {
+  content: '🔥';
+  position: absolute;
+  right: -5px; top: -10px;
+  font-size: 55px;
+  opacity: 0.12;
+}
+.ent-banner.ent-fire .ent-name { color: #FF8060; }
+.ent-banner.ent-fire .ent-eff  { color: #FF5020; }
+@keyframes ent-blaze {
+  from { box-shadow: 0 4px 24px rgba(255,60,0,0.5), 0 0 0 1.5px rgba(255,100,0,0.5); }
+  to   { box-shadow: 0 4px 36px rgba(255,100,0,0.8), 0 0 0 2.5px rgba(255,140,0,0.65), 0 0 60px rgba(255,60,0,0.3); }
+}
+
+/* ════════════════════════════════
+   متجر مؤثرات الدخول
+   ════════════════════════════════ */
+.es-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.es-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  transition: border-color .2s;
+}
+.es-row.act {
+  border-color: var(--acc, #A259FF);
+  background: rgba(162,89,255,0.08);
+}
+/* معاينة صغيرة للمؤثر */
+.es-prev {
+  width: 54px; height: 36px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  overflow: hidden;
+  color: #fff;
+}
+.es-prev.ent-diamond  { background: linear-gradient(135deg,#0d1b4b,#1a2f7a); border: 1px solid rgba(100,180,255,0.4); color: #90CAFF; }
+.es-prev.ent-crystal  { background: linear-gradient(135deg,#0a2a3a,#0d4055); border: 1px solid rgba(100,230,255,0.4); color: #A0EFFF; }
+.es-prev.ent-lightning{ background: linear-gradient(135deg,#2a1a00,#503000); border: 1px solid rgba(255,210,50,0.4); color: #FFD060; }
+.es-prev.ent-nature   { background: linear-gradient(135deg,#0a2a10,#124020); border: 1px solid rgba(60,220,100,0.4); color: #90FFB0; }
+.es-prev.ent-royal    { background: linear-gradient(135deg,#2a1600,#5a3000); border: 1px solid rgba(255,215,0,0.5); color: #FFD700; }
+.es-prev.ent-fire     { background: linear-gradient(135deg,#300000,#600010); border: 1px solid rgba(255,100,0,0.5); color: #FF8060; }
+
+.es-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+.es-info b { font-size: 13.5px; }
+.es-info small { font-size: 11px; color: var(--fg2); }
+.es-btn {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--acc, #A259FF);
+  background: none;
+  color: var(--acc, #A259FF);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.es-row.act .es-btn {
+  background: var(--acc, #A259FF);
+  color: #fff;
+}
