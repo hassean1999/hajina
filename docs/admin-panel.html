@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة إدارة حجينه</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700;800&display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0a04;--bg2:#1a1005;--bg3:#251808;--card:#1f1409;
+  --gold:#d4a017;--gold2:#f5c842;--cyan:#00d4ff;--danger:#e53935;
+  --green:#43a047;--fg:#f0e6cc;--fg2:#a08060;--fg3:#6b4e2a;
+  --border:#2d1f0a;--radius:12px;
+}
+body{font-family:'Almarai',sans-serif;background:var(--bg);color:var(--fg);min-height:100vh}
+
+/* ===== LOGIN ===== */
+#loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:24px;padding:20px}
+.logo-box{text-align:center}
+.logo-box h1{font-size:32px;color:var(--gold2);font-weight:800}
+.logo-box p{color:var(--fg2);font-size:14px;margin-top:4px}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:32px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:16px}
+.login-card h2{font-size:18px;color:var(--gold);text-align:center}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;color:var(--fg2)}
+.field input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--fg);font-family:'Almarai',sans-serif;font-size:14px;outline:none;transition:.2s}
+.field input:focus{border-color:var(--gold)}
+.btn-login{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a0a00;font-family:'Almarai',sans-serif;font-weight:800;font-size:15px;padding:14px;border:none;border-radius:8px;cursor:pointer;width:100%;transition:.2s}
+.btn-login:hover{filter:brightness(1.1)}
+.login-err{color:var(--danger);font-size:13px;text-align:center;min-height:18px}
+
+/* ===== MAIN LAYOUT ===== */
+#app{display:none;min-height:100vh}
+.top-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.top-bar h1{font-size:18px;color:var(--gold2);font-weight:800}
+.top-bar .admin-info{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--fg2)}
+.top-bar .admin-info b{color:var(--fg)}
+.btn-logout{background:transparent;border:1px solid var(--border);color:var(--fg2);font-family:'Almarai',sans-serif;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:.2s}
+.btn-logout:hover{border-color:var(--danger);color:var(--danger)}
+
+.layout{display:flex;min-height:calc(100vh - 60px)}
+.sidebar{width:220px;background:var(--bg2);border-left:1px solid var(--border);padding:16px 0;flex-shrink:0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 20px;cursor:pointer;font-size:14px;color:var(--fg2);transition:.15s;border-right:3px solid transparent}
+.nav-item:hover{color:var(--fg);background:var(--bg3)}
+.nav-item.active{color:var(--gold2);background:var(--bg3);border-right-color:var(--gold)}
+.nav-item .ic{font-size:18px;width:24px;text-align:center}
+.content{flex:1;padding:24px;overflow-y:auto}
+
+/* ===== CARDS ===== */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center}
+.stat-card .num{font-size:28px;font-weight:800;color:var(--gold2)}
+.stat-card .lbl{font-size:12px;color:var(--fg2);margin-top:4px}
+.section-title{font-size:16px;font-weight:700;color:var(--gold);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px}
+
+/* ===== CHARGE ===== */
+.charge-form{display:flex;flex-direction:column;gap:16px;max-width:480px}
+.charge-form .row{display:flex;gap:12px;align-items:flex-end}
+.charge-form .row .field{flex:1}
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:4px}
+.pkg-btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;cursor:pointer;transition:.2s;font-family:'Almarai',sans-serif;color:var(--fg);font-size:13px}
+.pkg-btn:hover,.pkg-btn.sel{border-color:var(--gold);color:var(--gold2);background:var(--bg2)}
+.pkg-btn b{display:block;font-size:17px;color:var(--gold2)}
+
+/* ===== TABLE ===== */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:right;padding:10px 12px;font-size:12px;color:var(--fg2);border-bottom:1px solid var(--border);font-weight:400}
+.tbl td{padding:10px 12px;font-size:13px;border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg3)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge.green{background:#1b5e2022;color:var(--green);border:1px solid var(--green)}
+.badge.red{background:#b71c1c22;color:#ef5350;border:1px solid #ef5350}
+.badge.gold{background:#f57f1722;color:var(--gold2);border:1px solid var(--gold)}
+
+/* ===== BUTTONS ===== */
+.btn{font-family:'Almarai',sans-serif;border:none;border-radius:8px;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:700;transition:.2s}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a0a00}
+.btn-gold:hover{filter:brightness(1.1)}
+.btn-danger{background:#b71c1c;color:#fff}
+.btn-danger:hover{background:var(--danger)}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-green{background:#1b5e20;color:#a5d6a7}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--fg2)}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ===== USER ROW ===== */
+.user-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.user-row:last-child{border-bottom:none}
+.av{width:44px;height:44px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.u-info{flex:1;min-width:0}
+.u-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.u-sub{font-size:11px;color:var(--fg2);margin-top:2px}
+.u-actions{display:flex;gap:8px;flex-shrink:0}
+
+/* ===== ALERTS ===== */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border);color:var(--fg);padding:12px 24px;border-radius:40px;font-size:13px;z-index:9999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* ===== SEARCH ===== */
+.search-box{display:flex;gap:10px;margin-bottom:16px}
+.search-box input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--fg);font-family:'Almarai',sans-serif;font-size:14px;outline:none}
+.search-box input:focus{border-color:var(--gold)}
+
+/* ===== EMPTY ===== */
+.empty{text-align:center;padding:40px;color:var(--fg2)}
+.empty .ei{font-size:40px;margin-bottom:12px}
+
+/* ===== SPINNER ===== */
+.spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite;margin:40px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media(max-width:600px){
+  .sidebar{display:none}
+  .mob-nav{display:flex!important;overflow-x:auto;background:var(--bg2);border-bottom:1px solid var(--border);padding:8px 12px;gap:8px}
+  .mob-nav .nav-item{padding:8px 14px;border-radius:8px;border:none;white-space:nowrap;flex-shrink:0}
+  .mob-nav .nav-item.active{background:var(--bg3)}
+  .stats-row{grid-template-columns:1fr 1fr}
+}
+.mob-nav{display:none}
+</style>
+</head>
+<body>
+
+<!-- ===== شاشة الدخول ===== -->
+<div id="loginScreen">
+  <div class="logo-box">
+    <h1>💎 حجينه</h1>
+    <p>لوحة الإدارة</p>
+  </div>
+  <div class="login-card">
+    <h2>🔐 دخول الإدارة</h2>
+    <div class="field">
+      <label>البريد الإلكتروني</label>
+      <input type="email" id="lEmail" placeholder="admin@hajina.com" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>كلمة المرور</label>
+      <input type="password" id="lPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="login-err" id="lErr"></div>
+    <button class="btn-login" id="lBtn" onclick="doLogin()">دخول ◄</button>
+    <p style="font-size:12px;color:var(--fg3);text-align:center">الدخول فقط للمدراء المسجّلين في Firebase</p>
+  </div>
+</div>
+
+<!-- ===== التطبيق الرئيسي ===== -->
+<div id="app">
+  <div class="top-bar">
+    <h1>🛠️ لوحة إدارة حجينه</h1>
+    <div class="admin-info">
+      <span>مرحباً، <b id="adminName">-</b></span>
+      <button class="btn-logout" onclick="doLogout()">خروج</button>
+    </div>
+  </div>
+
+  <!-- موبايل ناف -->
+  <div class="mob-nav" id="mobNav">
+    <div class="nav-item active" onclick="showPage('dashboard')"><span class="ic">📊</span>الرئيسية</div>
+    <div class="nav-item" onclick="showPage('charge')"><span class="ic">💎</span>شحن</div>
+    <div class="nav-item" onclick="showPage('users')"><span class="ic">👥</span>المستخدمين</div>
+    <div class="nav-item" onclick="showPage('reports')"><span class="ic">🚩</span>البلاغات</div>
+    <div class="nav-item" onclick="showPage('history')"><span class="ic">🧾</span>السجل</div>
+    <div class="nav-item" onclick="showPage('rooms')"><span class="ic">🏠</span>الرومات</div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item active" onclick="showPage('dashboard')"><span class="ic">📊</span>الرئيسية</div>
+      <div class="nav-item" onclick="showPage('charge')"><span class="ic">💎</span>شحن الماسات</div>
+      <div class="nav-item" onclick="showPage('users')"><span class="ic">👥</span>المستخدمين</div>
+      <div class="nav-item" onclick="showPage('reports')"><span class="ic">🚩</span>البلاغات</div>
+      <div class="nav-item" onclick="showPage('history')"><span class="ic">🧾</span>سجل الشحن</div>
+      <div class="nav-item" onclick="showPage('rooms')"><span class="ic">🏠</span>الرومات</div>
+      <div class="nav-item" onclick="showPage('admins')"><span class="ic">🛡️</span>المدراء</div>
+    </div>
+
+    <div class="content" id="content">
+      <div class="spin"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-app-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-auth-compat.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-firestore-compat.min.js"></script>
+
+<script>
+'use strict';
+
+// ===== Firebase =====
+const FB = {
+  apiKey: "AIzaSyDoJn4_Z7hWpc5JDZdoMI5IjYsBajd-VoE",
+  authDomain: "hajina-84598.firebaseapp.com",
+  projectId: "hajina-84598",
+  storageBucket: "hajina-84598.firebasestorage.app",
+  messagingSenderId: "615591936540",
+  appId: "1:615591936540:web:9b46d54cecf8da705255d9"
+};
+firebase.initializeApp(FB);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+let ME = null; // المدير الحالي
+let curPage = 'dashboard';
+
+// ===== Auth =====
+auth.onAuthStateChanged(async user => {
+  if (!user) { showLogin(); return; }
+  // تحقق من كونه مدير
+  try {
+    const doc = await db.collection('users').doc(user.uid).get();
+    const data = doc.data() || {};
+    if (!data.admin) {
+      await auth.signOut();
+      showLogin('حسابك ليس له صلاحية الإدارة');
+      return;
+    }
+    ME = { uid: user.uid, email: user.email, name: data.name || user.email };
+    document.getElementById('adminName').textContent = ME.name;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    showPage('dashboard');
+  } catch(e) {
+    showLogin('خطأ في التحقق: ' + e.message);
+  }
+});
+
+function showLogin(err) {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  if (err) document.getElementById('lErr').textContent = err;
+}
+
+async function doLogin() {
+  const email = document.getElementById('lEmail').value.trim();
+  const pass  = document.getElementById('lPass').value;
+  const err   = document.getElementById('lErr');
+  const btn   = document.getElementById('lBtn');
+  if (!email || !pass) { err.textContent = 'اكتب الإيميل والباسورد'; return; }
+  err.textContent = '';
+  btn.textContent = 'جاري الدخول...';
+  btn.disabled = true;
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found':'الإيميل غير موجود',
+      'auth/wrong-password':'كلمة المرور غلط',
+      'auth/invalid-email':'إيميل غير صالح',
+      'auth/too-many-requests':'محاولات كثيرة، انتظر قليلاً',
+    };
+    err.textContent = msgs[e.code] || e.message;
+    btn.textContent = 'دخول ◄';
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('lPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+async function doLogout() {
+  await auth.signOut();
+}
+
+// ===== Toast =====
+let toastT;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ===== esc =====
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ===== Navigation =====
+function showPage(page) {
+  curPage = page;
+  // تحديث الـ nav
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('onclick') === `showPage('${page}')`);
+  });
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="spin"></div>';
+  pages[page]();
+}
+
+// ===== PAGES =====
+const pages = {
+
+  // ========== الرئيسية ==========
+  async dashboard() {
+    const c = document.getElementById('content');
+    try {
+      const [usersSnap, roomsSnap, rechargesSnap, reportsSnap] = await Promise.all([
+        db.collection('users').get(),
+        db.collection('rooms').get(),
+        db.collection('recharges').orderBy('ts','desc').limit(100).get(),
+        db.collection('reports').get(),
+      ]);
+      const totalDiamonds = rechargesSnap.docs.reduce((a,d) => a + (d.data().amount||0), 0);
+      c.innerHTML = `
+        <div class="section-title">📊 نظرة عامة</div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="num">${usersSnap.size.toLocaleString('ar')}</div><div class="lbl">👤 إجمالي المستخدمين</div></div>
+          <div class="stat-card"><div class="num">${roomsSnap.size.toLocaleString('ar')}</div><div class="lbl">🏠 الرومات</div></div>
+          <div class="stat-card"><div class="num">${rechargesSnap.size.toLocaleString('ar')}</div><div class="lbl">🧾 عمليات الشحن</div></div>
+          <div class="stat-card"><div class="num" style="color:var(--cyan)">◆ ${totalDiamonds.toLocaleString('en')}</div><div class="lbl">💎 إجمالي الماسات المباعة</div></div>
+          <div class="stat-card"><div class="num" style="color:var(--danger)">${reportsSnap.size.toLocaleString('ar')}</div><div class="lbl">🚩 البلاغات المعلقة</div></div>
+        </div>
+        <div class="section-title">🕐 آخر 10 عمليات شحن</div>
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>المستخدم</th><th>الماسات</th><th>بواسطة</th><th>التاريخ</th></tr></thead>
+            <tbody>
+              ${rechargesSnap.docs.slice(0,10).map(d => {
+                const r = d.data();
+                const ts = r.ts && r.ts.toMillis ? new Date(r.ts.toMillis()).toLocaleString('ar-IQ') : '-';
+                return `<tr>
+                  <td><b>${esc(r.toName||'')}</b> <span style="color:var(--fg3);font-size:11px">ID ${esc(r.toHid||'')}</span></td>
+                  <td><b style="color:var(--gold2)">◆ ${(r.amount||0).toLocaleString('en')}</b></td>
+                  <td style="color:var(--fg2)">${esc(r.byName||'')}</td>
+                  <td style="color:var(--fg2);font-size:11px">${ts}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>`;
+    } catch(e) { c.innerHTML = `<div class="empty"><div class="ei">❌</div><p>${esc(e.message)}</p></div>`; }
+  },
+
+  // ========== شحن الماسات ==========
+  charge() {
+    const c = document.getElementById('content');
+    c.innerHTML = `
+      <div class="section-title">💎 شحن الماسات</div>
+      <div class="card">
+        <div class="charge-form">
+          <div class="field">
+            <label>ابحث عن المستخدم بـ ID أو الاسم</label>
+            <div class="search-box">
+              <input type="text" id="cSearch" placeholder="اكتب ID الرقمي أو الاسم..." inputmode="numeric">
+              <button class="btn btn-outline" onclick="searchUser()">🔍 بحث</button>
+            </div>
+          </div>
+          <div id="cUserResult"></div>
+          <div id="cAmount" style="display:none">
+            <div class="field">
+              <label>اختر الحزمة أو اكتب الكمية</label>
+              <div class="pkg-grid">
+                ${[100,500,1000,5000,10000,50000].map(d => `<div class="pkg-btn" onclick="selectPkg(${d})"><b>◆ ${d.toLocaleString('en')}</b>ماسة</div>`).join('')}
+              </div>
+            </div>
+            <div class="field">
+              <label>أو اكتب كمية مخصصة</label>
+              <input type="number" id="cCustom" placeholder="مثال: 2500" min="1" oninput="this.closest('.card').querySelectorAll('.pkg-btn').forEach(b=>b.classList.remove('sel'))">
+            </div>
+            <div class="field">
+              <label>ملاحظة (اختياري)</label>
+              <input type="text" id="cNote" placeholder="مثال: شحن عبر باي، أو هدية">
+            </div>
+            <button class="btn btn-gold" onclick="doCharge()">💎 شحن الآن</button>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('cSearch').addEventListener('keydown', e => { if(e.key==='Enter') searchUser(); });
+  },
+
+  // ========== المستخدمين ==========
+  async users() {
+    const c = document.getElementById('content');
+    c.innerHTML = `
+      <div class="section-title">👥 المستخدمين</div>
+      <div class="search-box">
+        <input type="text" id="uSearch" placeholder="ابحث بالـ ID الرقمي..." inputmode="numeric">
+        <button class="btn btn-outline" onclick="searchForUser()">🔍 بحث</button>
+      </div>
+      <div class="card" id="uList"><div class="spin"></div></div>`;
+    document.getElementById('uSearch').addEventListener('keydown', e => { if(e.key==='Enter') searchForUser(); });
+    // جلب آخر 20 مستخدم
+    try {
+      const snap = await db.collection('users').orderBy('recharged','desc').limit(20).get();
+      renderUserList(snap.docs, 'uList');
+    } catch(e) { document.getElementById('uList').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+  },
+
+  // ========== البلاغات ==========
+  async reports() {
+    const c = document.getElementById('content');
+    c.innerHTML = '<div class="section-title">🚩 البلاغات</div><div class="card" id="repList"><div class="spin"></div></div>';
+    try {
+      const snap = await db.collection('reports').orderBy('ts','desc').limit(50).get();
+      const list = snap.docs;
+      if (!list.length) {
+        document.getElementById('repList').innerHTML = '<div class="empty"><div class="ei">✅</div><b>ماكو بلاغات</b></div>';
+        return;
+      }
+      document.getElementById('repList').innerHTML = list.map(d => {
+        const r = d.data();
+        const ts = typeof r.ts === 'number' ? new Date(r.ts).toLocaleString('ar-IQ') : '-';
+        return `<div class="user-row" id="rep_${d.id}">
+          <div style="flex:1">
+            <div class="u-name">${r.user ? '👤 '+esc(r.userName||r.user) : '🏠 روم'}</div>
+            <div class="u-sub">${esc(r.why||'إبلاغ عن روم')} · ${ts}</div>
+            ${r.user ? `<div class="u-sub" style="color:var(--fg3)">ID: ${esc(r.user)}</div>` : ''}
+          </div>
+          <div class="u-actions">
+            ${r.user ? `<button class="btn btn-sm btn-danger" onclick="banUserDirect('${d.id}','${esc(r.user)}','${esc(r.userName||'')}')">⛔ حظر</button>` : ''}
+            <button class="btn btn-sm btn-green" onclick="resolveReport('${d.id}')">✓ تم</button>
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) { document.getElementById('repList').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+  },
+
+  // ========== سجل الشحن ==========
+  async history() {
+    const c = document.getElementById('content');
+    c.innerHTML = '<div class="section-title">🧾 سجل الشحن</div><div class="card" id="histList"><div class="spin"></div></div>';
+    try {
+      const snap = await db.collection('recharges').orderBy('ts','desc').limit(100).get();
+      const total = snap.docs.reduce((a,d) => a + (d.data().amount||0), 0);
+      const rows = snap.docs.map(d => {
+        const r = d.data();
+        const ts = r.ts && r.ts.toMillis ? new Date(r.ts.toMillis()).toLocaleString('ar-IQ') : '-';
+        return `<tr>
+          <td><b>${esc(r.toName||'')}</b><br><span style="color:var(--fg3);font-size:11px">ID ${esc(r.toHid||'')}</span></td>
+          <td><b style="color:var(--gold2)">◆ ${(r.amount||0).toLocaleString('en')}</b></td>
+          <td style="color:var(--fg2);font-size:12px">${esc(r.byName||'')}</td>
+          <td style="color:var(--fg2);font-size:11px">${ts}</td>
+          <td style="color:var(--fg3);font-size:11px">${esc(r.note||'')}</td>
+        </tr>`;
+      }).join('');
+      document.getElementById('histList').innerHTML = `
+        <div style="text-align:center;margin-bottom:16px;font-size:18px;font-weight:800;color:var(--gold2)">
+          إجمالي الماسات المباعة: ◆ ${total.toLocaleString('en')}
+        </div>
+        <table class="tbl">
+          <thead><tr><th>المستخدم</th><th>الماسات</th><th>المدير</th><th>التاريخ</th><th>ملاحظة</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    } catch(e) { document.getElementById('histList').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+  },
+
+  // ========== الرومات ==========
+  async rooms() {
+    const c = document.getElementById('content');
+    c.innerHTML = '<div class="section-title">🏠 الرومات النشطة</div><div class="card" id="roomList"><div class="spin"></div></div>';
+    try {
+      const snap = await db.collection('rooms').orderBy('members','desc').limit(30).get();
+      if (snap.empty) { document.getElementById('roomList').innerHTML = '<div class="empty"><div class="ei">🏠</div><b>ماكو رومات</b></div>'; return; }
+      document.getElementById('roomList').innerHTML = `
+        <table class="tbl">
+          <thead><tr><th>اسم الروم</th><th>الأعضاء</th><th>المضيف</th><th>الإجراءات</th></tr></thead>
+          <tbody>
+            ${snap.docs.map(d => {
+              const r = d.data();
+              return `<tr>
+                <td><b>${esc(r.name||d.id)}</b><br><span style="color:var(--fg3);font-size:11px">${d.id}</span></td>
+                <td><span class="badge green">${(r.members||0)} 👤</span></td>
+                <td style="color:var(--fg2);font-size:12px">${esc(r.hostName||'')}</td>
+                <td><button class="btn btn-sm btn-danger" onclick="closeRoom('${d.id}','${esc(r.name||d.id)}')">🔒 أغلق</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    } catch(e) { document.getElementById('roomList').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+  },
+
+  // ========== المدراء ==========
+  async admins() {
+    const c = document.getElementById('content');
+    c.innerHTML = `
+      <div class="section-title">🛡️ إدارة المدراء</div>
+      <div class="card">
+        <div class="charge-form">
+          <div class="field">
+            <label>ابحث عن مستخدم لتعيينه مدير</label>
+            <div class="search-box">
+              <input type="text" id="adSearch" placeholder="ID الرقمي للمستخدم..." inputmode="numeric">
+              <button class="btn btn-outline" onclick="searchForAdmin()">🔍 بحث</button>
+            </div>
+          </div>
+          <div id="adResult"></div>
+        </div>
+      </div>
+      <div class="section-title" style="margin-top:20px">قائمة المدراء الحاليين</div>
+      <div class="card" id="adminList"><div class="spin"></div></div>`;
+    document.getElementById('adSearch').addEventListener('keydown', e => { if(e.key==='Enter') searchForAdmin(); });
+    try {
+      const snap = await db.collection('users').where('admin','==',true).get();
+      if (snap.empty) { document.getElementById('adminList').innerHTML = '<div class="empty">ماكو مدراء</div>'; return; }
+      document.getElementById('adminList').innerHTML = snap.docs.map(d => {
+        const u = d.data();
+        return `<div class="user-row">
+          <div class="av">${u.av ? `<img src="${esc(u.av)}" onerror="this.textContent='👤';this.style.fontSize='20px'">` : '👤'}</div>
+          <div class="u-info"><div class="u-name">${esc(u.name||'')}</div><div class="u-sub">ID: ${esc(u.hid||d.id)}</div></div>
+          <div class="u-actions">
+            ${d.id !== ME.uid ? `<button class="btn btn-sm btn-danger" onclick="removeAdmin('${d.id}','${esc(u.name||'')}')">❌ شيل الإدارة</button>` : '<span class="badge gold">أنت</span>'}
+          </div>
+        </div>`;
+      }).join('');
+    } catch(e) { document.getElementById('adminList').innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+  },
+};
+
+// ===== Helper: render user list =====
+function renderUserList(docs, containerId) {
+  const el = document.getElementById(containerId);
+  if (!docs.length) { el.innerHTML = '<div class="empty"><div class="ei">🔍</div><p>ماكو نتائج</p></div>'; return; }
+  el.innerHTML = docs.map(d => {
+    const u = d.data();
+    const banned = u.banned ? '<span class="badge red">محظور</span>' : '';
+    const admin  = u.admin  ? '<span class="badge gold">مدير</span>' : '';
+    return `<div class="user-row">
+      <div class="av">${u.av ? `<img src="${esc(u.av)}" onerror="this.textContent='👤';this.style.fontSize='20px'">` : '👤'}</div>
+      <div class="u-info">
+        <div class="u-name">${esc(u.name||'')} ${banned} ${admin}</div>
+        <div class="u-sub">ID: ${esc(u.hid||d.id)} · ◆ ${(u.diamonds||0).toLocaleString('en')} ماسة</div>
+      </div>
+      <div class="u-actions">
+        <button class="btn btn-sm btn-gold" onclick="quickCharge('${d.id}','${esc(u.name||'')}','${esc(u.hid||'')}')">💎 شحن</button>
+        <button class="btn btn-sm ${u.banned ? 'btn-green' : 'btn-danger'}" onclick="toggleBan('${d.id}','${esc(u.name||'')}',${!!u.banned})">${u.banned ? '✅ فك' : '⛔ حظر'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===== Charge Functions =====
+let selectedUser = null;
+
+async function searchUser() {
+  const q = document.getElementById('cSearch').value.trim();
+  if (!q) return;
+  const res = document.getElementById('cUserResult');
+  const amt = document.getElementById('cAmount');
+  res.innerHTML = '<div class="spin" style="margin:16px auto"></div>';
+  amt.style.display = 'none';
+  selectedUser = null;
+  try {
+    // بحث بالـ hid أولاً
+    let snap = await db.collection('users').where('hid','==',q).limit(1).get();
+    if (snap.empty && isNaN(q)) {
+      // بحث بالاسم
+      snap = await db.collection('users').where('name','>=',q).where('name','<=',q+'').limit(5).get();
+    }
+    if (snap.empty) { res.innerHTML = '<div class="empty"><div class="ei">🔍</div><p>ماكو مستخدم بهذا الـ ID</p></div>'; return; }
+    const doc = snap.docs[0];
+    const u = { uid: doc.id, ...doc.data() };
+    selectedUser = u;
+    res.innerHTML = `<div class="user-row" style="background:var(--bg3);border-radius:10px;padding:12px 16px;margin-bottom:4px">
+      <div class="av">${u.av ? `<img src="${esc(u.av)}" onerror="this.textContent='👤'">` : '👤'}</div>
+      <div class="u-info">
+        <div class="u-name">✅ ${esc(u.name||'')}</div>
+        <div class="u-sub">ID: ${esc(u.hid||u.uid)} · ◆ ${(u.diamonds||0).toLocaleString('en')} ماسة حالية</div>
+      </div>
+    </div>`;
+    amt.style.display = 'block';
+  } catch(e) { res.innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+
+function selectPkg(d) {
+  document.getElementById('cCustom').value = d;
+  document.querySelectorAll('.pkg-btn').forEach(b => b.classList.remove('sel'));
+  event.target.closest('.pkg-btn').classList.add('sel');
+}
+
+async function doCharge() {
+  if (!selectedUser) return toast('اختر مستخدم أولاً');
+  const amount = parseInt(document.getElementById('cCustom').value) || 0;
+  if (!amount || amount < 1) return toast('اكتب كمية الماسات');
+  const note = document.getElementById('cNote').value.trim();
+  if (!confirm(`⚠️ تأكيد الشحن\n\nالمستخدم: ${selectedUser.name}\nID: ${selectedUser.hid||selectedUser.uid}\nالماسات: ◆ ${amount.toLocaleString('en')}\n\nتأكيد؟`)) return;
+  try {
+    const batch = db.batch();
+    const userRef = db.collection('users').doc(selectedUser.uid);
+    batch.update(userRef, {
+      diamonds: firebase.firestore.FieldValue.increment(amount),
+      recharged: firebase.firestore.FieldValue.increment(amount),
+    });
+    batch.set(db.collection('recharges').doc(), {
+      toUid: selectedUser.uid,
+      toName: selectedUser.name || '',
+      toHid: selectedUser.hid || '',
+      byUid: ME.uid,
+      byName: ME.name || '',
+      amount,
+      note: note || '',
+      ts: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    await batch.commit();
+    toast(`✅ تم شحن ◆ ${amount.toLocaleString('en')} لـ ${selectedUser.name}`);
+    // إعادة تعيين
+    selectedUser = null;
+    document.getElementById('cUserResult').innerHTML = '';
+    document.getElementById('cAmount').style.display = 'none';
+    document.getElementById('cSearch').value = '';
+    document.getElementById('cCustom').value = '';
+    document.getElementById('cNote').value = '';
+    document.querySelectorAll('.pkg-btn').forEach(b => b.classList.remove('sel'));
+  } catch(e) { toast('❌ خطأ: ' + e.message); }
+}
+
+// شحن سريع من صفحة المستخدمين
+function quickCharge(uid, name, hid) {
+  selectedUser = { uid, name, hid };
+  showPage('charge');
+  setTimeout(() => {
+    document.getElementById('cUserResult').innerHTML = `
+      <div class="user-row" style="background:var(--bg3);border-radius:10px;padding:12px 16px;margin-bottom:4px">
+        <div class="u-info"><div class="u-name">✅ ${esc(name)}</div><div class="u-sub">ID: ${esc(hid)}</div></div>
+      </div>`;
+    document.getElementById('cAmount').style.display = 'block';
+  }, 100);
+}
+
+// ===== User Functions =====
+async function searchForUser() {
+  const q = document.getElementById('uSearch').value.trim();
+  if (!q) return;
+  const el = document.getElementById('uList');
+  el.innerHTML = '<div class="spin"></div>';
+  try {
+    const snap = await db.collection('users').where('hid','==',q).limit(5).get();
+    if (snap.empty) { el.innerHTML = '<div class="empty">ماكو مستخدم بهذا الـ ID</div>'; return; }
+    renderUserList(snap.docs, 'uList');
+  } catch(e) { el.innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+
+async function toggleBan(uid, name, isBanned) {
+  if (!confirm(`${isBanned ? '✅ فك الحظر عن' : '⛔ حظر'} ${name}؟`)) return;
+  try {
+    await db.collection('users').doc(uid).update({ banned: !isBanned });
+    toast(`${isBanned ? '✅ انفك الحظر عن' : '⛔ انحظر'} ${name}`);
+    pages.users();
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+async function banUserDirect(repId, uid, name) {
+  if (!confirm(`⛔ حظر ${name}؟`)) return;
+  try {
+    await db.collection('users').doc(uid).update({ banned: true });
+    await db.collection('reports').doc(repId).delete();
+    document.getElementById('rep_' + repId)?.remove();
+    toast(`⛔ انحظر ${name}`);
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+async function resolveReport(repId) {
+  try {
+    await db.collection('reports').doc(repId).delete();
+    document.getElementById('rep_' + repId)?.remove();
+    toast('✅ تم حذف البلاغ');
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+async function closeRoom(roomId, name) {
+  if (!confirm(`🔒 إغلاق روم "${name}"؟\nهذا يوقف الروم فوراً.`)) return;
+  try {
+    await db.collection('rooms').doc(roomId).update({ closed: true, closedBy: ME.uid, closedAt: Date.now() });
+    toast(`🔒 تم إغلاق ${name}`);
+    pages.rooms();
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+// ===== Admin Functions =====
+async function searchForAdmin() {
+  const q = document.getElementById('adSearch').value.trim();
+  if (!q) return;
+  const res = document.getElementById('adResult');
+  res.innerHTML = '<div class="spin" style="margin:16px auto"></div>';
+  try {
+    const snap = await db.collection('users').where('hid','==',q).limit(1).get();
+    if (snap.empty) { res.innerHTML = '<div class="empty">ماكو مستخدم بهذا الـ ID</div>'; return; }
+    const doc = snap.docs[0];
+    const u = doc.data();
+    res.innerHTML = `<div class="user-row" style="background:var(--bg3);border-radius:10px;padding:12px 16px">
+      <div class="av">${u.av ? `<img src="${esc(u.av)}" onerror="this.textContent='👤'">` : '👤'}</div>
+      <div class="u-info"><div class="u-name">${esc(u.name||'')} ${u.admin ? '<span class="badge gold">مدير</span>' : ''}</div><div class="u-sub">ID: ${esc(u.hid||doc.id)}</div></div>
+      <button class="btn ${u.admin ? 'btn-danger' : 'btn-green'}" onclick="toggleAdmin('${doc.id}','${esc(u.name||'')}',${!!u.admin})">${u.admin ? '❌ شيل الإدارة' : '🛡️ عيّنه مدير'}</button>
+    </div>`;
+  } catch(e) { res.innerHTML = `<div class="empty">${esc(e.message)}</div>`; }
+}
+
+async function toggleAdmin(uid, name, isAdmin) {
+  if (uid === ME.uid) return toast('ما تكدر تعدّل صلاحياتك');
+  if (!confirm(`${isAdmin ? '❌ شيل الإدارة من' : '🛡️ عيّن'} ${name} ${isAdmin ? '' : 'مدير'}؟`)) return;
+  try {
+    await db.collection('users').doc(uid).update({ admin: !isAdmin });
+    toast(`✅ تم ${isAdmin ? 'إزالة الإدارة من' : 'تعيين'} ${name}`);
+    pages.admins();
+  } catch(e) { toast('❌ ' + e.message); }
+}
+
+async function removeAdmin(uid, name) {
+  await toggleAdmin(uid, name, true);
+}
+</script>
+</body>
+</html>
