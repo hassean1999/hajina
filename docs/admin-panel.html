@@ -211,13 +211,20 @@ let ME = null; // المدير الحالي
 let curPage = 'dashboard';
 
 // ===== Auth =====
+// UIDs المدراء المضافين يدوياً (whitelist)
+const ADMIN_UIDS = [
+  'gaBGgHFVykgDj7d2MP5GVwTxlaw1',
+  'w2gZcJEUIuNfFDG7ttbMRCTx2fS2',
+];
+
 auth.onAuthStateChanged(async user => {
   if (!user) { showLogin(); return; }
-  // تحقق من كونه مدير
   try {
+    // تحقق من الـ whitelist أولاً
+    const inWhitelist = ADMIN_UIDS.includes(user.uid);
     const doc = await db.collection('users').doc(user.uid).get();
     const data = doc.data() || {};
-    if (!data.admin) {
+    if (!inWhitelist && !data.admin) {
       await auth.signOut();
       showLogin('حسابك ليس له صلاحية الإدارة');
       return;
