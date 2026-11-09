@@ -38,17 +38,21 @@ jobs:
 
       - name: Setup Android SDK
         run: |
-          # Android SDK is pre-installed on ubuntu-latest at $ANDROID_HOME
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "SDK_ROOT=$ANDROID_SDK_ROOT"
+          # Find Android SDK location on ubuntu-latest
+          ANDROID_SDK="/usr/local/lib/android/sdk"
+          echo "ANDROID_HOME=$ANDROID_SDK" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK" >> $GITHUB_ENV
+
           # Accept licenses
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+          yes | $ANDROID_SDK/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+
           # Install required packages
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager \
+          $ANDROID_SDK/cmdline-tools/latest/bin/sdkmanager \
             "platforms;android-34" \
             "build-tools;34.0.0" \
             "platform-tools" 2>/dev/null || true
-          echo "SDK setup complete"
+
+          echo "✅ Android SDK ready at $ANDROID_SDK"
 
       - name: Override google-services.json from secret (if set)
         run: |
@@ -70,10 +74,10 @@ jobs:
           ./gradlew assembleDebug \
             --no-daemon \
             --warning-mode none \
-            -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=512m"
+            --info 2>&1 | tail -50
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
-          JAVA_HOME: ${{ env.JAVA_HOME }}
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
 
       - name: Show APK info
         run: |
