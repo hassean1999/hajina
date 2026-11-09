@@ -1,0 +1,129 @@
+/* حجينه — ألبوم الصور */
+
+.pa-wrap {
+  display: flex;
+  flex-direction: column;
+  max-height: 85svh;
+  overflow: hidden;
+}
+
+.pa-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0 12px;
+  flex-shrink: 0;
+}
+.pa-head h3 { margin: 0; font-size: 16px; }
+
+.pa-upload {
+  cursor: pointer;
+  padding: 7px 14px;
+  border-radius: 20px;
+  background: var(--acc, #A259FF);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ─── الشبكة ─── */
+.pa-grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--acc, #A259FF) transparent;
+}
+.pa-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.05);
+}
+.pa-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+  transition: transform .2s;
+}
+.pa-item img:hover { transform: scale(1.04); }
+.pa-del {
+  position: absolute;
+  top: 4px; left: 4px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.pa-item:hover .pa-del { opacity: 1; }
+
+/* ─── فارغة ─── */
+.pa-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 20px;
+  color: var(--fg2);
+}
+.pa-empty > div { font-size: 48px; }
+.pa-empty > span { font-size: 15px; }
+
+/* ─── عرض كامل ─── */
+.pf-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60svh;
+}
+.pf-img {
+  max-width: 100%;
+  max-height: 80svh;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+/* ─── معاينة الألبوم بالبروفايل ─── */
+.uc-album {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.uc-album img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  cursor: pointer;
+}
+.uc-album-more {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
