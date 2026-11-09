@@ -1,0 +1,10 @@
+
+# Gradle
+android/.gradle/
+android/app/build/
+android/build/
+*.iml
+.idea/
+
+# Node
+node_modules/

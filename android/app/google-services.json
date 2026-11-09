@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1035427884598",
+    "project_id": "hajina-84598",
+    "storage_bucket": "hajina-84598.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1035427884598:android:0000000000000000",
+        "android_client_info": {
+          "package_name": "com.hajina.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyPlaceholderKeyForHajinaApp84598"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

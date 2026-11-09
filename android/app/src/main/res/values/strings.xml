@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">حجينه</string>
+    <string name="title_activity_main">حجينه</string>
+    <string name="package_name">com.hajina.app</string>
+    <string name="custom_url_scheme">com.hajina.app</string>
+</resources>
