@@ -1,0 +1,194 @@
+/* حجينه — نادي الروم */
+
+.rc-wrap {
+  display: flex;
+  flex-direction: column;
+  max-height: 85svh;
+  overflow: hidden;
+}
+
+/* ─── الرأس ─── */
+.rc-head {
+  padding: 16px 16px 12px;
+  border-bottom: 2px solid var(--acc, #A259FF);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.rc-lv-badge {
+  padding: 4px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #000;
+  letter-spacing: 1px;
+}
+.rc-pts-row {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+.rc-mypts {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--fg);
+}
+.rc-pts-lbl {
+  font-size: 13px;
+  color: var(--fg2);
+}
+.rc-xp-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+.rc-xp-fill {
+  height: 100%;
+  border-radius: 8px;
+  background: var(--acc, #A259FF);
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+}
+.rc-next-lv {
+  font-size: 11.5px;
+  color: var(--fg2);
+}
+
+/* ─── التبويبات ─── */
+.rc-tabs {
+  display: flex;
+  border-bottom: 1.5px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.rc-tabs button {
+  flex: 1;
+  padding: 10px;
+  background: none;
+  border: none;
+  font-size: 13.5px;
+  color: var(--fg2);
+  cursor: pointer;
+  position: relative;
+  transition: color .15s;
+}
+.rc-tabs button.on {
+  color: var(--acc, #A259FF);
+  font-weight: 700;
+}
+.rc-tabs button.on::after {
+  content: '';
+  position: absolute;
+  bottom: -1.5px;
+  left: 15%; right: 15%;
+  height: 2.5px;
+  border-radius: 3px;
+  background: var(--acc, #A259FF);
+}
+
+/* ─── المحتوى ─── */
+.rc-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--acc, #A259FF) transparent;
+}
+.rc-panel { display: none; }
+.rc-panel.on { display: block; }
+
+/* ─── المهام ─── */
+.rc-task {
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.07);
+  margin-bottom: 10px;
+  transition: border-color .2s;
+}
+.rc-task.done {
+  border-color: rgba(46,204,113,0.5);
+  background: rgba(46,204,113,0.06);
+}
+.rc-task-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+}
+.rc-task-top span:first-child {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.rc-pts {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #E8C847;
+}
+.rc-task-desc {
+  font-size: 12px;
+  color: var(--fg2);
+  margin-bottom: 7px;
+}
+.rc-prog-wrap {
+  height: 6px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.rc-prog-bar {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--acc, #A259FF);
+  transition: width .4s ease;
+}
+.rc-task.done .rc-prog-bar { background: #2ECC71; }
+.rc-task-cnt {
+  font-size: 11px;
+  color: var(--fg2);
+  text-align: left;
+}
+.rc-task.done .rc-task-cnt { color: #2ECC71; font-weight: 700; }
+
+/* ─── لوحة الصدارة ─── */
+.rc-lb-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  margin-bottom: 6px;
+  background: rgba(255,255,255,0.03);
+}
+.rc-lb-row.me {
+  background: rgba(162,89,255,0.1);
+  border: 1px solid rgba(162,89,255,0.3);
+}
+.rc-lb-rank {
+  font-size: 16px;
+  min-width: 28px;
+  text-align: center;
+}
+.rc-lb-av {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.rc-lb-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rc-lb-pts {
+  font-size: 12.5px;
+  color: #E8C847;
+  font-weight: 700;
+  flex-shrink: 0;
+}
