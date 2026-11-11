@@ -1,11 +1,8 @@
-
-# Gradle
-android/.gradle/
-android/app/build/
-android/build/
+build/
+.dart_tool/
+.flutter-plugins*
+.packages
+pubspec.lock
 *.iml
 .idea/
-
-# Node
-node_modules/
-android/gradle/wrapper/gradle-wrapper.jar
+android/local.properties
