@@ -1,0 +1,292 @@
+/* حجينه — لوحة الهدايا gifts3 */
+
+/* ─── الغلاف الرئيسي ─── */
+.g3-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 92svh;
+  background: var(--bg);
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─── صف المستلمين ─── */
+.g3-to {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px 8px;
+  border-bottom: 1px solid var(--line, rgba(255,255,255,.08));
+  flex-shrink: 0;
+}
+.g3-to > span {
+  font-size: 12px;
+  color: var(--fg2);
+  white-space: nowrap;
+}
+.g3-avs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  flex: 1;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.g3-avs::-webkit-scrollbar { display: none; }
+.g3-av {
+  position: relative;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity .15s, transform .15s;
+}
+.g3-av.on { opacity: 1; transform: scale(1.06); }
+.g3-chk {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #2ECC71;
+  color: #fff;
+  font-size: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-style: normal;
+}
+.g3-all {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: 20px;
+  border: 1.5px solid var(--acc, #A259FF);
+  color: var(--acc, #A259FF);
+  background: none;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.g3-all.on {
+  background: var(--acc, #A259FF);
+  color: #fff;
+}
+.g3-none {
+  font-size: 12px;
+  color: var(--fg2);
+}
+
+/* ─── التبويبات ─── */
+.g3-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 14px;
+  border-bottom: 1.5px solid var(--line, rgba(255,255,255,.08));
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.g3-tabs::-webkit-scrollbar { display: none; }
+.g3-tabs [data-gt] {
+  background: none;
+  border: none;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: var(--fg2);
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  transition: color .15s;
+}
+.g3-tabs [data-gt].on {
+  color: var(--acc, #A259FF);
+  font-weight: 700;
+}
+.g3-tabs [data-gt].on::after {
+  content: '';
+  position: absolute;
+  bottom: -1.5px;
+  left: 10%; right: 10%;
+  height: 2.5px;
+  border-radius: 3px;
+  background: var(--acc, #A259FF);
+}
+.g3-sep {
+  width: 1.5px;
+  height: 18px;
+  background: var(--line, rgba(255,255,255,.12));
+  margin: 0 4px;
+  flex-shrink: 0;
+  align-self: center;
+}
+.g3-sort {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-inline-start: 2px;
+}
+
+/* ─── الشبكة ─── */
+.g3-grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 10px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--acc, #A259FF) transparent;
+}
+.g3-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px 6px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.g3-item.on {
+  border-color: var(--acc, #A259FF);
+  background: rgba(162,89,255,.1);
+  transform: scale(1.03);
+}
+.g3-item:active { transform: scale(.97); }
+.g3-item img {
+  width: 56px; height: 56px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+.g3-n {
+  font-size: 10.5px;
+  color: var(--fg);
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.g3-p {
+  font-size: 11px;
+  color: #E8C847;
+  font-weight: 600;
+}
+.g3-p.sv { color: #C9D1DC; }
+
+/* ─── الشارات ─── */
+.g3-badge {
+  position: absolute;
+  top: -5px; right: -4px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 8px;
+  line-height: 1;
+  z-index: 2;
+}
+.g3-badge.new  { background: #7C3AED; color: #fff; }
+.g3-badge.surp { background: #E8384D; color: #fff; }
+.g3-bcnt {
+  position: absolute;
+  top: 4px; left: 5px;
+  font-size: 9px;
+  color: var(--fg2);
+  font-weight: 700;
+}
+
+/* ─── حقيبة فارغة ─── */
+.g3-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 40px 20px;
+  color: var(--fg2);
+  text-align: center;
+}
+.g3-empty > div { font-size: 42px; }
+.g3-empty > span { font-size: 15px; color: var(--fg); font-weight: 600; }
+.g3-empty > small { font-size: 12px; }
+
+/* ─── الشريط السفلي ─── */
+.g3-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1.5px solid var(--line, rgba(255,255,255,.08));
+  flex-shrink: 0;
+  background: var(--bg);
+}
+.g3-balbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.g3-dbal {
+  font-size: 13px;
+  font-weight: 700;
+  color: #E8C847;
+}
+.g3-ch {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: var(--acc, #A259FF);
+  cursor: pointer;
+  padding: 0;
+}
+.g3-sbal {
+  font-size: 12px;
+  color: #C9D1DC;
+  flex: 1;
+}
+.g3-send {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1.5px solid var(--acc, #A259FF);
+  flex-shrink: 0;
+}
+.g3-send select {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--fg);
+  font-size: 13px;
+  padding: 6px 8px 6px 10px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 44px;
+  text-align: center;
+}
+.g3-send select option { background: var(--bg2, #1a1a2e); }
+.g3-sep2 {
+  width: 1px;
+  height: 28px;
+  background: var(--acc, #A259FF);
+  opacity: 0.4;
+}
+.g3-sbtn {
+  background: var(--acc, #A259FF);
+  border: none;
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 7px 18px;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.g3-sbtn:disabled { opacity: 0.5; cursor: not-allowed; }

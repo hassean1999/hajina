@@ -1,0 +1,81 @@
+/* الرئيسية — ثيم مظلم متوافق مع v2 */
+#home.h3{background:transparent;color:#FFF8F0}
+#home.h3 .hd{display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 10px;background:linear-gradient(180deg,rgba(18,8,20,.95),rgba(18,8,20,0));position:relative;z-index:2}
+.h3-tabs{flex:1;display:flex;gap:18px}
+.h3-tabs button{border:0;background:none;font:inherit;font-weight:900;font-size:17px;color:rgba(255,255,255,.45);padding:6px 0 10px;position:relative;white-space:nowrap}
+.h3-tabs button.on{color:#FFF8F0;font-size:21px}
+.h3-tabs button.on::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:26px;height:4px;border-radius:2px;background:linear-gradient(90deg,#FFB13B,#F26A0A)}
+.h3-ic{display:flex;gap:8px}
+.h3-b{position:relative;width:42px;height:42px;border-radius:50%;border:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);display:grid;place-items:center}
+.h3-b img{width:24px;height:24px}
+.h3-b .badge{position:absolute;top:-2px;right:-2px}
+#home.h3 #homeScroll{padding:4px 14px 110px}
+#h3{display:flex;flex-direction:column;gap:12px}
+.h3-sec{font-weight:900;font-size:18px;margin:8px 2px -2px;color:#FFF8F0}
+.h3-row{position:relative;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:12px;box-shadow:0 4px 16px rgba(0,0,0,.3);cursor:pointer;overflow:hidden;transition:transform .12s}
+.h3-row:active,.h3-card:active,.h3-mini:active,.h3-rich:active,.h3-my:active{transform:scale(.98)}
+.h3-row.off{opacity:.5}
+.h3-th{position:relative;border-radius:14px;flex-shrink:0;display:grid;place-items:center;overflow:hidden}
+.h3-th .rc2-art{width:58%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));position:static!important;z-index:1!important;height:auto!important;opacity:1!important;transform:none!important;inset:auto!important;animation:none!important}
+.h3-ri{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.h3-ri b{font-size:16.5px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#FFF8F0}
+.h3-ri b em{font-style:normal;font-size:11px;font-weight:800;color:#5EF0F0;background:rgba(94,240,240,.12);border-radius:10px;padding:2px 8px;margin-right:4px;vertical-align:middle}
+.h3-ri small{font-size:12px;color:rgba(255,255,255,.5);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.h3-cnt{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);border-radius:14px;padding:4px 12px;font-size:13px;font-weight:900}
+.h3-bd{position:absolute;top:0;left:0;display:flex;gap:4px;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);border-radius:0 0 14px 0;padding:4px 8px;z-index:2}
+.h3-bd i{font-style:normal;font-size:15px}
+.h3-bd i.pk{font-size:12px;font-weight:900;color:#fff;background:linear-gradient(135deg,#E8304C,#7B2FF7);border-radius:6px;padding:0 5px}
+.h3-eq{position:absolute;bottom:6px;right:6px;display:flex;align-items:flex-end;gap:2px;height:14px;padding:3px 4px;border-radius:6px;background:rgba(0,0,0,.5)}
+.h3-eq i{width:3px;background:#4ADE80;border-radius:2px;animation:eq 1s ease-in-out infinite}
+.h3-eq i:nth-child(2){animation-delay:.2s}.h3-eq i:nth-child(3){animation-delay:.4s}
+@keyframes eq{0%,100%{height:3px}50%{height:10px}}
+.h3-fav{position:relative;flex-shrink:0}
+.h3-fav .h3-eq{bottom:0;right:0}
+.h3-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.h3-card{position:relative;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:22px 10px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:0 4px 18px rgba(0,0,0,.3);cursor:pointer;min-width:0;overflow:hidden}
+.h3-card b{font-size:15px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#FFF8F0}
+.h3-cav{position:relative}
+.h3-cav .h3-eq{bottom:2px;right:2px}
+.h3-card .av.fx2{margin:26px}
+.h3-my{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:18px;padding:14px 18px;background:linear-gradient(90deg,rgba(255,138,31,.35),rgba(242,106,10,.2));border:1px solid rgba(255,138,31,.3);cursor:pointer;overflow:hidden;position:relative}
+.h3-my b{display:block;font-size:20px;color:#FFB13B}.h3-my small{color:rgba(255,255,255,.65);font-size:12.5px}
+.h3-my img{width:70px;margin:-6px 0}
+.h3-pills{display:flex;gap:10px}
+.h3-pills button{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);border-radius:22px;padding:9px 18px;font:inherit;font-weight:900;font-size:15px;color:rgba(255,255,255,.55)}
+.h3-pills button.on{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#FFF8F0;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.h3-rich{position:relative;display:flex;align-items:center;gap:10px;border-radius:20px;padding:14px 16px;min-height:96px;background:linear-gradient(90deg,rgba(255,210,74,.3),rgba(200,144,42,.2));border:1px solid rgba(255,210,74,.25);cursor:pointer;overflow:hidden}
+.h3-rich .cup{width:74px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+.h3-rich>b{font-size:21px;color:#FFD24A;flex:1}
+.h3-pod{display:flex;align-items:flex-end;gap:6px}
+.h3-pod span{position:relative;display:block}
+.h3-pod em{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);font-style:normal;font-weight:900;font-size:13px;color:#fff;background:linear-gradient(135deg,#FFB13B,#E8603C);border-radius:8px;padding:0 6px}
+.h3-pod .av{box-shadow:0 0 0 3px rgba(18,8,20,1),0 3px 8px rgba(0,0,0,.4)}
+.h3-pod .p1 .av{box-shadow:0 0 0 3px #FFC83C,0 0 14px rgba(255,180,40,.8)}
+.h3-pod .av.fx2{box-shadow:none}
+.h3-q{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.12);color:rgba(255,255,255,.6);font-style:normal;font-weight:900}
+.h3-pod .p1 .h3-q{width:52px;height:52px}
+.h3-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.h3-mini{position:relative;display:flex;align-items:center;justify-content:space-between;border-radius:16px;padding:12px 14px;min-height:64px;cursor:pointer;overflow:hidden}
+.h3-mini b{font-size:15.5px}
+.h3-mini img{width:48px;margin:-8px -4px}
+.h3-mini.ev{background:linear-gradient(90deg,rgba(58,122,214,.4),rgba(46,109,195,.25));border:1px solid rgba(58,122,214,.3)}.h3-mini.ev b{color:#7FB8F8}
+.h3-mini.fam{background:linear-gradient(90deg,rgba(214,80,74,.4),rgba(195,70,65,.25));border:1px solid rgba(214,80,74,.3)}.h3-mini.fam b{color:#FF8A86}
+.h3-mini.wh{background:linear-gradient(90deg,rgba(154,58,214,.4),rgba(130,46,185,.25));border:1px solid rgba(154,58,214,.3)}.h3-mini.wh b{color:#CC88FF}
+.h3-mini.vp{background:linear-gradient(90deg,rgba(181,133,29,.4),rgba(160,118,24,.25));border:1px solid rgba(181,133,29,.3)}.h3-mini.vp b{color:#FFD24A}
+.h3-empty{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:30px 20px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:18px;color:rgba(255,255,255,.5)}
+.h3-empty img{width:80px;opacity:.7}.h3-empty b{color:#FFF8F0;font-size:15px}.h3-empty small{font-size:12.5px}
+.h3-btn{margin-top:8px;border:0;border-radius:22px;padding:11px 26px;font:inherit;font-weight:900;color:#fff;background:linear-gradient(135deg,#FFB13B,#F26A0A);box-shadow:0 4px 14px rgba(242,106,10,.35)}
+#home.h3 .badge{background:#E8304C}
+/* الشريط السفلي — مظلم مع الرئيسية */
+body:has(#home:not([hidden])) .nav{background:rgba(22,10,24,.92);border-top:1px solid rgba(255,255,255,.08)}
+body:has(#home:not([hidden])) .nav button{color:rgba(255,255,255,.4)}
+body:has(#home:not([hidden])) .nav button.on{color:#fff}
+/* رسومات أقوى */
+.h3-rich{min-height:108px;padding:10px 16px}
+.h3-rich .cup{width:112px;margin:-14px -6px -18px 0}
+.h3-mini{min-height:76px;padding:12px 14px}
+.h3-mini img{width:82px;margin:-18px -12px -22px -8px;filter:none}
+.h3-my{min-height:96px}
+.h3-my img{width:108px;margin:-18px -8px -22px 0}
+.h3-mini::after,.h3-rich::after,.h3-my::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0 2px,transparent 2px 12px);pointer-events:none}
+.h3-rich>b{white-space:nowrap;font-size:20px}

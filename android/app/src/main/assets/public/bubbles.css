@@ -1,0 +1,219 @@
+/* حجينه — فقاقيع الدردشة + إطارات الملف + CP */
+
+/* ═══════════════════════════════════════════════
+   فقاقيع الدردشة
+   ═══════════════════════════════════════════════ */
+#rmChat .bub-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  margin: 4px 0;
+  padding: 0 4px;
+  animation: bubIn .22s ease;
+}
+@keyframes bubIn {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+#rmChat .bub-wrap.me {
+  flex-direction: row-reverse;
+}
+/* الصورة الرمزية الصغيرة */
+.bub-av {
+  flex-shrink: 0;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+}
+.bub-av img, .bub-av .av-txt {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.bub-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 76%;
+}
+.bub-name {
+  font-size: 11px;
+  color: var(--fg2);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  display: inline-block;
+}
+/* الفقاعة */
+.bub {
+  display: inline-block;
+  padding: 7px 12px;
+  border-radius: 18px 18px 18px 4px;
+  background: rgba(255,255,255,0.08);
+  font-size: 13.5px;
+  color: var(--fg);
+  line-height: 1.45;
+  word-break: break-word;
+  max-width: 100%;
+}
+.bub-me {
+  border-radius: 18px 18px 4px 18px;
+  background: var(--acc, #A259FF);
+  color: #fff;
+}
+
+/* ── ألوان الاسم حسب الإطار ── */
+.bub-name.cf-gold    { color: #E8C847; }
+.bub-name.cf-chess   { color: #D0D0D0; }
+.bub-name.cf-ramadan { color: #60DAFF; }
+.bub-name.cf-cherry  { color: #FF6B9D; }
+.bub-name.cf-royal   { color: #FFD700; }
+.bub-name.cf-diamond { color: #90CAFF; }
+
+/* ═══════════════════════════════════════════════
+   متجر الإطارات
+   ═══════════════════════════════════════════════ */
+.fs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+.fs-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  transition: border-color .2s;
+}
+.fs-row.act { border-color: var(--acc, #A259FF); background: rgba(162,89,255,0.08); }
+
+.fs-prev {
+  width: 60px; height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: #fff;
+}
+/* معاينات الإطارات */
+.fs-prev.cf-gold    { background: linear-gradient(135deg,#8B6914,#E8C847,#8B6914); }
+.fs-prev.cf-chess   { background: repeating-conic-gradient(#2a2a2a 0% 25%, #ccc 0% 50%) 0 0/10px 10px; }
+.fs-prev.cf-ramadan { background: linear-gradient(135deg,#0a2a3a,#0d4055); border:1px solid rgba(100,230,255,.4); color:#A0EFFF; }
+.fs-prev.cf-cherry  { background: linear-gradient(135deg,#2a0010,#5a0030); border:1px solid rgba(255,107,157,.4); color:#FF6B9D; }
+.fs-prev.cf-royal   { background: linear-gradient(135deg,#2a1600,#5a3000); border:1px solid rgba(255,215,0,.5); color:#FFD700; }
+.fs-prev.cf-diamond { background: linear-gradient(135deg,#0d1b4b,#1a2f7a); border:1px solid rgba(100,180,255,.4); color:#90CAFF; }
+
+.fs-info { flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; }
+.fs-info b { font-size:13.5px; }
+.fs-info small { font-size:11px; color:var(--fg2); }
+.fs-btn {
+  flex-shrink:0; padding:6px 14px;
+  border-radius:20px;
+  border:1.5px solid var(--acc, #A259FF);
+  background:none;
+  color:var(--acc, #A259FF);
+  font-size:12.5px;
+  cursor:pointer;
+  transition:background .15s, color .15s;
+}
+.fs-row.act .fs-btn { background:var(--acc, #A259FF); color:#fff; }
+
+/* ═══════════════════════════════════════════════
+   إطارات الأفاتار المرئية (حول الصورة)
+   ═══════════════════════════════════════════════ */
+/* نضيف class على عنصر الأفاتار نفسه إذا كان صاحبه يملك إطاراً */
+.av-frame {
+  position: relative;
+  display: inline-block;
+}
+.av-frame::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  pointer-events: none;
+}
+.av-frame.cf-gold::after    { border-color: #E8C847; box-shadow: 0 0 8px rgba(232,200,71,0.5); }
+.av-frame.cf-chess::after   { border-color: #ccc; }
+.av-frame.cf-ramadan::after { border-color: #60DAFF; box-shadow: 0 0 8px rgba(96,218,255,0.4); }
+.av-frame.cf-cherry::after  { border-color: #FF6B9D; box-shadow: 0 0 8px rgba(255,107,157,0.4); }
+.av-frame.cf-royal::after   { border-color: #FFD700; box-shadow: 0 0 10px rgba(255,215,0,0.5); }
+.av-frame.cf-diamond::after { border-color: #90CAFF; box-shadow: 0 0 10px rgba(144,202,255,0.4); }
+
+/* ═══════════════════════════════════════════════
+   علاقات CP
+   ═══════════════════════════════════════════════ */
+.cp-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 16px;
+}
+.cp-hearts {
+  font-size: 36px;
+  animation: cp-pulse 1s ease-in-out infinite alternate;
+}
+@keyframes cp-pulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.2); }
+}
+.cp-pair {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.cp-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.cp-side .av-txt, .cp-side img {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid #E8384D;
+}
+.cp-sname {
+  font-size: 13px;
+  font-weight: 700;
+  max-width: 80px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cp-mid {
+  font-size: 28px;
+}
+.cp-photo {
+  width: 100%;
+  max-width: 260px;
+  border-radius: 14px;
+  object-fit: cover;
+  max-height: 180px;
+}
+
+/* ── بادج CP على الملف الشخصي ── */
+.cp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #E8384D, #FF6B8A);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}

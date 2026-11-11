@@ -1,0 +1,44 @@
+/* حجينه — اللعبة الصوتية */
+
+.vg-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.vg-wrap h3 { margin: 0; }
+.vg-rec-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px dashed rgba(255,255,255,0.12);
+}
+.vg-mic {
+  font-size: 54px;
+  cursor: pointer;
+  transition: transform .15s;
+  user-select: none;
+  animation: vg-pulse 1.8s ease-in-out infinite;
+}
+.vg-mic:active { transform: scale(.9); }
+@keyframes vg-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0px transparent); }
+  50%       { filter: drop-shadow(0 0 12px rgba(162,89,255,0.6)); }
+}
+.vg-rec-hint {
+  font-size: 13px;
+  color: var(--fg2);
+}
+.vg-opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.vg-opt {
+  flex: 1;
+  min-width: 100px;
+  text-align: center;
+}
