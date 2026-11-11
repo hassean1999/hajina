@@ -1,5 +1,10 @@
 /* ===== حجينه — التصميم الجديد v2 ===== */
-:root{--glass:rgba(255,255,255,.07);--glass2:rgba(255,255,255,.12);--bg:#120814;--bg2:#1B0D1E;--surface:#241327;--surface2:#2E1832;--surface3:#3C2140}
+:root{
+  --glass:rgba(255,255,255,.07);--glass2:rgba(255,255,255,.12);
+  --bg:#120814;--bg2:#1B0D1E;--surface:#241327;--surface2:#2E1832;--surface3:#3C2140;
+  --fg:#FFF8F0;--fg2:rgba(255,255,255,.55);--fg3:rgba(255,255,255,.32);
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.14);
+}
 body{background:radial-gradient(120% 60% at 50% -10%,#3A1530 0%,#120814 55%) fixed,#120814}
 .scr{background:transparent}
 .scr.v2{background:radial-gradient(130% 55% at 50% -12%,#4A1A2E 0%,rgba(18,8,20,0) 60%),#120814}
