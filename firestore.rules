@@ -12,10 +12,18 @@ service cloud.firestore {
         && !request.resource.data.diff(resource.data).affectedKeys()
             .hasAny(['diamonds','silver','charm','withdrawn','pendingW','bag']);
     }
-    // Withdrawals: create-only by the owner, pending only.
+    match /rooms/{rid} {
+      allow read, create: if signed();
+      allow update: if signed() && resource.data.ownerUid == request.auth.uid;
+      match /messages/{m} {
+        allow read: if signed();
+        // gift messages are written by Cloud Functions only
+        allow create: if signed() && request.resource.data.uid == request.auth.uid
+          && request.resource.data.type == 'text';
+      }
+    }
+    // Withdrawals (created by the requestWithdraw function): create-only by the owner, pending only.
     match /withdrawals/{id} {
-      allow create: if signed() && request.resource.data.uid == request.auth.uid
-        && request.resource.data.status == 'pending';
       allow read: if signed() && resource.data.uid == request.auth.uid;
     }
   }

@@ -3,6 +3,7 @@ import 'home_screen.dart';
 import '../chat/chat_list_screen.dart';
 import '../profile/profile_screen.dart';
 import '../core/router.dart';
+import '../live/room_service.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -17,7 +18,10 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) => Scaffold(
         body: pages[i],
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => Navigator.pushNamed(context, Routes.live),
+          onPressed: () async {
+            final id = await RoomService().create('غرفتي');
+            if (context.mounted) Navigator.pushNamed(context, Routes.live, arguments: id);
+          },
           icon: const Icon(Icons.videocam),
           label: const Text('ابدأ بثًا'),
         ),

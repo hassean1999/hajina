@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'wallet_repository.dart';
 
@@ -18,20 +19,12 @@ class FirestoreWalletRepository implements WalletRepository {
   Future<WalletState> load() async => _from((await _db.collection('users').doc(_uid).get()).data());
 
   @override
-  Future<void> requestWithdraw({required String method, required String account}) {
-    final me = _db.collection('users').doc(_uid);
-    return _db.runTransaction((tx) async {
-      final s = _from((await tx.get(me)).data());
-      if (s.available < WalletRepository.minWithdraw) throw StateError('low');
-      tx.update(me, {'pendingW': s.pendingW + s.available});
-      tx.set(_db.collection('withdrawals').doc(), {
-        'uid': _uid,
-        'amount': s.available,
-        'method': method,
-        'account': account,
-        'status': 'pending',
-        'ts': DateTime.now().millisecondsSinceEpoch,
-      });
-    });
+  Future<void> requestWithdraw({required String method, required String account}) async {
+    try {
+      await FirebaseFunctions.instance.httpsCallable('requestWithdraw').call({'method': method, 'account': account});
+    } on FirebaseFunctionsException catch (e) {
+      if (e.message == 'low') throw StateError('low');
+      rethrow;
+    }
   }
 }

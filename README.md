@@ -13,8 +13,12 @@ Flutter voice-room app: Firebase (auth, Firestore) + Agora (audio).
 
 Use NEW Agora credentials: the old certificate was public on GitHub.
 
+## Done
+Phone login, rooms (Firestore), live audio (Agora + token function), text chat,
+gifts and withdrawals (server-side Cloud Functions), wallet from Firestore.
+
 ## Known gaps
-- Withdraw runs as a client transaction that touches `pendingW`, which the
-  included rules forbid; move it to a callable Cloud Function before release.
-- Gifts/charm crediting must also be done server-side.
-- Live room screen still uses mock UI; wire AgoraService.join/leave into it.
+- Top-up (recharge) is admin-only: credit `diamonds` from the Firebase console
+  or an admin function.
+- Mic seats/PK/families/levels/chat DMs are still placeholder screens.
+- Not compiled or tested in CI yet.
