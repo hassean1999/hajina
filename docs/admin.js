@@ -54,7 +54,7 @@ window.openSettings = function () {
     '<a class="li" href="privacy.html" target="_blank" style="color:inherit;text-decoration:none"><span class="ic">🔒</span>سياسة الخصوصية</a>' +
     '<a class="li" href="terms.html" target="_blank" style="color:inherit;text-decoration:none"><span class="ic">📜</span>شروط الاستخدام</a>' +
     '<a class="li" href="https://t.me/' + esc(((C.recharge || {}).telegram) || '') + '" target="_blank" style="color:inherit;text-decoration:none"><span class="ic">💬</span>تواصل وية الدعم</a>' +
-    '<div class="li" style="cursor:default"><span class="ic">ℹ️</span>حجينه<span class="end">الإصدار 3.0</span></div></div>' +
+    '<div class="li" style="cursor:default"><span class="ic">ℹ️</span>حجينه<span class="end">الإصدار 3.1</span></div></div>' +
     '<button class="btn btn-s" id="stDel" style="color:var(--danger);font-size:13px">🗑️ طلب حذف الحساب</button>');
   m.querySelector('#stS').onchange = e => SETPREF('sfx', e.target.checked);
   m.querySelector('#stF').onchange = e => SETPREF('fx', e.target.checked);
