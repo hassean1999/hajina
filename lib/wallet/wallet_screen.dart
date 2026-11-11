@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'data/firestore_wallet_repository.dart';
 import 'data/wallet_repository.dart';
 
 class WalletScreen extends StatefulWidget {
@@ -8,7 +9,7 @@ class WalletScreen extends StatefulWidget {
 }
 
 class _WalletScreenState extends State<WalletScreen> {
-  final WalletRepository repo = MockWalletRepository(); // TODO: Firestore impl
+  final WalletRepository repo = FirestoreWalletRepository();
   late Future<WalletState> future = repo.load();
   String method = WalletRepository.withdrawMethods.first;
   final account = TextEditingController();

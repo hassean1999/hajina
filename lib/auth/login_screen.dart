@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/router.dart';
+import 'auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -8,16 +9,36 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final auth = AuthService();
   final phone = TextEditingController();
   final otp = TextEditingController();
-  bool sent = false;
+  bool sent = false, busy = false;
 
-  // TODO: connect to a real auth backend (phone OTP / Google).
-  void _next() {
-    if (!sent) {
-      setState(() => sent = true);
-    } else {
-      Navigator.pushReplacementNamed(context, Routes.main);
+  void _toast(String m) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
+
+  @override
+  void initState() {
+    super.initState();
+    if (auth.user != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.pushReplacementNamed(context, Routes.main));
+    }
+  }
+
+  Future<void> _next() async {
+    setState(() => busy = true);
+    try {
+      if (!sent) {
+        // international format, e.g. +9647XXXXXXXXX
+        await auth.sendCode(phone.text.trim(),
+            onError: _toast, onSent: () => setState(() => sent = true));
+      } else {
+        await auth.verify(otp.text.trim());
+        if (mounted) Navigator.pushReplacementNamed(context, Routes.main);
+      }
+    } catch (e) {
+      _toast('$e');
+    } finally {
+      if (mounted) setState(() => busy = false);
     }
   }
 
@@ -32,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: phone,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(labelText: 'رقم الهاتف', border: OutlineInputBorder()),
+                decoration: const InputDecoration(labelText: 'رقم الهاتف (+964...)', border: OutlineInputBorder()),
               ),
               if (sent) ...[
                 const SizedBox(height: 12),
@@ -43,8 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
               const SizedBox(height: 16),
-              FilledButton(onPressed: _next, child: Text(sent ? 'دخول' : 'إرسال الرمز')),
-              TextButton(onPressed: _next, child: const Text('المتابعة بحساب Google')),
+              FilledButton(onPressed: busy ? null : _next, child: Text(sent ? 'دخول' : 'إرسال الرمز')),
             ]),
           ),
         ),
