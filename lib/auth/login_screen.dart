@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/router.dart';
+import '../profile/profile_service.dart';
 import 'auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -33,6 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
             onError: _toast, onSent: () => setState(() => sent = true));
       } else {
         await auth.verify(otp.text.trim());
+        await ProfileService().ensure();
         if (mounted) Navigator.pushReplacementNamed(context, Routes.main);
       }
     } catch (e) {

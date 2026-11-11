@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../core/models.dart';
+import 'chat_service.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -8,35 +8,43 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final msgs = <Message>[const Message('ليلى', 'مرحبا!')];
+  final svc = ChatService();
   final ctrl = TextEditingController();
 
-  void _send() {
-    if (ctrl.text.trim().isEmpty) return;
-    setState(() => msgs.add(Message('أنا', ctrl.text.trim(), mine: true)));
-    ctrl.clear();
-  }
-
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('محادثة')),
-        body: Column(children: [
-          Expanded(
-            child: ListView(children: [
-              for (final m in msgs)
+  Widget build(BuildContext context) {
+    final ch = ModalRoute.of(context)!.settings.arguments as ChatSummary;
+    return Scaffold(
+      appBar: AppBar(title: Text(ch.peerName)),
+      body: Column(children: [
+        Expanded(
+          child: StreamBuilder<List<Map<String, dynamic>>>(
+            stream: svc.messages(ch.cid),
+            builder: (c, s) => ListView(reverse: true, children: [
+              for (final m in s.data ?? const [])
                 Align(
-                  alignment: m.mine ? Alignment.centerLeft : Alignment.centerRight,
-                  child: Card(child: Padding(padding: const EdgeInsets.all(10), child: Text(m.text))),
+                  alignment: m['uid'] == svc.uid ? Alignment.centerLeft : Alignment.centerRight,
+                  child: Card(child: Padding(padding: const EdgeInsets.all(10), child: Text('${m['text']}'))),
                 ),
             ]),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(children: [
-              Expanded(child: TextField(controller: ctrl, decoration: const InputDecoration(border: OutlineInputBorder()))),
-              IconButton(icon: const Icon(Icons.send), onPressed: _send),
-            ]),
-          ),
-        ]),
-      );
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8),
+          child: Row(children: [
+            Expanded(child: TextField(controller: ctrl, decoration: const InputDecoration(border: OutlineInputBorder()))),
+            IconButton(
+              icon: const Icon(Icons.send),
+              onPressed: () {
+                final t = ctrl.text.trim();
+                if (t.isEmpty) return;
+                svc.send(ch.cid, t);
+                ctrl.clear();
+              },
+            ),
+          ]),
+        ),
+      ]),
+    );
+  }
 }

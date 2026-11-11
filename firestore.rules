@@ -15,12 +15,30 @@ service cloud.firestore {
     match /rooms/{rid} {
       allow read, create: if signed();
       allow update: if signed() && resource.data.ownerUid == request.auth.uid;
+      match /seats/{n} {
+        allow read: if signed();
+        allow write: if signed() && (request.resource.data.uid == request.auth.uid
+          || (resource != null && resource.data.uid == request.auth.uid));
+      }
       match /messages/{m} {
         allow read: if signed();
         // gift messages are written by Cloud Functions only
         allow create: if signed() && request.resource.data.uid == request.auth.uid
           && request.resource.data.type == 'text';
       }
+    }
+    match /chats/{cid} {
+      allow read: if signed() && request.auth.uid in resource.data.members;
+      allow create: if signed() && request.auth.uid in request.resource.data.members;
+      allow update: if signed() && request.auth.uid in resource.data.members;
+      match /messages/{m} {
+        allow read: if signed() && request.auth.uid in get(/databases/$(database)/documents/chats/$(cid)).data.members;
+        allow create: if signed() && request.resource.data.uid == request.auth.uid
+          && request.auth.uid in get(/databases/$(database)/documents/chats/$(cid)).data.members;
+      }
+    }
+    match /users/{uid}/notifs/{n} {
+      allow read, update, delete: if signed() && request.auth.uid == uid;
     }
     // Withdrawals (created by the requestWithdraw function): create-only by the owner, pending only.
     match /withdrawals/{id} {

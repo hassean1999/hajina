@@ -50,4 +50,16 @@ class RoomService {
       FirebaseFunctions.instance.httpsCallable('sendGift').call({'giftId': giftId, 'toUid': toUid, 'roomId': roomId});
 
   Future<String> ownerOf(String roomId) async => (await _db.collection('rooms').doc(roomId).get())['ownerUid'] as String;
+
+  static const seatCount = 8;
+
+  Stream<Map<int, Map<String, dynamic>>> seats(String roomId) =>
+      _db.collection('rooms').doc(roomId).collection('seats').snapshots().map(
+            (s) => {for (final d in s.docs) int.parse(d.id): d.data()},
+          );
+
+  Future<void> takeSeat(String roomId, int n, String name) =>
+      _db.collection('rooms').doc(roomId).collection('seats').doc('$n').set({'uid': uid, 'name': name});
+
+  Future<void> leaveSeat(String roomId, int n) => _db.collection('rooms').doc(roomId).collection('seats').doc('$n').delete();
 }

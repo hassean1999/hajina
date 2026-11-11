@@ -18,7 +18,6 @@ Phone login, rooms (Firestore), live audio (Agora + token function), text chat,
 gifts and withdrawals (server-side Cloud Functions), wallet from Firestore.
 
 ## Known gaps
-- Top-up (recharge) is admin-only: credit `diamonds` from the Firebase console
-  or an admin function.
-- Mic seats/PK/families/levels/chat DMs are still placeholder screens.
+- Top-up is admin-only via the `adminRecharge` function (needs the admin claim)
+- PK battles, families, VIP and the store are not built yet.
 - Not compiled or tested in CI yet.

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class NotificationsScreen extends StatelessWidget {
@@ -5,9 +7,19 @@ class NotificationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('الإشعارات')),
-        body: ListView(children: const [
-          ListTile(leading: Icon(Icons.person_add), title: Text('ليلى بدأت متابعتك')),
-          ListTile(leading: Icon(Icons.live_tv), title: Text('أحمد بدأ بثًا مباشرًا')),
-        ]),
+        body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .collection('notifs')
+              .orderBy('ts', descending: true)
+              .limit(50)
+              .snapshots(),
+          builder: (c, s) {
+            final docs = s.data?.docs ?? [];
+            if (docs.isEmpty) return const Center(child: Text('ماكو إشعارات'));
+            return ListView(children: [for (final d in docs) ListTile(title: Text('${d['text'] ?? ''}'))]);
+          },
+        ),
       );
 }

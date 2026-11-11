@@ -73,3 +73,44 @@ exports.sendGift = onCall(async (req) => {
   });
   return { ok: true };
 });
+
+// Creates the profile on first login and grants the welcome silver once.
+exports.ensureProfile = onCall(async (req) => {
+  if (!req.auth) throw new HttpsError('unauthenticated', 'login required');
+  const ref = db.collection('users').doc(req.auth.uid);
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (snap.exists) return;
+    tx.set(ref, {
+      name: 'مستخدم ' + req.auth.uid.slice(0, 5), bio: '', diamonds: 0, silver: 100,
+      charm: 0, withdrawn: 0, pendingW: 0, lastCheckin: 0, createdAt: FieldValue.serverTimestamp(),
+    });
+  });
+  return { ok: true };
+});
+
+// Daily check-in: +100 silver every 24h, enforced on the server.
+exports.dailyCheckin = onCall(async (req) => {
+  if (!req.auth) throw new HttpsError('unauthenticated', 'login required');
+  const ref = db.collection('users').doc(req.auth.uid);
+  await db.runTransaction(async (tx) => {
+    const d = (await tx.get(ref)).data() || {};
+    if (Date.now() - (d.lastCheckin || 0) < 86400000) throw new HttpsError('failed-precondition', 'already');
+    tx.update(ref, { silver: FieldValue.increment(100), lastCheckin: Date.now() });
+  });
+  return { ok: true };
+});
+
+// Admin top-up. Grant yourself the claim once:
+//   admin.auth().setCustomUserClaims(uid, { admin: true })
+exports.adminRecharge = onCall(async (req) => {
+  if (!req.auth || req.auth.token.admin !== true) throw new HttpsError('permission-denied', 'admin only');
+  const { toUid, amount } = req.data || {};
+  if (typeof toUid !== 'string' || !Number.isInteger(amount) || amount <= 0 || amount > 1000000)
+    throw new HttpsError('invalid-argument', 'args');
+  const batch = db.batch();
+  batch.set(db.collection('users').doc(toUid), { diamonds: FieldValue.increment(amount) }, { merge: true });
+  batch.set(db.collection('recharges').doc(), { to: toUid, amount, by: req.auth.uid, ts: FieldValue.serverTimestamp() });
+  await batch.commit();
+  return { ok: true };
+});
